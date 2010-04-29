@@ -1,0 +1,42 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:29:32.765000
+
+====== Blender 中的字体目录 ======
+Created Thursday 29 April 2010
+
+最近我的笔记本电脑借出去了，但是我又得用 Blender （一个类似 3DS MAX 的作图软件）赶着要做一些东西。所以只好拿着个 U 盘装着 Blender，见有空的电脑就临时画画。还好 Blender 不大，总共才 20MB 左右。不过 Blender 内置的字体实在是太小（视觉上看起来小）了，我就用微软雅黑的粗体来替代他，微软雅黑在不同的显示器上看起来都挺舒服的。但是，Blender 2.3 版本设置字体的时候，选择自定义字体之后，他保存下来的是字体所在位置的全路径。虽然字我的体文件就放在 Blender 的工作目录中，他也不会自己从那里开始找。每次在不同的机子上 U 盘的盘符不同了，字体都要重新选择一次，实在是不方便。Blender 是个开源软件。开源软件就是好，可以根据自己的要求修改。
+
+不知道为什么 Blender 的作者们不做成这样：找字体的时候，也会从工作目录开始找。其实要添加这个功能也不难。修改 language.c 文件就行了。
+
+在文件的 void start_interface_font(void) 函数中有一段是：
+
+
+
+// try loading font from U.fontname = full path to font in usersettings
+result = FTF_SetFont(U.fontname, 0, U.fontsize);
+
+
+如果 result 为 0 的话，下面就会使用自带的字体了。在这里下面加一段，使得当他无法在 "full path" 中找到字体的话，就尝试从 Blender 所在的目录找。
+
+if (result == 0)
+{
+	char *tmpStr, *tmpName;
+	tmpStr = malloc(sizeof(char) * 255);
+	tmpName = malloc(sizeof(char) * 255);
+	strcpy(tmpName, strrchr(U.fontname, '\\') + 1);
+	sprintf(tmpStr, "%s\\%s", BLI_gethome(), tmpName);
+	result = FTF_SetFont(tmpStr, 0, U.fontsize);
+	
+	if (result != 0)
+
+		strcpy(U.fontname, tmpStr);
+
+	free(tmpStr);
+	free(tmpName);
+
+}
+
+
+
+这样的话，只要把字体放在 Blender 的目录里面的那个 .blender 目录里面，设置好字体之后，无论把 Blender 整个文件夹放在哪里，他都会找得到相应的字体了。不知道以后会否把这个功能加入到正式发布的版本中，有机会的话去提提意见^_^

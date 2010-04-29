@@ -1,0 +1,31 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:40:55.123000
+
+====== 小作坊使用开源软件支持共享软件开发 ======
+Created Thursday 29 April 2010
+
+现在对于软件开发流程的各个环节都有很不错的开源软件来支持，这里列一下我正在用的（面向使用VC/Delphi的SWer）：
+1、建模——StarUMLhttp://staruml.sourceforge.net/en/
+这个用Delphi写的东东功能可能没有Rational Rose那么强悍，但画个UML图、序列图什么的足够了，而且体积也不大，据说是个韩国人开发的。
+
+2、版本控制——TortoiseSVNhttp://tortoisesvn.tigris.org/
+当然用SVN了，开源世界当前最推崇的版本控制系统，TortoiseSVN把功能都集成到Shell扩展上了，在资源管理器里点右键就能操作，而且如果是一个人的话，都不需要建服务器，直接在本地建个仓库就能使用。其实VSS也挺好用的，简单易上手，而且与VC集成得挺好，不过有些情况，它的自动合成有些问题……
+
+3、Bug跟踪——Mantis http://www.mantisbt.org/
+Bug管理系统也好多呢，除了Mantis外比较有名的还有BugZilla、国人开发的BugFree等等，不过我个人比较喜欢Mantis的界面风格。这是一个基于Web的东东，要有Apache+PHP+MySQL的支持，上它的下载页面down个InstantMantis，里面已经把那些软件全打包在一起了，运行一个批处理文件就可以用浏览器来使用了。
+
+4、项目管理——Open WorkBench http://www.openworkbench.org/
+这是一个公司开发后捐献给开源社区的东东，号称可以和MS的Project匹敌，不过一直以来只用来排一下日程进度。他们似乎比较有钱的说，安装包是用Install Shield做的……
+
+5、持续集成——CruiseControl http://cruisecontrol.sourceforge.net/
+这东东我也才用上，对它喜欢得不得了。这也是个基于Web的东东，它依赖Apache和ANT，在它的帮助下，通过自己编写XML格式的脚本，可以让它自动轮循或定时从版本控制系统里取下最新的代码，进行编译，然后压缩，再打成安装包，还可以继续打成压缩包，再执行自动化测试任务，最后生成测试报告。因为它是脚本控制，全自动的哦，如果你的电脑可以不关机，让它每天后半夜三四点的时候自动处理一把，早上起来看一下结果，岂不是很cool！
+
+6、开发文档编写——doxygen http://www.doxygen.org/
+也就是在写代码时，添加进一些规定格式的注释，到时候运行一把doxgen，它就能生成图文并茂的文档了，以看到模块、文件等的依赖关系什么的，还能以多种格式输出，不过这样的活动似乎是开源的项目才用得比较多……
+
+7、用户帮助文档编写——CTex http://www.ctex.org/
+这个东东，开始觉得比较难用，最后也只是用了其中一小部分功能而已，主要是排版比较精确，一旦完成了初稿，之后再修改就不容易乱了。Word刚好相反，开始觉得很好用，但格式一多，再修改，就很容易乱。最主要的是，用它可以方便地转成PDF，这是我最需要的。但是好像共享软件的帮助文档用html或chm格式的比较多？
+
+8、安装程序制作——Inno Setup http://www.jrsoftware.org/isinfo.php
+打包工具也挺多的，我现在用Inno Setup，它用Pascal的脚本，还可以调用Windows的API，所以对于小小的共享软件来说，绝大部分情况下是够用了。

@@ -1,0 +1,145 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:41:55.124000
+
+====== SuperMap实现给水行业的横断面视图 ======
+Created Thursday 29 April 2010
+
+在管网中,因为管线异常复杂,地下的管线结构和分布位置常常很难检测,而且很难看到各种工程管线的
+垂直分布,在本人的毕业设计中,通过查阅各种资料找到了一个自动生成横断面的方法,且已经用代码实现,现在记录下来,免得自己忘了同时也可以给大家分享,有不同意见的同行,同志不要吝啬自己的键盘，欢迎提出宝贵意见，下面是具体的思路：
+          第一步：获取截面线与实际管线的所有交点，同时新建一个交点类，保存交点的一些属性数据（如：类型，埋深，直径等），下面是具体的代码：  1 private void GetPouMianTu()
+2        {
+3            SuperMapLib.soGeoLine objGeoLine; //保存跟踪层上的线对象
+4            SuperMapLib.soGeoLine objInsectLine; //与所画线的相交线
+5            SuperMapLib.soPoints objInsectPoints; //所画线的相交点串
+6            SuperMapLib.soPoints tempInsectPoints;
+7            SuperMapLib.soPoints beginPoints;
+8            ArrayList pointTypeArr = new ArrayList(); //用于保存相交点串的类型
+9            double beginPointX = 0; //所画起点的X坐标
+10            double beginPointY = 0;//所画起点的Y坐标
+11           
+12            SuperMapLib.soRecordset objAllRst;
+13            SuperMapLib.soDatasetVector objAllDVt;
+14           
+15            //objInsectPoints = new SuperMapLib.soPoints();
+16            beginPoints = new SuperMapLib.soPoints();
+17            objGeoLine = new SuperMapLib.soGeoLine();
+18            objInsectPoints = new SuperMapLib.soPoints();
+19            objInsectLine = new SuperMapLib.soGeoLine();
+20            objGeoLine = (SuperMapLib.soGeoLine)this.axSuperMap2.TrackedGeometry;
+21            beginPoints = objGeoLine.GetPartAt(1);
+22            beginPointX = beginPoints[1].x;
+23            beginPointY = beginPoints[1].y;
+24                
+25            //=================从给水中找=================================//
+26                
+27            objAllDVt = (SuperMapLib.soDatasetVector)this.axSuperMap2.Layers["给水@WINXP_JS"].Dataset;
+28            objAllRst = objAllDVt.QueryEx(this.axSuperMap2.TrackedGeometry, SuperMapLib.seSpatialQueryMode.scsLineCross, "");
+29            objAllRst.MoveFirst();
+30            while (!objAllRst.IsEOF())
+31            {
+32                objInsectLine = (SuperMapLib.soGeoLine)objAllRst.GetGeometry();
+33                tempInsectPoints = objInsectLine.GetCrossings(this.axSuperMap2.TrackedGeometry);
+34
+35                objInsectPoints.Add(tempInsectPoints[1]);
+36                pointTypeArr.Add(new PointType(tempInsectPoints[1], "给水", objAllRst.GetFieldValue("埋深").ToString()));
+37                objAllRst.MoveNext();
+38            }
+39            //===============================================================//
+40
+41            //======================从雨水中找===============================//
+42            objAllDVt = (SuperMapLib.soDatasetVector)this.axSuperMap2.Layers["雨水@WINXP_雨水"].Dataset;
+43            objAllRst = objAllDVt.QueryEx(this.axSuperMap2.TrackedGeometry, SuperMapLib.seSpatialQueryMode.scsLineCross, "");
+44            objAllRst.MoveFirst();
+45            while (!objAllRst.IsEOF())
+46            {
+47                objInsectLine = (SuperMapLib.soGeoLine)objAllRst.GetGeometry();
+48                tempInsectPoints = objInsectLine.GetCrossings(this.axSuperMap2.TrackedGeometry);
+49
+50                objInsectPoints.Add(tempInsectPoints[1]);
+51                pointTypeArr.Add(new PointType(tempInsectPoints[1], "雨水",objAllRst.GetFieldValue("埋深").ToString()));
+52                objAllRst.MoveNext();
+53            }
+54            //===================================================================//
+55
+56            //======================从污水中找===============================//
+57            objAllDVt = (SuperMapLib.soDatasetVector)this.axSuperMap2.Layers["污水@WINXP_污水管"].Dataset;
+58            objAllRst = objAllDVt.QueryEx(this.axSuperMap2.TrackedGeometry, SuperMapLib.seSpatialQueryMode.scsLineCross, "");
+59            objAllRst.MoveFirst();
+60            while (!objAllRst.IsEOF())
+61            {
+62                objInsectLine = (SuperMapLib.soGeoLine)objAllRst.GetGeometry();
+63                tempInsectPoints = objInsectLine.GetCrossings(this.axSuperMap2.TrackedGeometry);
+64
+65                objInsectPoints.Add(tempInsectPoints[1]);
+66                pointTypeArr.Add(new PointType(tempInsectPoints[1], "污水", objAllRst.GetFieldValue("埋深").ToString()));
+67                objAllRst.MoveNext();
+68            }
+69
+
+下面是我定义的一个交点类：（比较简单，只是实现了功能，欢迎指点）  
+1    /**//// <summary>
+2    /// 定义一个交点类型类
+3    /// </summary>
+4    class PointType
+5    {
+6        public SuperMapLib.soPoint objInsectPoint;//两条线段的交点
+7        public string strPointType=""; //交点的类型
+8        public string strPointHeight = "";
+9        public PointType(SuperMapLib.soPoint tempPoint,string tempPointType,string tempHeight)
+10        {
+11            this.objInsectPoint = tempPoint;
+12            this.strPointType = tempPointType;
+13            this.strPointHeight = tempHeight;
+14        }
+15        public PointType()
+16        {
+17           
+18        }
+19    }
+
+2.确定用户画线的方向，然后对点进行排序。为什么还要对点进行排序呢，因为我们从数据库中得到的点并不是按照事先在地图画的顺序获取得到的，而只是得到了所有的交点，这里我进行排序的主要依据是根据用户画线的方向来进行判断的，如果为向右我就按交点的X轴进行排序，反之就按Y 轴进行排序，通过排序后得到的点就是真实的我们想要看到的剖面点的顺序了。排序的代码如下：（我用的是直接插入排序）  
+1      /**//// <summary>
+2        /// 对指定的点按照X或Y排序(用于做剖面图)
+3        /// </summary>
+4        /// <param name="tempPoints"></param>
+5        /// <param name="tempSortWay"></param>
+6
+7        public void PointSort(SuperMapLib.soPoints tempPoints,string tempSortWay)
+8        {
+9            string strSortWay = tempSortWay;
+10            SuperMapLib.soPoint tempPoint;
+11            tempPoint=new SuperMapLib.soPoint();
+12
+13            switch (strSortWay)
+14            {
+15                case "X":
+16                    int j;
+17                    for (int p = 2; p <= tempPoints.Count; p++)
+18                    {
+19                        tempPoint=tempPoints[p];
+20                        for (j = p; j > 1 && tempPoint.x.CompareTo(tempPoints[j - 1].x) < 0; j--)
+21                        {
+22                            tempPoints[j] = tempPoints[j - 1];
+23                        }
+24                        tempPoints[j] = tempPoint;
+25                        
+26                    }
+27                    break;
+28                case "Y":
+29                    int k;
+30                    for (int p = 2; p <= tempPoints.Count; p++)
+31                    {
+32                        tempPoint = tempPoints[p];
+33                        for (k = p; k > 1 && tempPoint.y.CompareTo(tempPoints[k - 1].y) > 0; k--)
+34                        {
+35                            tempPoints[k] = tempPoints[k - 1];
+36                        }
+37                        tempPoints[k] = tempPoint;
+38
+39                    }
+40                    break;
+41            }
+42        }
+
+3.最后一步了，我们就只要把图画上去就行了。因为我们已经获得了所有的交点的属性数据并已经进行排序，就可以直接调用画图设备画图就可以了。这里有个动态刷新的问题，具体来讲就是假若当我们的点足够多的时候，可能我们的窗体就已经显示不下了，那么这个时候就需要增加一个滚动条使得我们可以看到所有的剖面点，但是这个时候窗体就已经开始刷新了，也许你一拖动一个滚动条的时候你画上去的点不见了，或者说是消失了。就我自己来说，主要找到了两个方法，一个是在你要画的窗体中的paint方法中进行画图，另一个就是事先把你要画的图画到一个bitmap中，然后在把它读取到你的picturebox中，进行显示。我选择了后者，个人感觉存储剖面图时这样比较方便，可以直接调用picturebox.save方法。这里的代码就不贴了，比较简单

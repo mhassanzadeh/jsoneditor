@@ -1,0 +1,39 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:42:30.158000
+
+====== 比较完美的点在多边行内得判断 ======
+Created Thursday 29 April 2010
+
+比较完美的点在多边行内得判断（C++）
+
+inline int
+isLeft( CPoint *P0, CPoint *P1, CPoint *P2 )
+{
+   return ( (P1->x - P0->x) * (P2->y - P0->y)
+           - (P2->x - P0->x) * (P1->y - P0->y) );
+}
+bool CPointInPolygonDlg::PointPolygonAlgorithm(CPoint *pt)
+{
+   int    wn = 0;    // the winding number counter
+int j=0;
+std::vector<CPoint *>::iterator it;
+   // loop through all edges of the polygon
+   for (it=vPolygon.begin(); it<vPolygon.end()-1; it++)// edge from V[i] to V[i+1]
+{
+ j++;
+       if ((*(it))->y <= pt->y) {         // start y <= pt->y
+           if ((*(it+1))->y > pt->y)      // an upward crossing
+               if (isLeft( *it, *(it+1), pt) > 0)  // P left of edge
+                   ++wn;            // have a valid up intersect
+       }
+       else {                       // start y > P.y (no test needed)
+           if ((*(it+1))->y <= pt->y)     // a downward crossing
+               if (isLeft( *it, *(it+1), pt) < 0)  // P right of edge
+                   --wn;            // have a valid down intersect
+       }
+   }
+   if (wn==0)
+ return false;
+return true;
+}

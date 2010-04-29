@@ -1,0 +1,9 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:18:21.266000
+
+====== wxWidGets里面的滚动窗口 ======
+Created Thursday 29 April 2010
+
+canvas->SetVirtualSize(mapData->Get_nX(), mapData->Get_nY());
+SetVirtualSize 设置了窗口的大小，这样载入大图片时，滚动条才能滚动完 全图

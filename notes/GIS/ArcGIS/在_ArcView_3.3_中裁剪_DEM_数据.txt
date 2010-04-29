@@ -1,0 +1,20 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:24:27.055000
+
+====== 在 ArcView 3.3 中裁剪 DEM 数据 ======
+Created Thursday 29 April 2010
+
+在 ArcView 3.3 中裁剪 DEM 数据
+
+最近需要一些数据来测试我写的一个程序，但是我下载来的 DEM 数据又太大了（不压缩有100多M，虽然还不算是“海量”，但是我的程序读起来就有难度了），所以我要裁剪出一小块来用。
+上课时老师没讲过这个问题，看来只能自己动手了。网上找到的方法要不是用 ArcGIS 的，要不就是讲得不清不楚的。我现在手头上只有 ArcView 3.3，其实 ArcView 也是一样能做的。
+比如我要裁剪出图中多边形里面的那块数据。需要 Spatial Analyst 和 3D Analyst 模块。
+
+{{./01.png?type=None}}
+
+先新建一个多边形的 theme ，然后画一个想要裁剪的区域多边形。存成 shp 文件。再选菜单的  Theme -> Convert to Grid。选择要保存的新文件（是一个格网数据文件）。然后出现 Conversion Extent 对话框，Output Grid Extent 选刚才那个多边形的文件，要不然出来的区域不一定是那个我们用多边形选择的区域那个大的。Output Grid Cell Size 最好是选那个要裁剪的 DEM 文件，使得单元格大小和它一样大。
+转换好之后，生成一个新的 Grid 文件（比如是newgrid）。选菜单 Analysis  -> Properties。出现的对话框中，Analysis Extent 选择 newgrid 使得和刚才新生成的那个格网文件一样大。Analysis Cell Size 也选原始的 DEM 文件那个。Analysis Mask 选 newgrid。
+然后选菜单 Analysis -> Map Calculator。在对话框中双击原始 DEM  的那个文件名字（我这里是Grid2），再点“Evaluate”。生成的新的数据就是按要求裁剪出来的 DEM 数据了。如下图。
+
+{{./02.png?type=None}}

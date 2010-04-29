@@ -1,0 +1,160 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:22:46.840000
+
+====== Python 编写的分析网速程序 ======
+Created Thursday 29 April 2010
+
+这里面也包含有如何分析网页文件的关键点
+
+我们宿舍原来是 7 个人共享一个 1M 的 ADSL 宽带，最近感觉这点带宽用起来是越来越力不从心了，所以我们打算做一次全面的分析，看看到底是谁的哪种网络应用占用带宽比较多。
+首先得测试一下大家在正常使用时的网速。还好我们的 TP-Link 的那个路由器有流量统计的功能，打开这功能后路由器的管理页面可以看到数据。但只有每时刻的总流量，手工来做的话还得每几秒计一次数据，然后再除以总时间才能算得出每秒的速率。
+本想用 C++ 来写个程序给它自动获取页面，然后提取数据自动计算出来。后来想想还是选用的 Python。Python 的 httplib 就可以很方便的收发 Http 数据，sgmllib 可以很方便的分析 HTML 格式的数据。
+这次是第一次使用 sgmllib。上网查了好久才知道这个东西的用法，但是国内好像很少有讲这些的，后来大多都是从国外的英文站点看到的文章学习来的。使用的时候，一般自己写一个类来继承 SGMLParser，在 feed() 函数里面将要分析的数据输入进来。然后写一个 start_xxx 和 end_xxx 的函数来处理名字为 xxx 的 HTML 标签，也就是每当遇到 xxx 的标签就会用那两个函数处理。handle_data 函数是处理标签框起来的数据的，比如<xxx width="50"> abcd </xxx>这样，abcd 就是标签 xxx 框起来的数据。
+全部代码如下：
+  1 import sys, httplib, time, sgmllib
+ 2 
+ 3 class SpeedHTML(sgmllib.SGMLParser):
+ 4     
+ 5     def __init__(self, verbose=0):
+ 6         sgmllib.SGMLParser.__init__(self, verbose)
+ 7         self.status = 0
+ 8         self.td = 1
+ 9         self.in_tag = 0
+10         self.ipAddr = []
+11         self.ipData = []
+12 
+13     # 输入分析的数据 s
+14     def parse(self, s):
+15         self.feed(s)
+16         self.close()
+17 
+18 
+19 #============== 处理 p 标签以获得 IP 地址
+20     def start_p(self, attributes):
+21         for name, value in attributes:
+22            if name == "align" and value == "left":
+23                 self.status = 1
+24                 self.in_tag = 1
+25 
+26     def end_p(self):
+27         self.status = 0
+28 #============== tag_p
+29 
+30         
+31         
+32 #============== 处理 td 标签以获得流量的字节数
+33     def start_td(self, attributes):
+34         for name, value in attributes:
+35             if name == "width" and value == "85":
+36                 # 因为有两个 td 标签是 width = 85 的, 所以这里特殊处理一下
+37                 self.td = self.td + 1
+38                 self.status = 2
+39                 self.in_tag = 1
+40                 
+41     def end_p(self):
+42         self.status = 0
+43 #============== tag_td
+44 
+45 
+46 
+47     def handle_data(self, data):
+48         if self.status == 1 and self.in_tag == 1 :
+49             self.ipAddr.append(data)
+50             self.in_tag = 0
+51                 
+52         if self.status == 2 and self.in_tag == 1 and self.td % 2 == 0:
+53             self.ipData.append(int(data))
+54             self.in_tag = 0
+55 
+56 
+57 
+58     def get_ipAddr(self):
+59         return self.ipAddr
+60 
+61     def get_ipData(self):
+62         return self.ipData
+63 
+64 
+65 print "test starting..."
+66 
+67 headers = {
+68 "Accept": "*/*",
+69 "Referer": "http://192.168.36.1/",
+70 "Accept-Language": "zh-cn",
+71 "Accept-Encoding": "gzip, deflate",
+72 "User-Agent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727)",
+73 "Host": "192.168.36.1",
+74 "Connection": "Keep-Alive",
+75 "Authorization": "Basic YWRtaW46MjQ1MjQ2"
+76 # 因为登录路由器网页需要密码, 所以有 Authorization 这一项
+77 # 使用这个项目就不用 urllib2 里面的那个 HTTPBasicAuthHandler 类了
+78 # 这些数据由网络抓包来的数据中来的
+79 }
+80 
+81 while 1:
+82     ipAddr = []
+83     ipData = []
+84     result = []
+85 
+86     # 每隔 2 秒获取一次数据, 共获取两次
+87     for i in range(0, 2):
+88         con1 = httplib.HTTPConnection("192.168.36.1")
+89         con1.request("GET", "/userRpm/SystemStatisticRpm.htm", "", headers)
+90         r1 = con1.getresponse()
+91         
+92         if r1.status == 200:
+93             r1.read(3796)# 前面有一部分数据完全没有用, 所以预读一下忽略掉它
+94             d = r1.read()# 开始有用的数据
+95             
+96             sg = SpeedHTML()
+97             sg.feed(d)
+98             
+99             ipAddr = sg.get_ipAddr()
+100             ipData.append(sg.get_ipData())
+101             
+102         con1.close()
+103         time.sleep(2)
+104         
+105     for i in range(0, len(ipAddr)):
+106         # 计算刚才获取数据那段时间的流量,单位: kb/s
+107         result.append((ipData[1][i] - ipData[0][i]) / 4 / 1000)
+108         print "IP: ", ipAddr[i], " is ", result[i], " kb/s"
+109     print "=============================="
+运行结果如下：
+test starting...
+IP:  192.168.36.41  is  65  kb/s
+IP:  192.168.36.55  is  0  kb/s
+IP:  192.168.36.102  is  4  kb/s
+IP:  192.168.36.103  is  0  kb/s
+IP:  192.168.36.106  is  0  kb/s
+IP:  192.168.36.205  is  0  kb/s
+==============================
+IP:  192.168.36.41  is  58  kb/s
+IP:  192.168.36.55  is  0  kb/s
+IP:  192.168.36.102  is  4  kb/s
+IP:  192.168.36.103  is  0  kb/s
+IP:  192.168.36.106  is  0  kb/s
+IP:  192.168.36.205  is  0  kb/s
+==============================
+IP:  192.168.36.41  is  43  kb/s
+IP:  192.168.36.55  is  0  kb/s
+IP:  192.168.36.102  is  4  kb/s
+IP:  192.168.36.103  is  0  kb/s
+IP:  192.168.36.106  is  0  kb/s
+IP:  192.168.36.205  is  0  kb/s
+==============================
+IP:  192.168.36.41  is  52  kb/s
+IP:  192.168.36.55  is  0  kb/s
+IP:  192.168.36.102  is  7  kb/s
+IP:  192.168.36.103  is  0  kb/s
+IP:  192.168.36.106  is  0  kb/s
+IP:  192.168.36.205  is  0  kb/s
+==============================
+IP:  192.168.36.41  is  49  kb/s
+IP:  192.168.36.55  is  0  kb/s
+IP:  192.168.36.102  is  6  kb/s
+IP:  192.168.36.103  is  0  kb/s
+IP:  192.168.36.106  is  0  kb/s
+IP:  192.168.36.205  is  0  kb/s
+==============================

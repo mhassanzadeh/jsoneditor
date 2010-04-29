@@ -1,0 +1,57 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:43:55.172000
+
+====== python 由字符串得函数 ======
+Created Thursday 29 April 2010
+
+其实就是 .net 里面的“反射”
+
+这里有几种方式：
+最好的一种就是使用字典将字符串映射到函数。这种方法的最大好处就是字符串不用匹配函数的名称。这也是模拟case construct的主要方式：
+切換行號
+
+   1
+   2 def a():
+   3     pass
+   4
+   5 def b():
+   6     pass
+   7
+   8 dispatch = {'go': a, 'stop': b}  # Note lack of parens for funcs
+   9
+  10 dispatch[get_input()]()  # Note trailing parens to call function
+使用内建函数getattr():
+切換行號
+
+   1
+   2 import foo
+   3 getattr(foo, 'bar')()
+注意，getattr()可工作于任何对象，包括类，类实例，模块等。 这种方法被用在标准库中的若干地方，就像：
+切換行號
+
+   1
+   2 class Foo:
+   3     def do_foo(self):
+   4         ...
+   5
+   6     def do_bar(self):
+   7         ...
+   8
+   9 f = getattr(foo_instance, 'do_' + opname)
+  10 f()
+使用locals() 或 eval() 来获得函数名称：
+切換行號
+
+   1
+   2 def myFunc():
+   3     print "hello"
+   4
+   5 fname = "myFunc"
+   6
+   7 f = locals()[fname]
+   8 f()
+   9
+  10 f = eval(fname)
+  11 f()
+注意：使用eval() 慢而且危险。如果你对字符串的内容没有绝对控制权，其他人可能传递一个字符串而导致某个任意的函数被执行。

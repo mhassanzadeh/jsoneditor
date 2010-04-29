@@ -1,0 +1,72 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:37:39.784000
+
+====== C++编程杂谈之漫谈UML ======
+Created Thursday 29 April 2010
+
+UML对很多人来说应该不是一个陌生的概念，这一两年来，UML被大家越来越多的讨论着。本来UML跟我这个主题似乎并不能扯上多大的关系（它是语言无关的，甚至可以说其本身就是一种语言——用于交流的）。我在此谈到它有两个目的：
+1． UML是针对面向对象软件开发的，而C++正是这样的一种语言
+2． UML在设计中被越来越多的使用着，而下一篇杂谈准备讨论设计模式，如果不了解UML，那么无法进行下去
+UML，全称：Unified Modeling Language，其目的是为了对软件密集型的制品进行可视化、详述、构造和文档化的图形语言。UML是依据许多前人的思想总结出的成果，1997年被OMG通过并成为标准（所以在《设计模式》书中如果你看到与标准不一样的地方，不要奇怪，那本书是95年的）。关于UML的历史和更详细的描述，可以参考《UML 参考手册》。UML主要由一系列视图组成，其中包括静态视图（Static view），用例视图（Use case view）活动视图（Activity view）等，不同的图用处自然也不一样，而对开发人员来讲（或者说为我的下一篇来说），更重要的应该是静态视图中的类图（class diagram）和交互视图（Interaction view）中的顺序图（Sequence diagram），请注意view和diagram的区别。
+
+===  类图 ===
+静态视图说明了对象的结构，其中最常用的就是类图，类图可以帮助我们更直观的了解一个系统的体系结构，有时侯，描述系统快照的对象图（Object diagram）也是很有用的。在这里，我们主要介绍类图，下面的图就是一个简单的类图：
+{{./xulionuml1.gif?type=None}}
+
+在类图中，类由矩形框来表示，如上图中，定义了4个类，分别为Base、A、B、C，类之间的关系通过各种线条和其他符号来表示，在上图中，空心的三角表示继承关系，在UML的术语中，这种关系被称为泛化（Generalization），所以上面的类用等价代码表示为：
+class Base{…};
+class A:public Base{…};
+class B:public Base{…};
+class C:public Base{…};
+我们再看下一幅图：
+{{./xulionuml2.gif?type=None}}
+
+这幅图与上幅几乎没有什么区别，唯一的不同就是Base类中增加了成员，一个私有的integer _x（UML术语为property）和一个公有的fun()的函数（method），是否需要这些类的内部细节UML本身并没有限制，完全取决于你自己如何使用，UML的用处在于帮助你了解系统，所以只要你自己觉得足够清楚，那么够了，不要再复杂了。
+接着看第三幅图：
+{{./xulionuml3.gif?type=None}}
+
+上面图中的箭头表示一种关系，箭头另一边有一个菱形（空心）表示聚合（aggregation），聚合的意义表示has-a关系，其等价代码如下：
+class A{…};
+class B{ A* theA;…};
+聚合是一种相对松散的关系，聚合类B不需要对被聚合的类A负责。
+下面的图：
+{{./xulionuml4.gif?type=None}}
+
+这幅图与上面的唯一区别是菱形为实心的，它代表了一种更为坚固的关系——组合（composition）。组合表示的关系也是has-a，不过在这里，A的生命期受B控制，通常情况，等价代码如下:
+class A{…};
+class B{A theA;…};
+即A会随着B的创建而创建，随B的消亡而消亡。
+下图：
+{{./xulionuml5.gif?type=None}}
+
+这里B与A的关系只是一种依赖关系，这种关系表明，如果类A被修改，那么类B会受到影响，一个简单的例子就是：
+class A{…};
+class B{fun(A params);…};
+常用的关系就是我们上面用的这些，通过这些关系和类表示的类图，我们可以用图形化的方式描述一个系统的设计部分，当你习惯使用UML后，你会发现，这往往比你告诉同伴某某类从某某类派生，派生类又和某某类具有什么关系容易的多。
+
+=== 顺序图： ===
+UML中另外一个常用的图形就是交互视图中的顺序图，在以往的过程化语言中，我们通常使用流程图来描述一个函数（系统）是如何工作的，而在面向对象的系统中，这显然是不可行的，而顺序图正是来解决这个问题的。
+假设有如下的伪代码：
+
+class circle{public: void fillcolor() {//  ... }; void draw() {  fillcolor(); };};class window{public: void drawcircle() {  _circle.draw(); };private: circle _circle;};
+对于下面的调用：
+window wnd;
+wnd.drawcircle();
+对应的顺序图如下：
+{{./xulionuml6.gif?type=None}}
+
+图中上方的方块表示参与的对象，垂直的虚线表示对象的生命线，方框表示激活，其中箭头表示了一个调用消息（也可以有回送return），如果是异步的消息，则用半箭头表示，其中draw表示了一个自调用(self call)
+至此，UML中最常用的（从开发人员的角度），当然UML的内容远远不只这些，这里的介绍只是一些简单的概括，并且UML本身也在不断的发展之中，无论怎样，我觉得UML会越来越多的深入我们的开发过程中，特别是对下一篇我们要介绍的设计模式而言，类图是主要的描述工具（到那个时候你会体会到UML描述的优越）。
+如果你看过《设计模式》着本书，你会发现与我上面所描述的有一些细微的不同，不要紧张，《设计模式》是GOF95年的作品，那时候UML还没有形成，而且，其中也明确那是OMT方法（Jim Rumbaugh在通用电气发表的建模技术——Object Modeling Technique）和Booch方法。如果你觉得UML有些让你无所适从，也不必紧张，UML本身只是一个辅助工具，它的目的是帮助你描述系统，不是复杂你的工作，如果你的系统很简单，一句话可以说的很清楚，那么不要用UML，如果你只想说明类之间的关系，而不是类的接口描述，那么像第一副图那样简单的描述就很好，总之不要去追求细节，只要能说明问题，那么你的目的就达到了（甚至你没有必要完全遵守规范）。
+ 
+
+=== 参考书目： ===
+《设计模式——可复用面向对象软件的基础》
+作者: Erich Gamma 等 译者:李英军 马晓星 蔡敏 刘建中 机械工业出版社2000
+《UML参考手册》作者: James Rumbaugh Ivar Jacobson Grady Booch
+译者: 姚淑珍 唐发根 机械工业出版社2001
+《UML精粹——标准对象建模语言简明指南（第2版）》
+作者: Martin Fowler&Kendall Scott 译者: 徐家福 清华大学出版社 2002
+《Design Patterns Explained》Alan Shalloway, James R. Trott
+Addison-Wesley Pub 2001

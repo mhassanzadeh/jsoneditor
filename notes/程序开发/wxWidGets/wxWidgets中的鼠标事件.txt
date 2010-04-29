@@ -1,0 +1,17 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:29:02.672000
+
+====== wxWidgets中的鼠标事件 ======
+Created Thursday 29 April 2010
+
+之前我的程序中用了 EVT_MOUSE_EVENTS(MyFrame::OnEvent)  来定义鼠标事件的相应函数。由于鼠标事件里面还分有好多种动作，比如单击左键、单击右键等等。所以我就在 OnEvent() 里面用了很多判断：void MyFrame::OnEvent(wxMouseEvent& event)
+{
+   if (event.LeftDown())
+   { ... }
+   if (event.RightDown())
+   { ... }
+}
+后来仔细想想，其实有单独的鼠标左键单击的事件的，不用都挤到一大堆里面去。所以我就又添加了 EVT_LEFT_DOWN(MyFrame::OnLeftDown) 。但是没想到竟然 OnLeftDown() 不起作用，始终执行不了里面的功能。
+
+后来发现原来是 EVT_MOUSE_EVENTS 和其他单独的鼠标事件比如 EVT_LEFT_DOWN 不能一起出现。如果一起出现的话，只有 EVT_MOUSE_EVENTS 相对应的函数起作用。

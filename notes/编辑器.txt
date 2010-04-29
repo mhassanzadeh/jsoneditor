@@ -1,0 +1,7 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:07:39.803000
+
+====== 编辑器 ======
+Created Thursday 29 April 2010
+

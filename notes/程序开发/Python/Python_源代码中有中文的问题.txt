@@ -1,0 +1,18 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:22:01.772000
+
+====== Python 源代码中有中文的问题 ======
+Created Thursday 29 April 2010
+
+有时候在代码里面会有中文，这样直接保存下来的 xxx .py 文件不能在 cmd 里面直接运行，出现错误如下：
+
+SyntaxError: Non-ASCII character ……
+
+解决方法很简单，只要在代码第一行写上：
+
+__# -*- coding:gb2312 -*-__
+
+如果将文件以 UTF-8 编码来保存的话就写上这个也行：
+
+__# -*- coding:UTF-8 -*-__

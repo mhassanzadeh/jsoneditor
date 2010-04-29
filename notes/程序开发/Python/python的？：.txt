@@ -1,0 +1,24 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:43:30.172000
+
+====== python的？： ======
+Created Thursday 29 April 2010
+
+python的 ? :
+
+没有。在很多情况下你可以用"a and b or c"模拟 a?b:c with , 但这样做有个缺陷：如果b是zero(或 empty, 或 None -- 只要为false) 则c被选择。在很多情况下你可以查看代码以保证这种情况不会发生(例如，因为b是个常数或是一种永远不会为false的类型), 但是通常来书它的确是个问题。
+Tim Peters (本人希望是Steve Majewski) 有以下建议: (a and [b] or [c])[0]. 因为 [b] 是一个永远不会为false的列表，所以错误的情况不会发生；然后对整个表达式使用 [0] 来得到想要的b或者c。很难看，但在你重写代码并且使用'if'很不方便的情况下，这种方式是有效的。
+最好的方式还是用 if...else 语句。另一种方法就是用一个函数来实现 "?:" 操作符：
+
+   1
+   2 def q(cond,on_true,on_false):
+   3     if cond:
+   4         if not isfunction(on_true): return on_true
+   5         else: return apply(on_true)
+   6     else:
+   7         if not isfunction(on_false): return on_false
+   8         else: return apply(on_false)
+在大多数情况下，你会直接传递b和c: q(a,b,c)。为防止在不合适的情况下计算 b 或者 c，用一个lambda函数封装它们，例如：q(a,lambda: b, lambda: c)。
+为什么python没有if-then-else表达式。有几个回答： 很多语言在没有这个的情况下也工作得很好；它会减少可读代码的数量；还没有足够多的python风格的语法；通过对标准库的搜索，发现几乎没有这种情况：通过使用 if-then-else 表达式让代码的可读性更好。
+在 2002年, PEP 308 提交了若干语法建议，整个社区对此进行了一次非决定性的投票。很多人喜欢某个语法而反对另外的语法；投票结果表明，很多人宁愿没有三元操作符，也不愿意创建一种新的令人讨厌的语法，。

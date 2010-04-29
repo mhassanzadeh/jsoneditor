@@ -1,0 +1,244 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:36:24.781000
+
+====== OpenGL如何实现鼠标选取三角片 ======
+Created Thursday 29 April 2010
+
+OpenGL如何实现鼠标选取三角片
+
+参考了《用OpenGL实现射线拣取对象程序设计》一文，根据自己的需要进行了一定的变化，并就实现过程中的一些问题进行了说明。
+用鼠标点选三角片，实际上就是生成一条通过鼠标点的射线，然后把所有三角片与该射线进行计算，以寻找被射线穿过的三角片。
+故分为以下两个步骤：
+第一步：
+实现屏幕坐标到三维世界空间坐标的转化，利用函数 gluUnProject直接可以得到屏幕坐标相应的三维空间坐标，示例如下：
+gluUnProject((GLdouble)xpos,(GLdouble)ypos,1.0,mvmatrix,projmatrix,viewport,&wx,&wy,&wz);  
+xpos 和ypos 是以屏幕左下角为原点的屏幕坐标，1.0代表返回zbuffer为1.0处（远剪切面交点）的世界坐标，mvmatrix 为视矩阵，通过GetDoublev(GL_MODELVIEW_MATRIX,mvmatrix)得到，projmatrix为投影矩阵，通过glGetDoublev(GL_PROJECTION_MATRIX,projmatrix)得到，viewport为视口，通过glGetIntegerv(GL_VIEWPORT,viewport)得到，剩下的wx、wy、wz 就是我们要得到的世界坐标，得到这样两个世界坐标，射线就确定了，或者也可以用原点（视点）来代替其中一个点，因为这条射线是从视点出发的。
+第二步：
+用射线和要检测的三角形求交点，该步骤在《用OpenGL实现射线拣取对象程序设计》一文中有详细介绍，这里就直接使用到它的函数bool IntersectTriangle。
+
+以下是实现及相关说明（在VC6.0 + OPENGL + WINDOWSXPsp2，调试通过）：
+
+定义一个空间点的结构体
+typedef struct {
+GLfloat x;
+GLfloat y;
+GLfloat z;
+}COORDINATE,*PCOORDINATE;
+
+// (1) 鼠标左键点击消息处理函数，调用PickTriangle函数判所选择的三角片
+void CLeftView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+ PickTriangle(point);
+ /*CTreeView*/
+ CView::OnLButtonDown(nFlags, point);
+ OnDraw(NULL);    // 用于显示选择结果，请自行编写
+}
+
+// (2) 自己编写的判断函数
+void CLeftView::PickTriangle(CPoint point)
+{
+ // 1 Construct radial that is picked by user click
+ if (m_pRadial == NULL)
+ {
+   m_pRadial = new COORDINATE[2];
+ }
+ m_pRadial[0] = m_nearPlan;
+ m_pRadial[1] = m_farPlan;
+
+ // 2 Find out all the triangles that are drilled through by the radial
+ COORDINATE trian[3];
+ int iTran = m_triangleCount;    // Number of triangles
+ C3DFace * pFace = &(GetDocument()->m_faceLeft);    // 3D model
+
+ CUIntArray verSelect;
+
+ for (int i = 0; i < iTran; i ++)
+ {
+   GLint v1 = pFace->m_triangles[i].first;
+   GLint v2 = pFace->m_triangles[i].second;
+   GLint v3 = pFace->m_triangles[i].third;
+   trian[0] = pFace->m_vertices[v1 - 1];
+   trian[1] = pFace->m_vertices[v2 - 1];
+   trian[2] = pFace->m_vertices[v3 - 1];
+
+   if (IntersectTriangle(m_pRadial, trian))
+   {
+     verSelect.Add(i);
+   }
+ }
+
+ // 3 Take a triangle with the largest Z-value as user selection.
+ //   Here, we randomly select one vertex of each triangle for comparison.
+ m_drawObject.m_userTrian.RemoveAll();
+ int len = verSelect.GetSize();
+ if (len > 1)
+ {
+   // 3.1 Multiply by current view matrix
+   float *temp = new float[len];
+   float fmax = - 10000.0f;
+   int imax = -1;
+   for (int i = 0; i < len; i ++)
+   {
+     int idx = verSelect[i];
+     Mm mat = pFace->Get_S(pFace->m_triangles[idx].first - 1, K_ORIGAIN_VERTEX, 4);
+     mat = m_mView * mat;
+     temp[i] = mat.r(3);
+     if (temp[i] > fmax)
+     {
+       fmax = temp[i];
+       imax = idx;
+     }
+   }
+   // 3.2 Retain the triangle with largest Z-value
+   m_drawObject.m_userTrian.Add(imax); // For display
+   delete [] temp;
+ }
+ else
+ {
+   m_drawObject.m_userTrian.Copy(verSelect);// For display
+ }
+}
+
+// (3) 鼠标移动消息处理函数，实现屏幕坐标到三维世界空间坐标的转化，
+//     注意，这个是根据我的程序在这里实现，你们可以不用在这里处理，
+//     而直接在点击消息处理函数中进行
+void CLeftView::OnMouseMove(UINT nFlags, CPoint point)
+{
+ // Get 3D postion of the cursor and display it to the output bar
+ Pixel2Vertex(point);    // 2D position to 3D position
+ COORDINATE pos = {m_mouseX, m_mouseY, m_mouseZ};
+ OUTPUTMOUSEPOS(0, &pos);
+
+ /*CTreeView*/
+ CView::OnMouseMove(nFlags, point);
+}
+
+// (4) 实现屏幕坐标到三维世界空间坐标的转化,这里有一点要注意，你一定要
+//     调试检查你用glGetDoublev(GL_MODELVIEW_MATRIX, dModelMatrix)所得到的
+//     MODELVIEW矩阵是否正确！我当时在显示每个对象时都用到glPushMatrix和
+//     glPopMatrix，导致每回用glGetDoublev得到的都是单位矩阵，从而导致错误。
+void CLeftView::Pixel2Vertex(CPoint point)
+{
+ GLfloat fdepth;
+ GLdouble ObjectX, ObjectY, ObjectZ;
+ GLint iViewPort[4];
+ GLdouble dProjMatrix[16];
+ GLdouble dModelMatrix[16];
+ POINT iScreen;
+ int iScrToWinX, iScrToWinY;
+
+ if (!::wglMakeCurrent(g_pLeftDC->GetSafeHdc(),ghDisplayLeftRC))
+ {
+   AfxMessageBox("41-MakeCurrentError");
+   return ;
+ }
+ glGetIntegerv(GL_VIEWPORT, iViewPort);
+ glPushMatrix();
+ glGetDoublev(GL_MODELVIEW_MATRIX, dModelMatrix);
+ memcpy(m_mView.addr(), dModelMatrix, 16 * sizeof(GLdouble));
+
+ glGetDoublev(GL_PROJECTION_MATRIX, dProjMatrix);
+ ::GetCursorPos(&iScreen);
+ iScrToWinX = iScreen.x-point.x;
+ iScrToWinY = iScreen.y-point.y;
+ glReadPixels(point.x, iViewPort[3]-point.y-1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &fdepth);
+ gluUnProject((GLdouble)point.x, (GLdouble)(iViewPort[3]-point.y-1), (GLdouble)fdepth, dModelMatrix, dProjMatrix, iViewPort, &ObjectX, &ObjectY, &ObjectZ);
+ m_mouseX = ObjectX;
+ m_mouseY = ObjectY;
+ m_mouseZ = ObjectZ;
+
+ //////////////////////////////////////////////////////////////////////////
+ // Get near and far plan of current view volume
+ gluUnProject((GLdouble)point.x, (GLdouble)(iViewPort[3]-point.y-1), (GLdouble)0.0f, dModelMatrix, dProjMatrix, iViewPort, &ObjectX, &ObjectY, &ObjectZ);
+ m_nearPlan.x = ObjectX;
+ m_nearPlan.y = ObjectY;
+ m_nearPlan.z = ObjectZ;
+ gluUnProject((GLdouble)point.x, (GLdouble)(iViewPort[3]-point.y-1), (GLdouble)1.0f, dModelMatrix, dProjMatrix, iViewPort, &ObjectX, &ObjectY, &ObjectZ);
+ m_farPlan.x = ObjectX;
+ m_farPlan.y = ObjectY;
+ m_farPlan.z = ObjectZ;
+ //////////////////////////////////////////////////////////////////////////
+
+ glPopMatrix();
+
+ ::wglMakeCurrent(g_pLeftDC->GetSafeHdc(),NULL);
+}
+
+// (5) 判断一个三角形是否是被一条射线穿过。
+/*****************************************************************************
+
+Determine if a radial through across a triangle or not.
+
+INPUT:
+pRadial -- contains 2 points (0: near plan; 1: far plan), which
+           determine the orientation of the radial.
+pTrian -- contains 3 points (3 vertices of the triangle).
+*****************************************************************************/
+bool IntersectTriangle(COORDINATE *pRadial, COORDINATE *pTrian)
+{
+ GLfloat edge1[3];
+ GLfloat edge2[3];
+
+ // Two edges of the input triangle
+ edge1[0]=pTrian[1].x-pTrian[0].x;
+ edge1[1]=pTrian[1].y-pTrian[0].y;
+ edge1[2]=pTrian[1].z-pTrian[0].z;
+ edge2[0]=pTrian[2].x-pTrian[0].x;
+ edge2[1]=pTrian[2].y-pTrian[0].y;
+ edge2[2]=pTrian[2].z-pTrian[0].z;
+
+ // Unit vector of the direction of input radial
+ GLfloat dir[3];
+ dir[0]=pRadial[1].x-pRadial[0].x;
+ dir[1]=pRadial[1].y-pRadial[0].y;
+ dir[2]=pRadial[1].z-pRadial[0].z;
+ GLfloat w = (GLfloat)sqrt((double)pow(dir[0],2.0)+(double)pow(dir[1],2.0)+(double)pow(dir[2],2.0));
+ dir[0] /= w;
+ dir[1] /= w;
+ dir[2] /= w;
+
+ // pvec = cross(dir, edge)
+ GLfloat pvec[3];
+ pvec[0]= dir[1]*edge2[2] - dir[2]*edge2[1];
+ pvec[1]= dir[2]*edge2[0] - dir[0]*edge2[2];
+ pvec[2]= dir[0]*edge2[1] - dir[1]*edge2[0];
+
+ // det = dot(edge, pvec)
+ GLfloat det;
+ det = edge1[0]*pvec[0]+edge1[1]*pvec[1]+edge1[2]*pvec[2];
+ GLfloat tvec[3];
+ if( det > 0 )
+ {
+   tvec[0] = pRadial[0].x - pTrian[0].x;
+   tvec[1] = pRadial[0].y - pTrian[0].y;
+   tvec[2] = pRadial[0].z - pTrian[0].z;
+ }
+ else
+ {
+   tvec[0] = pTrian[0].x - pRadial[0].x;
+   tvec[1] = pTrian[0].y - pRadial[0].y;
+   tvec[2] = pTrian[0].z - pRadial[0].z;
+   det = -det ;
+ }
+ if( det < 0.0001f )
+   return false;
+ GLfloat u ;
+ u = tvec[0]*pvec[0]+ tvec[1]*pvec[1]+ tvec[2]*pvec[2];
+ if( u < 0.0f || u > det )
+   return false;
+ GLfloat qvec[3];
+ qvec[0]= tvec[1]*edge1[2] - tvec[2]*edge1[1];
+ qvec[1]= tvec[2]*edge1[0] - tvec[0]*edge1[2];
+ qvec[2]= tvec[0]*edge1[1] - tvec[1]*edge1[0];
+ GLfloat v;
+ v = dir[0]*qvec[0]+dir[1]*qvec[1]+dir[2]*qvec[2];
+ if( v < 0.0f || u + v > det )
+   return false;
+ GLfloat t = edge2[0]*qvec[0]+edge2[1]*qvec[1]+edge2[2]*qvec[2];
+ GLfloat fInvDet = 1.0f / det;
+ t *= fInvDet;
+ u *= fInvDet;
+ v *= fInvDet;
+ return true;
+}

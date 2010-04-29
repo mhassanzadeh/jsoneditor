@@ -1,0 +1,10 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:15:16.234000
+
+====== C++ ======
+Created Thursday 29 April 2010
+
+C++里面用静态成员函数才能产生多线程
+
+C++里面只要将拷贝构造函数和重载赋值运算符设为私有，就可以禁止拷贝了

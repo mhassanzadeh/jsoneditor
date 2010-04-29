@@ -1,0 +1,63 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:28:27.759000
+
+====== wxWidgets 的 aui 使用心得 ======
+Created Thursday 29 April 2010
+
+用了一段时间的 wxWidgets 2.8 版本，发现里面的 aui 对象用来管理用户界面确实很好用。但网上似乎很少他的有中文的介绍。所以在此我把我的一点点心得记录下来。
+
+这里假设 GUI 框架是 MyFrame，现在要用 aui 来管理他。
+首先要定义一个wxAuiManager对象：
+
+wxAuiManager m_auiManager;
+在框架初始化时，用 SetManagedWindow() 方法来获取对框架的管理权。
+
+MyFrame::MyFrame(wxWindow *parent,
+                const wxWindowID id,
+                const wxString& title,
+                const wxPoint& pos,
+                const wxSize& size,
+                const long style)
+      : wxMDIParentFrame(parent, id, title, pos, size, style)
+{
+   m_auiManager.SetManagedWindow(this);
+    
+   ...
+
+}
+要在已被管理的 GUI 框架上面添加东西，创建了要添加的对象之后，还要用 aui 的 AddPane() 来添加到 aui 的子窗口中。否则的话，整个界面会乱乱的，所有的对象都混在一起。比如现在创建一个工具栏。
+
+wxToolBar* toolBar = new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_FLAT | wxTB_NODIVIDER);
+创建工具栏的时候，最用上 wxTB_NODIVIDER 风格，要不然在工具栏周围会出现一条边，不是很好看。然后给他添加几个按钮。
+
+toolBar->AddTool(101, wxT("Test"), toolBmp1);
+toolBar->AddTool(101, wxT("Test"), toolBmp1);
+toolBar->AddTool(101, wxT("Test"), toolBmp1);
+toolBar->AddSeparator();
+toolBar->AddTool(101, wxT("Test"), toolBmp1);
+
+toolBar->Realize();
+然后要把这个工具栏对象添加到 aui 的面版中。最简单的方法当然是这样：
+
+m_auiManager.AddPane(toolBar);
+但是，这样的话，这个工具栏就会添加到窗口的最左边，并且是以类似一个有标题栏的子窗口的形式出现的。这显然不是我们想要的工具栏的样子。最好要 wxAuiPaneInfo() 来对添加的对象做更具体的控制。现在我们这样：
+
+m_auiManager.AddPane(toolBar, wxAuiPaneInfo().
+                                       Name(wxT("toolBar")).Caption(wxT("Toolbar 1")).
+                                       ToolbarPane().Top().Row(1).
+                                       LeftDockable(false).RightDockable(false));
+Name() 设置面版的名字，如果没有设置的话，管理器将会给他一个随机的名字。Caption() 是子窗口的标题，如果把这个工具栏拖离原来的位置成一个独立的子窗口的话，标题就会显示出来。ToolbarPane() 设置这个面版是特意为工具栏设置的，所以停靠时不会显示出标题栏。Top() 这个面版的默认位置是在上方。如果有多个行，就用 Row() 来设置他们的关系。LeftDockable(false) 设置了这个工具栏不能在停靠在左（右）边中。
+
+加入了面版之后，还要更新管理器。如果不更新的话，界面也是乱七八糟的。
+
+m_auiManager.Update();
+添加其他的控件也是一样的，比如添加一个 text 控件。
+
+textWindow = new wxTextCtrl(this, wxID_ANY, _T("A help window"),  wxDefaultPosition, wxDefaultSize,  wxTE_MULTILINE | wxSUNKEN_BORDER);
+然后添加进面版：
+
+m_auiManager.AddPane(textWindow, wxAuiPaneInfo(). Name(wxT("help window")).Caption(wxT("Help")). Left());
+然后更新：
+
+m_auiManager.Update();

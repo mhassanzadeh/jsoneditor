@@ -1,0 +1,342 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:37:14.780000
+
+====== 用OpenGL实现射线拣取对象 ======
+Created Thursday 29 April 2010
+
+关于用射线原理来拣取对象网上已经有完整的理论，另外DirectX也提供了一个Pick例子来演示，在这里我将这些资料和理论来稍微的总结，并给出OpenGL下的完整实现。
+
+　　相关的理论大体来自一篇英文资料和一篇总结性的中文资料，分别是：
+
+　　http://www.gameres.com/Articles/Program/Visual/3D/pick_2004_529.htm
+
+　　http://www.mvps.org/directx/articles/rayproj.htm
+
+　　前一篇完整讲述用DirectX实现射线拣取物体的原理和实现。后一篇讲述的是二维屏幕空间到三维世界空间的转换原理。前一篇的名字是“Direct3D中实现图元的鼠标拾取”，它的讲述很好也很透彻。后一篇讲述射线形成的原理，并且有源码例子。
+
+　　下面就OpenGL进行实现。
+
+　　第一步：
+
+　　实现屏幕坐标到三维世界空间坐标的转化，在这一步Opengl要比DirectX简单的多，利用函数 gluUnProject直接可以得到屏幕坐标相应的三维空间坐标，示例如下：
+
+　　gluUnProject((GLdouble)xpos,(GLdouble)ypos,1.0,mvmatrix,projmatrix,viewport,&wx,&wy,&wz);
+
+　　xpos 和ypos 是以屏幕左下角为原点的屏幕坐标，1.0代表返回zbuffer为1.0处（远剪切面交点）的世界坐标，mvmatrix 为视矩阵，通过GetDoublev(GL_MODELVIEW_MATRIX,mvmatrix)得到，projmatrix为投影矩阵，通过glGetDoublev(GL_PROJECTION_MATRIX,projmatrix)得到，viewport为视口，通过glGetIntegerv(GL_VIEWPORT,viewport)得到，剩下的wx、wy、wz 就是我们要得到的世界坐标，得到这样两个世界坐标，射线就确定了，或者也可以用原点（视点）来代替其中一个点，因为这条射线是从视点出发的。
+
+　　第二步：
+
+　　用射线和要检测的三角形求交点，用到的原理和公式如下。
+
+　　原理一：三角形内的任意一点都可以用变量u、v和其三个顶点坐标来确定，其中0
+　　原理二：射线上的任意一点可以用射线的方向向量（格式化后的）乘以其模（该向量长度）来表示，记为:vPoint =originPoint+dir * len
+
+　　如果和三角形相交则必定同时满足上面的两个条件所以有：
+
+　　(-Dir)*len+ (V2-V1)*u + (V3-V1)*v ＝ originPoint －V1
+
+　　相当方程组: (len ,v ,u 为变量，其它为常量)
+
+　　（-Dir.x）*len +(V2.x-V1.x)*u + (V3.x ? V1.x )*v = originPoint.x －V1.x
+
+　　（-Dir.y）*len +(V2.y-V1.y)*u + (V3.y ? V1.y )*v = originPoint.y －V1.y
+
+　　（-Dir.z）*len +(V2.z-V1.z)*u + (V3.z ? V1.z )*v = originPoint.z －V1.z
+
+　　或：
+
+　　len
+
+　　【－Dir，V2－V1，V3－V1】{
+
+　　u
+
+　　} = originPoint ? V1
+
+　　v
+
+　　这是一个线性方程组，根据克拉姆法则，【－Dir，V2－V1，V3－V1】不为零。
+
+　　所以满足条件：00, ,0
+　　【－Dir，V2－V1，V3－V1】写成矩阵形式为：
+
+　　| -Dir.x , V2.x-V1.x , V3.x ? V1.x |
+
+　　| -Dir.y , V2.y-V1.y , V3.y ? V1.x |
+
+　　| -Dir.z , V2.z-V1.z , V3.z ? V1.z |
+
+　　伪码实现（原理在DirectX Pick例子中有源码实现）：
+
+　　// 三角形两个边的向量
+
+　　VECTOR3 edge1 = v1 - v0;
+
+　　VCTOR3
+
+　　edge2 = v2 - v0;
+
+　　VCTOR3
+
+　　pvec;
+
+　　VEC3Cross( &pvec, &dir, &edge2 );// 差积
+
+　　FLOAT det = VEC3Dot( &edge1, &pvec );// 点积
+
+　　// det其含义为【－Dir，V2－V1，V3－V1】矩阵展开
+
+　　VECTOR3 tvec;
+
+　　if( det > 0 )//
+
+　　{
+
+　　tvec = orig - v0; // 从正面穿越三角形，三角形和视点相对的面为正面
+
+　　}
+
+　　else
+
+　　{
+
+　　tvec = v0 - orig;// 反面穿越三角形穿越三角形
+
+　　det = -det;
+
+　　}
+
+　　if( det < 0.0001f )// 接近零视为0
+
+　　return FALSE;
+
+　　// 求u的值，求线性方程组的解展开后等同于求点积展开
+
+　　*u = VEC3Dot( &tvec, &pvec );
+
+　　if( *u < 0.0f || *u > det )
+
+　　return FALSE;
+
+　　// 求v的值
+
+　　VECTOR3 qvec;
+
+　　VEC3Cross( &qvec, &tvec, &edge1 );
+
+　　*v = VEC3Dot( &dir, &qvec );
+
+　　if( *v < 0.0f || *u + *v > det )
+
+　　return FALSE;
+
+　　// 计算t,并把t,u,v放缩为合法值
+
+　　*t = D3DXVec3Dot( &edge2, &qvec );
+
+　　// 前面的t,v,u在计算时多乘了一个系数det
+
+　　FLOAT fInvDet = 1.0f / det;
+
+　　*t *= fInvDet;
+
+　　*u *= fInvDet;
+
+　　*v *= fInvDet;
+
+　　// 这里这个算法是微软给出的，从几何角度分析其含义十分难懂，真正的方法是根据线性方程租求解，巧的是文中的方法恰好和线性方程组整理出来的东西相符合，这大概就是几何和代数相通的原理。
+
+　　源码（VC6.0 + OPENGL + WINDOWS2000，调试通过）：
+
+　　bool IntersectTriangle()
+
+　　{
+
+　　GLfloat edge1[3];
+
+　　GLfloat edge2[3];
+
+　　edge1[0]=V1[0]-V0[0];
+
+　　edge1[1]=V1[1]-V0[1];
+
+　　edge1[2]=V1[2]-V0[2];
+
+　　edge2[0]=V2[0]-V0[0];
+
+　　edge2[1]=V2[1]-V0[1];
+
+　　edge2[2]=V2[2]-V0[2];
+
+　　GLfloat dir[3];
+
+　　dir[0]=g_farxyz[0]-g_nearxyz[0];
+
+　　dir[1]=g_farxyz[1]-g_nearxyz[1];
+
+　　dir[2]=g_farxyz[2]-g_nearxyz[2];
+
+　　GLfloat w = (GLfloat)sqrt((double)pow(dir[0],2.0)+(double)pow(dir[1],2.0)+(double)pow(dir[2],2.0));
+
+　　dir[0] /= w;
+
+　　dir[1] /= w;
+
+　　dir[2] /= w;
+
+　　GLfloat pvec[3];
+
+　　pvec[0]= dir[1]*edge2[2] - dir[2]*edge2[1];
+
+　　pvec[1]= dir[2]*edge2[0] - dir[0]*edge2[2];
+
+　　pvec[2]= dir[0]*edge2[1] - dir[1]*edge2[0];
+
+　　GLfloat det ;
+
+　　det = edge1[0]*pvec[0]+edge1[1]*pvec[1]+edge1[2]*pvec[2];
+
+　　GLfloat tvec[3];
+
+　　if( det > 0 )
+
+　　{
+
+　　tvec[0] = g_nearxyz[0] - V0[0];
+
+　　tvec[1] = g_nearxyz[1] - V0[1];
+
+　　tvec[2] = g_nearxyz[2] - V0[2];
+
+　　}
+
+　　else
+
+　　{
+
+　　tvec[0] = V0[0] - g_nearxyz[0];
+
+　　tvec[1] = V0[1] - g_nearxyz[1];
+
+　　tvec[2] = V0[2] - g_nearxyz[2];
+
+　　det = -det ;
+
+　　}
+
+　　if( det < 0.0001f )
+
+　　return false;
+
+　　GLfloat u ;
+
+　　u = tvec[0]*pvec[0]+ tvec[1]*pvec[1]+ tvec[2]*pvec[2];
+
+　　if( u < 0.0f || u > det )
+
+　　return false;
+
+　　GLfloat qvec[3];
+
+　　qvec[0]= tvec[1]*edge1[2] - tvec[2]*edge1[1];
+
+　　qvec[1]= tvec[2]*edge1[0] - tvec[0]*edge1[2];
+
+　　qvec[2]= tvec[0]*edge1[1] - tvec[1]*edge1[0];
+
+　　GLfloat v;
+
+　　v = dir[0]*qvec[0]+dir[1]*qvec[1]+dir[2]*qvec[2];
+
+　　if( v < 0.0f || u + v > det )
+
+　　return false;
+
+　　GLfloat t = edge2[0]*qvec[0]+edge2[1]*qvec[1]+edge2[2]*qvec[2];
+
+　　GLfloat fInvDet = 1.0f / det;
+
+　　t *= fInvDet;
+
+　　u *= fInvDet;
+
+　　v *= fInvDet;
+
+　　return true;
+
+　　}
+
+　　void pick(GLfloat xpos,GLfloat ypos)
+
+　　{
+
+　　xpos,ypos;
+
+　　GLint viewport[4];
+
+　　GLdouble mvmatrix[16],projmatrix[16];
+
+　　GLint realy;
+
+　　GLdouble wx,wy,wz;
+
+　　glGetIntegerv(GL_VIEWPORT,viewport);
+
+　　glGetDoublev(GL_MODELVIEW_MATRIX,mvmatrix);
+
+　　glGetDoublev(GL_PROJECTION_MATRIX,projmatrix);
+
+　　realy = viewport[3]-(GLint)ypos -1;// 左下角为坐标原点
+
+　　gluUnProject((GLdouble)xpos,(GLdouble)realy,0.0,mvmatrix,projmatrix,viewport,&wx,&wy,&wz);
+
+　　g_nearxyz[0] = (GLfloat)wx;
+
+　　g_nearxyz[1] = (GLfloat)wy;
+
+　　g_nearxyz[2] = (GLfloat)wz;////
+
+　　gluUnProject((GLdouble)xpos,(GLdouble)realy,1.0,mvmatrix,projmatrix,viewport,&wx,&wy,&wz);
+
+　　g_farxyz[0] = (GLfloat)wx;
+
+　　g_farxyz[1] = (GLfloat)wy;
+
+　　g_farxyz[2] = (GLfloat)wz;////
+
+　　g_color = 0.0;
+
+　　if(IntersectTriangle()) g_color=1.0;
+
+　　}
+
+　　GLfloat V0[3]={1.0,0.0,-1.0 };
+
+　　GLfloat V1[3]={0.0,1.0,-1.0 };
+
+　　GLfloat V2[3]={0.0,0.0,-2.0 };
+
+　　Void DrawGLScene(GLvoid)
+
+　　{
+
+　　glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+　　glBegin(GL_TRIANGLES);
+
+　　glColor3f(g_color,0.0,1.0);
+
+　　glVertex3fv(V0);// 如果加了glTranslatef之类的变换函数，射线应该反向变化
+
+　　glVertex3fv(V1);
+
+　　glVertex3fv(V2);
+
+　　glEnd();
+
+　　SwapBuffers(hDC);
+
+　　}
+
+　　}

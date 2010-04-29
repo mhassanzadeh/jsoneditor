@@ -1,0 +1,10 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:11:45.218000
+
+====== OpenGL ======
+Created Thursday 29 April 2010
+
+OpenGL里面用gluPerspective可以保证图像远近移动时不会被近裁剪面裁剪。用glFrustum就没有那么好用。
+
+OpenGL里面glReadPixels是读（从Buffer中）投影到屏幕上的点的属性值，如深度

@@ -1,0 +1,27 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:12:25.274000
+
+====== 光线追踪基本思想 ======
+Created Thursday 29 April 2010
+
+一个顶点向光源方向做射线，如果没有和地表本身相交，就是“亮”，如果相交就是“暗”， 暗 k = 0.2, 亮 k = 1;
+写入文件了。
+当以后计算光照的时候，都把最后颜色乘以这个系数，阴影就出来了。
+
+亮度   =   0.3*red   +   0.59*green   +   0.11*blue
+
+for (i = 0; i < dh; i++)
+{
+	mr = round(r1 + i * ((r2 - r1) / dh));
+	mg = round(g1 + i * ((g2 - g1) / dh));
+	mb = round(b1 + i * ((b2 - b1) / dh));
+
+}
+
+
+
+//亮度减弱
+newR = (r - 127) * contrast + 127 + light;
+newG = (g - 127) * contrast + 127 + light;
+newB = (b - 127) * contrast + 127 + light;

@@ -1,0 +1,10 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:35:19.551000
+
+====== 从windows XP安装盘提取文件 ======
+Created Thursday 29 April 2010
+
+昨天删键盘布局的时候，不小心删掉了KBDDV.DLL这个文件。记得以前在WIN98的时候有个叫SFC的程序可以从安装盘的那种XXXXX.dl_这种文件转换成XXXXX.dll放进系统目录去的。现在XP里面的SFC没这功能了。找了半天，原来在XP里面要用expand这个程序
+expand f:\i386\rundll32.dl_
+这样子就行了。

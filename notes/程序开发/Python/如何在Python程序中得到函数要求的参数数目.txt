@@ -1,0 +1,18 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:43:00.172000
+
+====== 如何在Python程序中得到函数要求的参数数目 ======
+Created Thursday 29 April 2010
+
+如何在Python程序中得到函数要求的参数数目
+只要能处理简单的情况就行，不要考虑可选参数和可变数目参数，比如
+def f(n): return n
+def f(a, b) return a + b
+分别得到 1 和 2。
+
+f.func_code.co_argcount
+
+或
+inspect 模块
+getargspec(func)

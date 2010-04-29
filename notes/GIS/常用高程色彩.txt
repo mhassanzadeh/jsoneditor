@@ -1,0 +1,23 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:10:15.082000
+
+====== 常用高程色彩 ======
+Created Thursday 29 April 2010
+
+设置 DEM 时的伪色彩
+
+从高到低
+
+d6d7d6
+c6c7c6
+9c8273
+733818
+731c00
+941400
+e78a00
+94a229
+108e31
+b5db73
+cefbb5
+adf3ef

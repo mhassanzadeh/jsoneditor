@@ -1,0 +1,17 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:23:56.947000
+
+====== VIM 配置 ======
+Created Thursday 29 April 2010
+
+VIM 配置基本上只要改动安装目录里面的 _vimrc  文件就可以了。
+
+保存文件时不要备份原文件
+set nobackup
+
+开启行号
+set nu
+
+配色方案选成 zellner
+colorscheme zellner

@@ -1,0 +1,25 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:27:37.543000
+
+====== C++ 优先队列使用小记 ======
+Created Thursday 29 April 2010
+
+今天跟着书上说的做了一个动态模拟的程序，第一次用优先队列（priority_queue），才发现原来优先队列是那么用的，在模拟仿真的时候还挺好用的。
+
+优先队列排序的时候，可以自己定义排序的规则。比如先定义一个：
+
+class comp
+{
+public:
+      bool operator () (Event* left, Event* right)
+         {
+              return (left->time) > (right->time);
+         }
+};
+
+然后定义优先队列的时候就：
+
+std::priority_queue< Event*, std::vector<Event*>__, comp__> eventQueue;
+
+这样，只要eventQueue.push(AA)的时候就会调用comp里面的比较运算来排序各元素。书上的代码里面，没有上面那个红色的部分，跟着书上的做就编译不了。后来查了MSDN才知道正确的写法。不知道是不是作者不小心写错了，或者是作者用的STL 版本和MS的不一样。如果排序方法不对，那么我的程序里面的时间顺序就不对，结果就不对了。

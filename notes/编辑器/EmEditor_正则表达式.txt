@@ -1,0 +1,31 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:07:49.819000
+
+====== EmEditor 正则表达式 ======
+Created Thursday 29 April 2010
+
+段内折行的恢复：
+\n\r(?=[^ |　])
+NULL
+
+查找所有 http://abc.gif 的形式
+(h[a-zA-Z]+://[^\s]*gif)
+
+
+把所有的\13.xx的换成\013.x的形式
+(\\)([0-9]?[0-9]?\.)
+\10\2
+
+
+删除包含任意个空格开头的空行
+^[ 　\t]*\n
+NULL
+
+
+匹配中文字符的正则表达式unicode
+[\u4e00-\u9fa5]
+
+
+匹配HTML标记的正则表达式
+<(\S*?)[^>]*>.*?|< .*? />

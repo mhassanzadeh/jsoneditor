@@ -1,0 +1,14 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:14:30.729000
+
+====== OpenGL定向 ======
+Created Thursday 29 April 2010
+
+OpenGL定向
+这几天我仔细琢磨终于推出如下程序获得成功，基本上和systree()的建议相吻合，但还要考虑到绘制方向（相对于Z轴正方向）与我定义的{vx,vy}方向（相对于X轴正方向）相差90度。   
+       GLdouble   m[16]={0,0,0,0,   0,1,0,0,   0,0,0,0,   0,0,0,1};   
+       float   d=sqrt(vx*vx+vy*vy);   
+       m[0]=vy/d;   m[8]=vx/d;   
+       m[2]=-vx/d;   m[10]=vy/d;   
+       glMultMatrixd(m);

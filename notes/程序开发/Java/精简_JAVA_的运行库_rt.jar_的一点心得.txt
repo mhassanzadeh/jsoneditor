@@ -1,0 +1,25 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T18:30:12.919000
+
+====== 精简 JAVA 的运行库 Rt.Jar 的一点心得 ======
+Created Thursday 29 April 2010
+
+前些时间我为了便于携带，需要精简一下 rt.jar 文件（这个文件实在太大了）。上网找了一些方法，基本上都是先用 java 的参数 -verbose:class 运行相关的程序，把所有功能都执行一次。然后在 rt.jar 里面把除了列表中的所有用到的 class 文件都删除。说起来简单，实际做的时候还是挺复杂的。
+
+首先，要用 >> 符把输出的内容输出到文本文件里面，要不然那个命令行窗口肯定显示不完所有的内容。输出成文件之后，还有把内容分类，因为除了会输出调用到的 class 之外还会有其他的内容。调用某个 class 时，那一行的内容就是
+[Loaded java.lang.Throwable from c:\jre\lib\rt.jar]
+这样的形式。除了这种形式的行，其他全部没用。处理这个问题不难，简单的用 Excel 就可以解决。
+
+有时候会重复调用了同一个 class，所以会有很多相同内容的行，还要把相同内容的行删掉只保留其中一个。我觉得删除重复行最简单的方法就是用 Access 这样的数据库软件，建立个简单的表（记得设主键），然后把内容导入进去。导入时，因为主键不能重复，所以最后那些重复的行只会留下一行。
+
+最后，把 rt.jar 解压开，把列表里面有的 class 文件复制到另一个目录。当然，还要保留它们原来的目录结构。最好是写个批处理文件，比如：
+xcopy /s /i rt/java/lang/Throwable.class rt1/java/lang/
+xcopy /s /i rt/javax/swing/xxx.class rt1/javax/swing/
+然后再把 rt1 目录里面的内容用 zip 压缩成一个新的 rt.jar 就行了。
+
+有时候这样制作了新的 rt.jar ，在运行程序是，还是会出现一些错误提示，比如：
+java.lang.NoClassDefFoundError: com/sun/java/xxxx
+说明在 rt.jar 里面缺少了 com/sun/java/xxxx.class 文件，只要到完整的 rt.jar 里面复制这个文件到新的 rt.jar 文件里面去就行了。重复多次，把缺的文件复制进去，最后一般都能让程序运行的。
+
+我自己精简的那个 rt.jar 文件现在只有 3MB 左右，刚刚好能支持我的程序的运行。

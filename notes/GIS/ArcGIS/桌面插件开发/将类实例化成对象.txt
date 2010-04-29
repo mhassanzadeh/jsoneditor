@@ -1,0 +1,16 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T14:21:38.875000
+
+====== 将类实例化成对象 ======
+Created Thursday 29 April 2010
+
+比如 [[ArcGIS]] 里面的类 SpatialReferenceEnvironment
+先声明它的一个指针变量：
+
+ISpatialReferenceEnvironmentPtr sre;
+sre.CreateInstance(CLSID_SpatialReferenceEnvironment);
+
+上面的 CLSID_ 后面跟类名
+
+其它开发库的 COM 组件开发都是用 CreateInstance 来实例化

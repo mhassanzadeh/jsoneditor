@@ -1,0 +1,18 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T14:33:08.890000
+
+====== C++基础 ======
+Created Thursday 29 April 2010
+
+需要添加头文件 [[ArcCATIDs.h]]，文件放在 \Porgram Files\ArcGIS\include
+
+需要添加相应的 olb 文件，就可以相当于平常添加的头文件，常用 olb 文件有：[[ArcOlb]]
+如果添加 olb 文件的时候有命名冲突，可以 exclude 或者 rename，比如
+
+exclude("OLE_COLOR", "OLE_HANDLE") rename("IRow", "esriIRow")
+
+[[ArcGIS]] 的插件是要用 ATL 开发，WTL 是 ATL 的窗口支持，主要添加文件如下：
+
+#include <atlapp.h>
+#include <atlctrls.h>

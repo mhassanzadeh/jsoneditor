@@ -1,0 +1,20 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T14:49:50.906000
+
+====== ArcOlb ======
+Created Thursday 29 April 2010
+
+#import "d:\Program Files\ArcGIS\COM\esriSystem.olb" raw_interfaces_only raw_native_types no_namespace named_guids exclude("OLE_COLOR", "OLE_HANDLE")
+#import "d:\Program Files\ArcGIS\COM\esriSystemUI.olb" raw_interfaces_only raw_native_types no_namespace named_guids exclude("OLE_COLOR", "OLE_HANDLE")
+#import "d:\Program Files\ArcGIS\COM\esriGeometry.olb" raw_interfaces_only raw_native_types no_namespace named_guids exclude("OLE_COLOR", "OLE_HANDLE", "ISegment")
+#import "d:\Program Files\ArcGIS\COM\esriDisplay.olb" raw_interfaces_only raw_native_types no_namespace named_guids exclude("OLE_COLOR", "OLE_HANDLE")
+#import "d:\Program Files\ArcGIS\COM\esriGeoDatabase.olb" raw_interfaces_only raw_native_types no_namespace named_guids exclude("OLE_COLOR", "OLE_HANDLE")
+#import "d:\Program Files\ArcGIS\COM\esriCarto.olb" raw_interfaces_only no_namespace raw_native_types named_guids exclude("OLE_COLOR", "OLE_HANDLE", "UINT_PTR")
+#import "d:\Program Files\ArcGIS\COM\esriFramework.olb" raw_interfaces_only raw_native_types no_namespace named_guids exclude("OLE_COLOR", "OLE_HANDLE", "UINT_PTR")
+#import "d:\Program Files\ArcGIS\COM\esriGeoDatabaseUI.olb" raw_interfaces_only raw_native_types no_namespace named_guids exclude("OLE_COLOR", "OLE_HANDLE")
+#import "d:\Program Files\ArcGIS\COM\esriArcCatalog.olb" raw_interfaces_only raw_native_types no_namespace named_guids exclude("OLE_COLOR", "OLE_HANDLE")
+#import "d:\Program Files\ArcGIS\COM\esriArcCatalogUI.olb" raw_interfaces_only raw_native_types no_namespace named_guids exclude("OLE_COLOR", "OLE_HANDLE")
+#import "d:\Program Files\ArcGIS\COM\esriCatalog.olb" raw_interfaces_only raw_native_types no_namespace named_guids exclude("OLE_COLOR", "OLE_HANDLE")
+#import "d:\Program Files\ArcGIS\COM\esriCatalogUI.olb" raw_interfaces_only raw_native_types no_namespace named_guids exclude("OLE_COLOR", "OLE_HANDLE")
+#import "d:\Program Files\ArcGIS\COM\esriDataSourcesRaster.olb" raw_interfaces_only raw_native_types no_namespace named_guids exclude("OLE_COLOR", "OLE_HANDLE")

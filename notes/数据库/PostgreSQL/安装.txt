@@ -1,0 +1,20 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-28T23:28:58.702000
+
+====== 安装 ======
+Created Wednesday 28 April 2010
+
+1. 启动安装，修改默认安装目录，例如改为c:\pgsql，在安装为服务时不选，即只安装程序，
+   不初始化数据库，也不安装为服务。
+2. 在启动控制面板/管理工具/计算机管理/本地用户和组，增加一个普通用户，如postgres，
+   密码123456，设为永不过期。
+3. 系统环境变量的PATH增加c:\pgsql\bin。
+4. 以Administrator身份进入command窗，输入命令runas /user:postgres cmd，输入密码，
+   成功后进入c:\pgsql。输入命令initdb -E UTF-8 -D data。
+5. 以Administrator再次身份进入command窗，输入命令：
+   pg_ctl register -N postgres -D c:\pgsql\data -U postgres -P 123456
+6. 如5成功，启动控制面板/管理工具/服务，可以看到名为postgres的服务。将其启动类型改
+   为手动，在属性/登录标签下输入密码和确认密码123456。
+7. 启动服务。
+8. 以postgres身份输入命令psql可进入客户端。

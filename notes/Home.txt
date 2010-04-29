@@ -1,0 +1,8 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-28T23:30:47.575000
+
+====== Home ======
+Created Wednesday 28 April 2010
+
+今天开始使用 Zim 来记笔记

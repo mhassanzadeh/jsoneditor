@@ -1,0 +1,10 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-29T14:40:35.546000
+
+====== 接口继承 ======
+Created Thursday 29 April 2010
+
+ArcMap 插件继承 IApplication
+ArcCatalog 插件继承 IGxApplication
+

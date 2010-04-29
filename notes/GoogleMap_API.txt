@@ -1,0 +1,19 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-28T23:30:18.824000
+
+====== GoogleMap API ======
+Created Wednesday 28 April 2010
+
+对象点的时候可以被拖动
+onClipEvent (mouseDown) {
+	if (this.hitTest(_root._xmouse, _root._ymouse, false)) {
+		this.startDrag();
+	}
+}
+
+onClipEvent (mouseUp) {
+	if (this.hitTest(_root._xmouse, _root._ymouse, false)) {
+		this.stopDrag();
+	}
+}

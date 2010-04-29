@@ -1,0 +1,24 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-04-28T23:26:43.497000
+
+====== 事件绑定 ======
+Created Wednesday 28 April 2010
+
+如果页面不刷新，一直使用.click绑定到同一个对象，那么这些click事件就会 **累加**。
+
+$(obj).click(alert(1));
+$(obj).click(alert(2));
+$(obj).click(alert(3));
+
+点 obj 之后，就会出来 3 个 alert 。所以绑定前先把原来的click解绑，再绑定新动作。
+
+$(obj).unbind('click');
+$(obj).click(alert(1));
+
+或者在click里面定义，执行完之后解绑。
+
+$(obj).click(function() { 
+  alert(1); 
+  $(obj).unbind('click'); 
+});

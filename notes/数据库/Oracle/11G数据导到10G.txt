@@ -1,0 +1,8 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-05-15T22:44:31.437000
+
+====== 11G数据导到10G ======
+Created Saturday 15 May 2010
+
+使用expdp -> impdp

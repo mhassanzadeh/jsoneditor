@@ -1,0 +1,10 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-05-10T09:35:29.406000
+
+====== 查看执行过的SQL ======
+Created Monday 10 May 2010
+
+select * from v$sql
+where module = 'w3wp.exe' and sql_text not like '%提醒时间%' and sql_text not like '%描述=%'
+order by first_load_time desc

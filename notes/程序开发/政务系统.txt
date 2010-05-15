@@ -1,0 +1,10 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-05-10T09:11:19.406000
+
+====== 政务系统 ======
+Created Monday 10 May 2010
+
+政务系统报件信息表
+BJ_14_01_TDFLMJB -> 土地权属及分类面积汇总表
+CODEDICTBL -> 上面这个表用的分类代码

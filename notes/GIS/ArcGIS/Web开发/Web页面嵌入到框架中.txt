@@ -1,0 +1,40 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-05-15T22:45:31.437000
+
+====== Web页面嵌入到框架中 ======
+Created Saturday 15 May 2010
+
+[[ArcGIS]] .net 开发的时候一定要用到 ViewState，所以一定要用 Cookies 和 Session。
+但是有时候 [[ArcGIS]] 的页面要嵌入到其它网站的框架中，使用 FrameSet 的时候，嵌入的页面经常无法下面获得 Session。主要原因是在 IE 里面，使用 FrameSet 嵌入的页面被当做第三方网站，这时候 Cookies 是不能共享的。ArcGIA 有网站又不能使用 Cookieless = UseUri 的模式。所以这时候要在 IIS 加入自定义头，如下：
+
+管理 工具——〉选择一个网站 ——〉属性——〉http头，增加一个http头
+然后输入头名：P3P
+输入头内容：CP=CAO PSA OUR
+
+其实这不关 ArcGIS 的事情，有时候其实网站编写的时候也要用到这样的解决方案。
+解决方案
+* PHP程序
+      可以直接在B网站中写入
+      <?php
+        header('P3P: CP="CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR"')
+      ?>
+      这样就能接受第三方的Cookie/Session啦。
+* lighttpd的服务器
+      server.modules    = ("mod_setenv")
+      setenv.add-response-header = ( "P3P" => "CP='CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR'")
+* apache的服务器
+      <VirtualHost>
+         Header set P3P 'CP="CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR"'
+      </VirtualHost>
+* IIS的服务器
+      增加一个网站http头来解决问题；
+      管理 工具——〉选择一个网站 ——〉属性——〉http头，增加一个http头
+      然后输入头名：P3P
+     输入头内容：CP=CAO PSA OUR
+* jsp页面：
+      <%
+          response.setHeader("P3P","CP=CAO PSA OUR");
+      %>
+
+在微软的页面有说明 http://support.microsoft.com/kb/323752

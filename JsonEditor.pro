@@ -4,6 +4,41 @@
 TARGET = JsonEditor
 TEMPLATE = app
 SOURCES += main.cpp \
-    jsoneditormain.cpp
-HEADERS += jsoneditormain.h
+    jsoneditormain.cpp \
+    jsonc/printbuf.c \
+    jsonc/linkhash.c \
+    jsonc/jsoncxx.cpp \
+    jsonc/json_util.c \
+    jsonc/json_tokener.c \
+    jsonc/json_object.c \
+    jsonc/debug.c \
+    jsonc/arraylist.c
+HEADERS += jsoneditormain.h \
+    jsonc/printbuf.h \
+    jsonc/linkhash.h \
+    jsonc/jsoncxx.h \
+    jsonc/json_util.h \
+    jsonc/json_tokener.h \
+    jsonc/json_object_private.h \
+    jsonc/json_object.h \
+    jsonc/json.h \
+    jsonc/debug.h \
+    jsonc/bits.h \
+    jsonc/arraylist.h
 FORMS += jsoneditormain.ui
+OTHER_FILES += images/view-refresh.png \
+    images/system-log-out.png \
+    images/media-floppy.png \
+    images/format-justify-right.png \
+    images/folder-open.png \
+    images/edit-undo.png \
+    images/edit-redo.png \
+    images/edit-paste.png \
+    images/edit-find-replace.png \
+    images/edit-find.png \
+    images/edit-cut.png \
+    images/edit-copy.png \
+    images/edit-clear.png \
+    images/document-save.png \
+    images/document-open.png \
+    images/document-new.png

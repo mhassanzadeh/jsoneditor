@@ -19,10 +19,24 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QTextEdit" name="jsonCode"/>
+     <widget class="QTextEdit" name="jsonCode">
+      <property name="locale">
+       <locale language="Chinese" country="China"/>
+      </property>
+     </widget>
     </item>
     <item>
-     <widget class="QTreeView" name="jsonTree"/>
+     <widget class="QTreeView" name="jsonTree">
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="autoExpandDelay">
+       <number>1</number>
+      </property>
+      <property name="animated">
+       <bool>true</bool>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -345,7 +359,7 @@
     <string>重做</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+R</string>
+    <string>Ctrl+Y</string>
    </property>
   </action>
   <action name="menuSelectAll">
@@ -432,7 +446,7 @@
  <connections>
   <connection>
    <sender>menuExit</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>JsonEditorMain</receiver>
    <slot>close()</slot>
    <hints>
@@ -448,7 +462,7 @@
   </connection>
   <connection>
    <sender>menuSelectAll</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>jsonCode</receiver>
    <slot>selectAll()</slot>
    <hints>
@@ -464,7 +478,7 @@
   </connection>
   <connection>
    <sender>menuCut</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>jsonCode</receiver>
    <slot>cut()</slot>
    <hints>
@@ -480,7 +494,7 @@
   </connection>
   <connection>
    <sender>menuCopy</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>jsonCode</receiver>
    <slot>copy()</slot>
    <hints>
@@ -496,7 +510,7 @@
   </connection>
   <connection>
    <sender>menuPaste</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>jsonCode</receiver>
    <slot>paste()</slot>
    <hints>
@@ -512,7 +526,7 @@
   </connection>
   <connection>
    <sender>menuUndo</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>jsonCode</receiver>
    <slot>undo()</slot>
    <hints>
@@ -528,7 +542,7 @@
   </connection>
   <connection>
    <sender>menuRedo</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>jsonCode</receiver>
    <slot>redo()</slot>
    <hints>
@@ -544,7 +558,7 @@
   </connection>
   <connection>
    <sender>menuNewFile</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>jsonCode</receiver>
    <slot>clear()</slot>
    <hints>

@@ -12,7 +12,9 @@ SOURCES += main.cpp \
     jsonc/json_tokener.c \
     jsonc/json_object.c \
     jsonc/debug.c \
-    jsonc/arraylist.c
+    jsonc/arraylist.c \
+    jsontreeitem.cpp \
+    jsontreemodel.cpp
 HEADERS += jsoneditormain.h \
     jsonc/printbuf.h \
     jsonc/linkhash.h \
@@ -24,7 +26,10 @@ HEADERS += jsoneditormain.h \
     jsonc/json.h \
     jsonc/debug.h \
     jsonc/bits.h \
-    jsonc/arraylist.h
+    jsonc/arraylist.h \
+    jsonc/config.h \
+    jsontreeitem.h \
+    jsontreemodel.h
 FORMS += jsoneditormain.ui
 OTHER_FILES += images/view-refresh.png \
     images/system-log-out.png \
@@ -42,3 +47,4 @@ OTHER_FILES += images/view-refresh.png \
     images/document-save.png \
     images/document-open.png \
     images/document-new.png
+RESOURCES += jsoneditor.qrc

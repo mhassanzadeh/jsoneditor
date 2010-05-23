@@ -2,6 +2,7 @@
 #define JSONEDITORMAIN_H
 
 #include <QMainWindow>
+#include "jsonc/jsoncxx.h"
 
 namespace Ui {
     class JsonEditorMain;
@@ -18,6 +19,14 @@ protected:
 
 private:
     Ui::JsonEditorMain *ui;
+    Json::Value jsonValue;
+
+private slots:
+    void toggleFileToolbar(bool checked);
+    void toggleEditToolbar(bool checked);
+    void toggleFindToolbar(bool checked);
+    void toggleCodeToolbar(bool checked);
+    void refreshJsonTree();
 };
 
 #endif // JSONEDITORMAIN_H

@@ -27,6 +27,12 @@ private slots:
     void toggleFindToolbar(bool checked);
     void toggleCodeToolbar(bool checked);
     void refreshJsonTree();
+    void insertTreeNode();
+    void deleteTreeNode();
+    void insertTreeChild();
+    void updateActions();
+    void treeViewDataChanged();
+    
 };
 
 #endif // JSONEDITORMAIN_H

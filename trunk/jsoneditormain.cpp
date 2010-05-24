@@ -14,7 +14,10 @@ JsonEditorMain::JsonEditorMain(QWidget *parent) :
     connect(ui->menuFileTools, SIGNAL(toggled(bool)), this, SLOT(toggleFileToolbar(bool)));
     connect(ui->menuEditTools, SIGNAL(toggled(bool)), this, SLOT(toggleEditToolbar(bool)));
     connect(ui->menuRefresh, SIGNAL(triggered()), this, SLOT(refreshJsonTree()));
-
+    connect(ui->menuInsertNode, SIGNAL(triggered()), this, SLOT(insertTreeNode()));
+    connect(ui->menuInsertChild, SIGNAL(triggered()), this, SLOT(insertTreeChild()));
+    connect(ui->menuDeleteNode, SIGNAL(triggered()), this, SLOT(deleteTreeNode()));
+    connect(ui->jsonTree, SIGNAL(clicked(QModelIndex)), this, SLOT(updateActions()));
 }
 
 JsonEditorMain::~JsonEditorMain()
@@ -58,7 +61,7 @@ void JsonEditorMain::refreshJsonTree()
 {
     if (!ui->jsonCode->document()->isEmpty())
     {
-        QByteArray ss = ui->jsonCode->toPlainText().toUtf8();
+        QByteArray ss = ui->jsonCode->toPlainText().toLocal8Bit();
         std::string json = ui->jsonCode->toPlainText().toStdString();
         Json::Reader jsonReader;
         jsonValue.clear();
@@ -67,17 +70,99 @@ void JsonEditorMain::refreshJsonTree()
         QStringList headers;
         headers << tr("节点") << tr("值");
 
+
+
+        QAbstractItemModel *oldModel = ui->jsonTree->model();
+        if (oldModel != NULL)
+            oldModel->disconnect(SIGNAL(dataChanged(QModelIndex,QModelIndex)));
+
         JsonTreeModel *model = new JsonTreeModel(headers, jsonValue);
+        QItemSelectionModel *selectionModel = ui->jsonTree->selectionModel();
+        connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(treeViewDataChanged()));
         ui->jsonTree->setModel(model);
         ui->jsonTree->reset();
+        delete selectionModel;
+        delete oldModel;
+
+
+        ui->jsonTree->expandAll();
+
+        for (int i = 0; i < ui->jsonTree->model()->columnCount(); i++)
+            ui->jsonTree->resizeColumnToContents(i);
     }
 }
 
+void JsonEditorMain::insertTreeNode()
+{
+    QModelIndex index = ui->jsonTree->selectionModel()->currentIndex();
+    QAbstractItemModel *model = ui->jsonTree->model();
 
+    if (!model->insertRow(index.row()+1, index.parent()))
+        return;
 
+    updateActions();
 
+    for (int column = 0; column < model->columnCount(index.parent()); ++column)
+    {
+        QModelIndex child = model->index(index.row()+1, column, index.parent());
+        model->setData(child, QVariant(tr("[插入新数据]")), Qt::EditRole);
+    }
+}
 
+void JsonEditorMain::insertTreeChild()
+{
+    QModelIndex index = ui->jsonTree->selectionModel()->currentIndex();
+    JsonTreeModel *model = (JsonTreeModel*)ui->jsonTree->model();
 
+    if (index.column() == 1)
+    {
+        QMessageBox::information(this, tr("提示信息"), tr("必须选择一个“节点”才能添加子节点。"));
+        return;
+    }
+
+    if (model->columnCount(index) == 0)
+    {
+        if (!model->insertColumn(0, index))
+            return;
+    }
+
+    if (!model->insertRow(0, index))
+        return;
+
+    for (int column = 0; column < model->columnCount(index); ++column)
+    {
+        QModelIndex child = model->index(0, column, index);
+        model->setData(child, QVariant(tr("[插入新数据]")), Qt::EditRole);
+    }
+
+    ui->jsonTree->selectionModel()->setCurrentIndex(model->index(0, 0, index),
+                                                    QItemSelectionModel::ClearAndSelect);
+    updateActions();
+}
+
+void JsonEditorMain::deleteTreeNode()
+{
+    QModelIndex index = ui->jsonTree->selectionModel()->currentIndex();
+    QAbstractItemModel *model = ui->jsonTree->model();
+    if (model->removeRow(index.row(), index.parent()))
+        updateActions();
+}
+
+void JsonEditorMain::updateActions()
+ {
+     bool hasSelection = !ui->jsonTree->selectionModel()->selection().isEmpty();
+     ui->menuDeleteNode->setEnabled(hasSelection);
+
+     bool hasCurrent = ui->jsonTree->selectionModel()->currentIndex().isValid();
+     ui->menuInsertNode->setEnabled(hasCurrent);
+     ui->menuInsertChild->setEnabled(ui->jsonTree->selectionModel()->currentIndex().column() == 0);
+ }
+
+void JsonEditorMain::treeViewDataChanged()
+{
+    for (int i = 0; i < ui->jsonTree->model()->columnCount(); i++)
+        ui->jsonTree->resizeColumnToContents(i);
+}
 
 
 

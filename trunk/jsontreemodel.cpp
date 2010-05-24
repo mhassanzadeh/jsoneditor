@@ -206,13 +206,13 @@ void JsonTreeModel::setupModelData(const Json::Value &lines, JsonTreeItem *paren
             QString arrayIndex(tr("Êý×éÔªËØ "));
             arrayIndex.append(QString().sprintf("%i", i));
             keyIndex = QVariant(arrayIndex);
-            keyData = QVariant((*data)[i].asString());
+            keyData = QVariant(tr((*data)[i].asString()));
         }
         else
         {
             key = data->getAllKeys().at(i);
-            keyIndex = QVariant(key.c_str());
-            keyData = QVariant(((*data)[key]).asString());
+            keyIndex = QVariant(tr(key.c_str()));
+            keyData = QVariant(tr(((*data)[key]).asString()));
         }
         columnData.clear();
         columnData.push_back(keyIndex);

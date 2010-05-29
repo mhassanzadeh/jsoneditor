@@ -6,7 +6,11 @@
 
 JsonEditorMain::JsonEditorMain(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::JsonEditorMain)
+    ui(new Ui::JsonEditorMain),
+    newInsertText(tr("插入新数据")),
+    treeViewColumnKey(tr("节点")),
+    treeViewColumnValue(tr("值")),
+    treeViewColumnType(tr("类型"))
 {
     ui->setupUi(this);
     connect(ui->menuCodeTools, SIGNAL(toggled(bool)), this, SLOT(toggleCodeToolbar(bool)));
@@ -18,6 +22,7 @@ JsonEditorMain::JsonEditorMain(QWidget *parent) :
     connect(ui->menuInsertChild, SIGNAL(triggered()), this, SLOT(insertTreeChild()));
     connect(ui->menuDeleteNode, SIGNAL(triggered()), this, SLOT(deleteTreeNode()));
     connect(ui->jsonTree, SIGNAL(clicked(QModelIndex)), this, SLOT(updateActions()));
+    connect(ui->menuFormat, SIGNAL(triggered()), this, SLOT(formatCode()));
 }
 
 JsonEditorMain::~JsonEditorMain()
@@ -68,7 +73,7 @@ void JsonEditorMain::refreshJsonTree()
         jsonReader.parse(ss.data(), jsonValue);
 
         QStringList headers;
-        headers << tr("节点") << tr("值");
+        headers << treeViewColumnKey << treeViewColumnValue << treeViewColumnType;
 
 
 
@@ -105,7 +110,7 @@ void JsonEditorMain::insertTreeNode()
     for (int column = 0; column < model->columnCount(index.parent()); ++column)
     {
         QModelIndex child = model->index(index.row()+1, column, index.parent());
-        model->setData(child, QVariant(tr("[插入新数据]")), Qt::EditRole);
+        model->setData(child, QVariant(newInsertText), Qt::EditRole);
     }
 }
 
@@ -129,10 +134,10 @@ void JsonEditorMain::insertTreeChild()
     if (!model->insertRow(0, index))
         return;
 
-    for (int column = 0; column < model->columnCount(index); ++column)
+    for (int column = 0; column < model->columnCount(index); column++)
     {
         QModelIndex child = model->index(0, column, index);
-        model->setData(child, QVariant(tr("[插入新数据]")), Qt::EditRole);
+        model->setData(child, QVariant(newInsertText), Qt::EditRole);
     }
 
     ui->jsonTree->selectionModel()->setCurrentIndex(model->index(0, 0, index),
@@ -164,8 +169,74 @@ void JsonEditorMain::treeViewDataChanged()
         ui->jsonTree->resizeColumnToContents(i);
 }
 
+void JsonEditorMain::formatCode()
+{
+    ui->jsonCode->clear();
 
+    QString codeText = "";
+    JsonTreeModel *model;
+    model = (JsonTreeModel*)ui->jsonTree->model();
+    codeText += treeFormat(model->getRootItem(), "", true);
 
+    ui->jsonCode->setPlainText(codeText);
+}
+
+QString JsonEditorMain::treeFormat(JsonTreeItem *treeItem, QString indent, bool noHeader)
+{
+    QString resultStr;
+    QString objectKey = treeItem->data(0).toString();
+    QString objectValue = treeItem->data(1).toString();
+    QString objectType = treeItem->data(2).toString();
+
+    if (noHeader)
+    {
+        resultStr = indent;
+    }
+    else
+    {
+        resultStr = indent + QString("\"") + objectKey + "\": ";
+    }
+
+    if (objectType.compare(tr("对象"), Qt::CaseInsensitive) == 0
+        || objectValue.compare(treeViewColumnValue, Qt::CaseInsensitive) == 0)
+    {
+        resultStr += "{\n";
+        JsonTreeItem *subObjectItem;
+        for (int i = 0; i < treeItem->childCount(); i++)
+        {
+            subObjectItem = treeItem->child(i);
+            resultStr += treeFormat(subObjectItem, indent + "    ");
+        }
+        resultStr.remove(resultStr.length() - 2, 1);
+        resultStr += indent + "},\n";
+    }
+    else if (objectType.compare(tr("数组"), Qt::CaseInsensitive) == 0)
+    {
+        resultStr += "[\n";
+        JsonTreeItem *subObjectItem;
+        for (int i = 0; i < treeItem->childCount(); i++)
+        {
+            subObjectItem = treeItem->child(i);
+            resultStr += treeFormat(subObjectItem, indent + "    ", true);
+        }
+        resultStr.remove(resultStr.length() - 2, 1);
+        resultStr += indent + "],\n";
+    }
+    else
+    {
+        if (objectType.compare(tr("字符串"), Qt::CaseInsensitive) == 0 ||
+            objectType.compare(newInsertText, Qt::CaseInsensitive) == 0)
+        {
+            resultStr += "\"" + objectValue + "\",\n";
+        }
+        else
+        {
+            resultStr += objectValue + ",\n";
+        }
+    }
+
+    return resultStr;
+}
 
 
 

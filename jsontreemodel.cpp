@@ -200,23 +200,28 @@ void JsonTreeModel::setupModelData(const Json::Value &lines, JsonTreeItem *paren
     for (int i = 0; i < len; i++)
     {
         std::string key;
-        QVariant keyIndex, keyData;
-        if (data->type() == Json::arrayValue)
+        int vType = data->type();
+        QVariant keyIndex, keyData, keyType;
+        if (vType == Json::arrayValue)
         {
-            QString arrayIndex(tr("数组元素 "));
+            QString arrayIndex("");
             arrayIndex.append(QString().sprintf("%i", i));
             keyIndex = QVariant(arrayIndex);
             keyData = QVariant(tr((*data)[i].asString()));
+            keyType = QVariant(getTypeString(((*data)[i]).type()));
         }
         else
         {
             key = data->getAllKeys().at(i);
             keyIndex = QVariant(tr(key.c_str()));
             keyData = QVariant(tr(((*data)[key]).asString()));
+            keyType = QVariant(getTypeString(((*data)[key]).type()));
         }
+
         columnData.clear();
         columnData.push_back(keyIndex);
         columnData.push_back(keyData);
+        columnData.push_back(keyType);
 
         JsonTreeItem *parent1 = parent;
         parent1->insertChildren(parent1->childCount(), 1, rootItem->columnCount());
@@ -238,4 +243,44 @@ void JsonTreeModel::setupModelData(const Json::Value &lines, JsonTreeItem *paren
             }
         }
     }
+}
+
+JsonTreeItem *JsonTreeModel::getRootItem()
+{
+    return rootItem;
+}
+
+QString JsonTreeModel::getTypeString(int vType)
+{
+    QString typeString;
+    switch (vType)
+    {
+    case Json::arrayValue:
+        typeString = tr("数组");
+        break;
+    case Json::booleanValue:
+        typeString = tr("布尔");
+        break;
+    case Json::intValue:
+        typeString = tr("整数");
+        break;
+    case Json::nullValue:
+        typeString = tr("空值");
+        break;
+    case Json::objectValue:
+        typeString = tr("对象");
+        break;
+    case Json::realValue:
+        typeString = tr("浮点数");
+        break;
+    case Json::stringValue:
+        typeString = tr("字符串");
+        break;
+    case Json::uintValue:
+        typeString = tr("无符号整数");
+        break;
+    defalut:
+        typeString = tr("类型错误");
+    }
+    return typeString;
 }

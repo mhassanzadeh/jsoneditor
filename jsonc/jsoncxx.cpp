@@ -139,10 +139,12 @@ namespace Json {
             json_object_get_boolean(m_objValue) == true ? strcpy(str, "true") : strcpy(str, "false");
             break;
         case arrayValue:
-            strcpy(str, "[array]");
+            //strcpy(str, "[array]");
+            strcpy(str, "");
             break;
         case objectValue:
-            strcpy(str, "[object]");
+            //strcpy(str, "");
+            strcpy(str, "");
             break;
         default:
             return "[null]";

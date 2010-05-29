@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "jsonc/jsoncxx.h"
+#include "jsontreeitem.h"
 
 namespace Ui {
     class JsonEditorMain;
@@ -21,6 +22,11 @@ private:
     Ui::JsonEditorMain *ui;
     Json::Value jsonValue;
 
+    const QString newInsertText;
+    const QString treeViewColumnKey;
+    const QString treeViewColumnValue;
+    const QString treeViewColumnType;
+
 private slots:
     void toggleFileToolbar(bool checked);
     void toggleEditToolbar(bool checked);
@@ -32,7 +38,8 @@ private slots:
     void insertTreeChild();
     void updateActions();
     void treeViewDataChanged();
-    
+    void formatCode();
+    QString treeFormat(JsonTreeItem* treeItem = NULL, QString indent = "", bool noHeader = false);
 };
 
 #endif // JSONEDITORMAIN_H

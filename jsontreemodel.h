@@ -42,10 +42,13 @@ public:
     bool removeRows(int position, int rows,
                     const QModelIndex &parent = QModelIndex());
 
+    JsonTreeItem *getRootItem();
+
 private:
     void setupModelData(const Json::Value &lines, JsonTreeItem *parent);
-    JsonTreeItem *getItem(const QModelIndex &index) const;
+    QString getTypeString(int vType);
 
+    JsonTreeItem *getItem(const QModelIndex &index) const;
     JsonTreeItem *rootItem;
 };
 

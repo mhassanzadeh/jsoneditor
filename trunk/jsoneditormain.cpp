@@ -1,6 +1,7 @@
 #include "jsoneditormain.h"
 #include "ui_jsoneditormain.h"
 #include "jsontreemodel.h"
+#include "addnodedlg.h"
 
 #include <QtGui>
 
@@ -23,6 +24,8 @@ JsonEditorMain::JsonEditorMain(QWidget *parent) :
     connect(ui->menuDeleteNode, SIGNAL(triggered()), this, SLOT(deleteTreeNode()));
     connect(ui->jsonTree, SIGNAL(clicked(QModelIndex)), this, SLOT(updateActions()));
     connect(ui->menuFormat, SIGNAL(triggered()), this, SLOT(formatCode()));
+    connect(ui->menuHelp, SIGNAL(triggered()), this, SLOT(showHelp()));
+    connect(ui->jsonTree, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(dataEdit(QModelIndex)));
 }
 
 JsonEditorMain::~JsonEditorMain()
@@ -99,50 +102,78 @@ void JsonEditorMain::refreshJsonTree()
 
 void JsonEditorMain::insertTreeNode()
 {
-    QModelIndex index = ui->jsonTree->selectionModel()->currentIndex();
-    QAbstractItemModel *model = ui->jsonTree->model();
-
-    if (!model->insertRow(index.row()+1, index.parent()))
-        return;
-
-    updateActions();
-
-    for (int column = 0; column < model->columnCount(index.parent()); ++column)
+    AddNodeDlg dlg;
+    if (dlg.exec() == QDialog::Accepted)
     {
-        QModelIndex child = model->index(index.row()+1, column, index.parent());
-        model->setData(child, QVariant(newInsertText), Qt::EditRole);
+        QModelIndex index = ui->jsonTree->selectionModel()->currentIndex();
+        QAbstractItemModel *model = ui->jsonTree->model();
+
+        if (!model->insertRow(index.row()+1, index.parent()))
+            return;
+
+        updateActions();
+
+        /*
+        for (int column = 0; column < model->columnCount(index.parent()); ++column)
+        {
+            QModelIndex child = model->index(index.row()+1, column, index.parent());
+            model->setData(child, QVariant(newInsertText), Qt::EditRole);
+        }
+        */
+        QModelIndex child = model->index(index.row()+1, 0, index.parent());
+        model->setData(child, QVariant(dlg.getName()), Qt::EditRole);
+
+        child = model->index(index.row()+1, 1, index.parent());
+        model->setData(child, QVariant(dlg.getValue()), Qt::EditRole);
+
+        child = model->index(index.row()+1, 2, index.parent());
+        model->setData(child, QVariant(dlg.getType()), Qt::EditRole);
     }
 }
 
 void JsonEditorMain::insertTreeChild()
 {
-    QModelIndex index = ui->jsonTree->selectionModel()->currentIndex();
-    JsonTreeModel *model = (JsonTreeModel*)ui->jsonTree->model();
-
-    if (index.column() == 1)
+    AddNodeDlg dlg;
+    if (dlg.exec() == QDialog::Accepted)
     {
-        QMessageBox::information(this, tr("提示信息"), tr("必须选择一个“节点”才能添加子节点。"));
-        return;
-    }
+        QModelIndex index = ui->jsonTree->selectionModel()->currentIndex();
+        JsonTreeModel *model = (JsonTreeModel*)ui->jsonTree->model();
 
-    if (model->columnCount(index) == 0)
-    {
-        if (!model->insertColumn(0, index))
+        if (index.column() != 0)
+        {
+            index = index.sibling(index.row(), 0);
+        }
+
+        if (model->columnCount(index) == 0)
+        {
+            if (!model->insertColumn(0, index))
+                return;
+        }
+
+        if (!model->insertRow(0, index))
             return;
+
+        /*
+        for (int column = 0; column < model->columnCount(index); column++)
+        {
+            QModelIndex child = model->index(0, column, index);
+            model->setData(child, QVariant(newInsertText), Qt::EditRole);
+        }
+        */
+
+        QModelIndex child = model->index(0, 0, index);
+        model->setData(child, QVariant(dlg.getName()), Qt::EditRole);
+
+        child = model->index(0, 1, index);
+        model->setData(child, QVariant(dlg.getValue()), Qt::EditRole);
+
+        child = model->index(0, 2, index);
+        model->setData(child, QVariant(dlg.getType()), Qt::EditRole);
+
+        ui->jsonTree->selectionModel()->setCurrentIndex(model->index(0, 0, index),
+                                                        QItemSelectionModel::ClearAndSelect);
+        updateActions();
     }
-
-    if (!model->insertRow(0, index))
-        return;
-
-    for (int column = 0; column < model->columnCount(index); column++)
-    {
-        QModelIndex child = model->index(0, column, index);
-        model->setData(child, QVariant(newInsertText), Qt::EditRole);
-    }
-
-    ui->jsonTree->selectionModel()->setCurrentIndex(model->index(0, 0, index),
-                                                    QItemSelectionModel::ClearAndSelect);
-    updateActions();
 }
 
 void JsonEditorMain::deleteTreeNode()
@@ -160,25 +191,31 @@ void JsonEditorMain::updateActions()
 
      bool hasCurrent = ui->jsonTree->selectionModel()->currentIndex().isValid();
      ui->menuInsertNode->setEnabled(hasCurrent);
-     ui->menuInsertChild->setEnabled(ui->jsonTree->selectionModel()->currentIndex().column() == 0);
+     ui->menuInsertChild->setEnabled(hasCurrent);
  }
 
 void JsonEditorMain::treeViewDataChanged()
 {
     for (int i = 0; i < ui->jsonTree->model()->columnCount(); i++)
+    {
         ui->jsonTree->resizeColumnToContents(i);
+        ui->jsonTree->setColumnWidth(i, ui->jsonTree->columnWidth(i) + 20);
+    }
 }
 
 void JsonEditorMain::formatCode()
 {
-    ui->jsonCode->clear();
+    if (ui->jsonTree->model() != NULL)
+    {
+        ui->jsonCode->clear();
 
-    QString codeText = "";
-    JsonTreeModel *model;
-    model = (JsonTreeModel*)ui->jsonTree->model();
-    codeText += treeFormat(model->getRootItem(), "", true);
+        QString codeText = "";
+        JsonTreeModel *model;
+        model = (JsonTreeModel*)ui->jsonTree->model();
+        codeText += treeFormat(model->getRootItem(), "", true);
 
-    ui->jsonCode->setPlainText(codeText);
+        ui->jsonCode->setPlainText(codeText);
+    }
 }
 
 QString JsonEditorMain::treeFormat(JsonTreeItem *treeItem, QString indent, bool noHeader)
@@ -198,7 +235,7 @@ QString JsonEditorMain::treeFormat(JsonTreeItem *treeItem, QString indent, bool 
     }
 
     if (objectType.compare(tr("对象"), Qt::CaseInsensitive) == 0
-        || objectValue.compare(treeViewColumnValue, Qt::CaseInsensitive) == 0)
+        || objectType.compare(treeViewColumnType, Qt::CaseInsensitive) == 0)
     {
         resultStr += "{\n";
         JsonTreeItem *subObjectItem;
@@ -237,6 +274,34 @@ QString JsonEditorMain::treeFormat(JsonTreeItem *treeItem, QString indent, bool 
 
     return resultStr;
 }
+
+void JsonEditorMain::showHelp()
+{
+    QMessageBox::information(this, tr("使用帮助"), tr("1. 在主界面的左边填写入 JSON 代码\n"
+                                                  "2. 点击菜单\"生成代码树\"，主界面右边会生成树\n"
+                                                  "3. 给树增减节点或修改值之后，点击菜单\"生成代码\"，会从树来生成 JSON 代码"));
+}
+
+void JsonEditorMain::dataEdit(QModelIndex editIndex)
+{
+    QString vType = editIndex.sibling(editIndex.row(), 2).data(Qt::EditRole).toString();
+
+    if (vType.compare(tr("对象")) != 0
+        && vType.compare(tr("数组")) != 0)
+    {
+        if (editIndex.column() >= 2)
+        {
+            QModelIndex newIndex = editIndex.sibling(editIndex.row(), 1);
+            ui->jsonTree->edit(newIndex);
+        }
+    }
+    else
+    {
+        QModelIndex newIndex = editIndex.sibling(editIndex.row(), 0);
+        ui->jsonTree->edit(newIndex);
+    }
+}
+
 
 
 

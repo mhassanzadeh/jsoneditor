@@ -14,7 +14,8 @@ SOURCES += main.cpp \
     jsonc/debug.c \
     jsonc/arraylist.c \
     jsontreeitem.cpp \
-    jsontreemodel.cpp
+    jsontreemodel.cpp \
+    addnodedlg.cpp
 HEADERS += jsoneditormain.h \
     jsonc/printbuf.h \
     jsonc/linkhash.h \
@@ -29,8 +30,10 @@ HEADERS += jsoneditormain.h \
     jsonc/arraylist.h \
     jsonc/config.h \
     jsontreeitem.h \
-    jsontreemodel.h
-FORMS += jsoneditormain.ui
+    jsontreemodel.h \
+    addnodedlg.h
+FORMS += jsoneditormain.ui \
+    addnodedlg.ui
 OTHER_FILES += images/view-refresh.png \
     images/system-log-out.png \
     images/media-floppy.png \

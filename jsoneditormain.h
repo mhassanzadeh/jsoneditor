@@ -2,6 +2,7 @@
 #define JSONEDITORMAIN_H
 
 #include <QMainWindow>
+#include <QModelIndex>
 #include "jsonc/jsoncxx.h"
 #include "jsontreeitem.h"
 
@@ -27,6 +28,8 @@ private:
     const QString treeViewColumnValue;
     const QString treeViewColumnType;
 
+    QString treeFormat(JsonTreeItem* treeItem = NULL, QString indent = "", bool noHeader = false);
+
 private slots:
     void toggleFileToolbar(bool checked);
     void toggleEditToolbar(bool checked);
@@ -39,7 +42,8 @@ private slots:
     void updateActions();
     void treeViewDataChanged();
     void formatCode();
-    QString treeFormat(JsonTreeItem* treeItem = NULL, QString indent = "", bool noHeader = false);
+    void showHelp();
+    void dataEdit(QModelIndex editIndex);
 };
 
 #endif // JSONEDITORMAIN_H

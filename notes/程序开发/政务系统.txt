@@ -8,3 +8,28 @@ Created Monday 10 May 2010
 政务系统报件信息表
 BJ_14_01_TDFLMJB -> 土地权属及分类面积汇总表
 CODEDICTBL -> 上面这个表用的分类代码
+
+
+YDSP2010051201 图形很准
+
+DDXZ2010052101 一个项目里面有多个投影系
+
+
+
+查所有案件
+select DISTINCT (t.案件编号),
+                t.项目名称,
+                t.案件类型,
+                CASE
+                  WHEN R.CASENO IS NULL THEN
+                   T.历史标志
+                  ELSE
+                   '5'
+                END AS 历史标志
+  from casesearchviewwithprojectname t
+  LEFT OUTER JOIN TJINFO_TBL R ON T.案件编号 = R.CASENO
+ where T.案件类型 = '建设用地审批'
+ order by 案件编号 DESC
+
+
+已经审批的建设用地导到 YDSP2008112007 了

@@ -1,0 +1,19 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:11:52.234000
+
+====== 打包Py ======
+Created Friday 04 June 2010
+
+# setup.py
+from distutils.core import setup
+import py2exe
+
+setup(console=["hello.py"])
+
+
+
+
+运行setup.py，记得要传一个参数给它
+
+python setup.py py2exe

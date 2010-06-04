@@ -1,0 +1,30 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:50:03.359000
+
+====== 自动还原IE窗口大小 ======
+Created Friday 04 June 2010
+
+<html>
+<body>
+<div>把它缩小小于800x600，它会自己变大。<br/>这个800x600是包括了标题栏等等在内的，所以下面这个值会小于800x600。</div>
+<br/>
+现在大小：<div id="re"></div>
+<script>
+var t;
+window.onresize = kk;
+function kk() {
+    document.getElementById('re').innerHTML = document.body.offsetWidth + 'x' + document.body.offsetHeight;
+    clearTimeout(t);
+    t = setTimeout("check()", 300);
+}
+
+function check() {
+    
+    if (document.body.offsetWidth < 800 || document.body.offsetHeight < 600) {
+        t = setTimeout("window.resizeTo(800,600)", 1);
+    }
+}
+</script>
+</body>
+</html>

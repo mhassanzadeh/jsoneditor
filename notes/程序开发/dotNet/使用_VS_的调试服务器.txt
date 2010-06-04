@@ -1,0 +1,38 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:21:52.250000
+
+====== 使用 VS 的调试服务器 ======
+Created Friday 04 June 2010
+
+这里简单介绍一下两种方法，但都是通过运行C:\Windows\Microsoft.NET\Framework\v2.0.50727\Webdev.WebServer.exe实现的
+
+第一个就是命令行方法：
+ASP.NET Development Server 用法:
+ Webdev.WebServer.exe [/port:<端口号>] /path:<物理路径> [/vpath:<虚拟路径>]
+
+端口号:
+ [可选] 介于1到65535之间位使用的端口号。默认为80(如果您还没有在同一端口上侦听IIS,则该端口号可用).
+物理路径:
+ Web应用程序是根路径的有效目录名.
+虚拟路径:
+ [可选] "/<app name>"形式的虚拟路径或应用程序根路径.默认路径是"/".
+
+示例:
+ Webdev.WebServer.exe /port:8080
+/path:"c:\inetub\wwwroot\MyApp" /vpath:"/MyApp"
+
+ 然后,就可以使用一下形式的URL访问Web应用程序: http://lcoalhost:8080/MyApp
+
+
+另外一个是添加鼠标右键的，这个需要修改注册表，用记事本新建一个文件，输入以下字符，并保存为reg格式
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Folder\shell\VS2005 WebServer]
+@="ASP.NET 2.0 Web Server Here"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Folder\shell\VS2005 WebServer\command]
+@="C:\\Windows\\Microsoft.NET\\Framework\\v2.0.50727\\Webdev.WebServer.exe /port:8099 /path:\"%1\""
+
+不过这样做有一些不好的地方，一个是端口不能自己定义，另外一个是只能使用一个端口，等等一些小问题，但个人觉得这个是非常方便的，不用每次自己都去IIS里设一个，烦的说。呵呵。
+

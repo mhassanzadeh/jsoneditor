@@ -1,0 +1,31 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:37:32.656000
+
+====== 经纬度换算 ======
+Created Friday 04 June 2010
+
+<html>
+<body>
+<form id="form1" onsubmit="kk();return false;">
+x:<input type="text" value="" id="xx" />
+y:<input type="text" value="" id="yy" />
+<input type="submit" value="ok" />
+</form>
+<div id="re"></div>
+<script>
+function kk() {
+    var xxx = document.getElementById('xx').value;
+    var yyy = document.getElementById('yy').value;
+    var x_x = xxx.split(' ');
+    var y_y = yyy.split(' ');
+    var x1 = parseFloat(x_x[0]) + parseFloat(x_x[1]) / 60 + parseFloat(x_x[2]) / 60 / 60;
+    var y1 = parseFloat(y_y[0]) + parseFloat(y_y[1]) / 60 + parseFloat(y_y[2]) / 60 / 60;
+    document.getElementById('re').innerHTML += xxx + ", " + yyy + "<input type='text' value='" + y1 + "' /><input type='text' value='" + x1 + "' /><br/>";
+    document.forms["form1"].elements["xx"].value = "";
+    document.forms["form1"].elements["yy"].value = "";
+    document.forms["form1"].elements["xx"].focus();
+}
+</script>
+</body>
+</html>

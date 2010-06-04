@@ -1,0 +1,24 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:29:12.453000
+
+====== 最优的清除浮动 ======
+Created Friday 04 June 2010
+
+.wrap{zoom:1;}   
+.wrap:after{content:"";clear:both;display:block}   
+  
+[color=red]但这样做有个问题要注意：用zoom:1的话,在ie7下面里面的元素如果有margin-bottom，那最下面的元素的margin-bottom会失效。[/color]   
+  
+不是浮动引起的，，是ie在li列表排列的一个的一个bug,   
+  
+所以最优、最精简的列表浮动样式是：   
+.wrap{zoom:1;padding:0 0 10px 10px;}   
+.wrap:after{content:"";clear:both;display:block}   
+.wrap li{float:left;margin:10px 10px 0 0;}   
+  
+优点解释一下：   
+1.防止了ie7的margin-bottom的bug   
+2.防止了overflow和display:table的bug   
+3.最少的代码实现标签浏览器的清除浮动   
+4.防止了里面元素的双倍margin我们先创建一个示例片段：    <style type="text/css">    #menu{        float:left;    }    </style>    <div id=&quO½;ŭϰŐϰŐquot;>        <ul class="wrap">            <li>菜单1</li>            <li>菜单2</li>            <li>菜单3</li>            <li>菜单4</li>            <li>菜单5</li>        </ul>    </div>

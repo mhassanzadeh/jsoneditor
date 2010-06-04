@@ -1,0 +1,8 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:48:13.343000
+
+====== 修改 Oracle 的系统参数 ======
+Created Friday 04 June 2010
+
+ alter system set  xxxx=xxxx [scope=spfile];

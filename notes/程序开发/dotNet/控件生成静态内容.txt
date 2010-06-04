@@ -1,0 +1,18 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:24:32.250000
+
+====== 控件生成静态内容 ======
+Created Friday 04 June 2010
+
+将Asp.net 控件的呈现html获取,在不少场合会用到,比如生成静态页时
+以下代码选自 Asp.net 2.0 高级编程
+public static string RenderControlAsString(Control ctl)...{
+ StringWrite sw=new StringWrite();
+ HtmlTextWrite write=new HtmlTextWrite(sw);
+ ctl.RenderControl(writer);
+ string str =sw.ToString();
+  write.Close();
+  sw.Close();
+  return str;
+}

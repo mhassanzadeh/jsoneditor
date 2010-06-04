@@ -1,0 +1,37 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:17:32.250000
+
+====== 我的 Python 主机 ======
+Created Friday 04 June 2010
+
+我的 Python 主机
+恭喜!您的空间已经顺利开通!
+cp
+user: kowity
+pwd: tgliug1225
+
+FTP帐号信息(可立即在空间操作中修改您的FTP密码)
+FTP服务器: host124.londit.cn
+FTP用户名: kowity01
+FTP密码: Yll54IEP
+
+Mysql帐号信息(可立即在空间操作中修改您的Mysql密码)
+Mysql登录地址: http://host124.londit.cn/phpmyadmin/
+Mysql用户名: kowity01
+Mysql密码: oflU3MhD
+
+域名未绑定前您可以使用该地址访问: http://kowity01.host124.londit.cn
+域名绑定请查看: http://faq.londit.cn/article.php?id=023
+
+再次感谢使用浪点主机(http://www.londit.cn)的产品!
+
+SSH
+主机：host124.londit.cn
+端口：2222
+用户名：kowity
+密码： 14063365
+
+sudu.cn cp
+kowity
+kowity+xxxx(number)

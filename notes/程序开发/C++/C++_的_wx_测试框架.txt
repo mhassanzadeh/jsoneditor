@@ -1,0 +1,85 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:11:32.234000
+
+====== C++ 的 wx 测试框架 ======
+Created Friday 04 June 2010
+
+#include "wx/wx.h"
+
+class MyControl: public wxControl
+{
+public:
+       MyControl(wxWindow* parent, wxWindowID id = -1): wxControl(parent, id)
+       {
+       }
+
+   void OnMotion(wxMouseEvent& evt)
+       {   
+       wxPostEvent(GetParent(), evt);
+       evt.Skip();
+       }
+
+       DECLARE_EVENT_TABLE()
+};
+
+
+class MyFrame: public wxFrame
+{
+public:
+       MyFrame(wxWindow* parent, wxWindowID id = -1, const wxString& title = "frame"): wxFrame(parent, id, title)
+       {
+       txt = new wxStaticText(this, -1, "");
+
+       wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
+       sizer->Add(txt);
+
+               MyControl *c = new MyControl(this);
+       sizer->Add(c, 1, wxEXPAND);
+
+       SetSizer(sizer);
+       }
+
+   void OnMotion(wxMouseEvent& evt)
+       {
+       wxClientDC dc(this);
+       PrepareDC(dc);
+       wxPoint pt = evt.GetLogicalPosition(dc);
+       //self.txt.SetLabel(str(pt));
+
+               wxString s;
+               s.Printf("%d, %d", evt.GetPosition().x, evt.GetPosition().y);
+       txt->SetLabel(s);
+       }
+
+       wxStaticText *txt;
+
+       DECLARE_EVENT_TABLE()
+};
+
+
+class MyApp: public wxApp
+{
+public:
+   bool OnInit(void)
+       {
+               MyFrame * frame = new MyFrame(NULL);
+
+               frame->Show(true);
+               SetTopWindow(frame);
+
+               return true;
+       }
+};
+
+
+
+IMPLEMENT_APP(MyApp)
+
+BEGIN_EVENT_TABLE(MyControl, wxControl)
+       EVT_MOTION(OnMotion)
+END_EVENT_TABLE()
+
+BEGIN_EVENT_TABLE(MyFrame, wxFrame)
+       EVT_MOTION(OnMotion)
+END_EVENT_TABLE()

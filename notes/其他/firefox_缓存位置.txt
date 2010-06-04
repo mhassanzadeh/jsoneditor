@@ -1,0 +1,8 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:23:07.250000
+
+====== firefox 缓存位置 ======
+Created Friday 04 June 2010
+
+browser.cache.disk.parent_directory

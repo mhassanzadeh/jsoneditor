@@ -1,0 +1,103 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:50:23.359000
+
+====== Oracle Spatial反转点 ======
+Created Friday 04 June 2010
+
+CREATE OR REPLACE FUNCTION fix_gtype (
+  geom sdo_geometry,
+  id number
+  ) return sdo_geometry
+  is
+    g mdsys.sdo_geometry;
+    d number;
+  begin
+
+  g := geom;
+  d := geom.sdo_elem_info.count();
+  if d > 3 then
+    g.sdo_gtype := 2007;
+  else
+    g.sdo_gtype := 2003;
+  end if;
+
+  --dbms_output.put_line('处理了，ID='||id);
+  return g;
+  
+  Exception
+    when others then
+      dbms_output.put_line('出错，ID='||id||'-----------------------');
+      return geom;
+  end;
+
+  
+  
+  CREATE OR REPLACE FUNCTION fix_point_order (
+  geom sdo_geometry,
+  id number
+  ) return sdo_geometry
+  is
+    g mdsys.sdo_geometry;
+    d number;
+    start_i number;
+    end_i number;
+    i number;
+    m number;
+    m_count number;
+  begin
+
+  g := geom;
+  d := geom.sdo_elem_info.count();
+  if d > 3 then
+     i := 0;
+     while i < (d - 3) loop
+       if i = 0 then
+         g.sdo_elem_info(2 + i) := 1003;
+       else
+         g.sdo_elem_info(2 + i) := 2003;
+       end if;
+       start_i := geom.sdo_elem_info(1 + i);
+       end_i := geom.sdo_elem_info(4 + i) - 1;
+       m_count := end_i - start_i + 1;
+       m := 0;
+       while m < m_count loop
+         g.sdo_ordinates(start_i + m) := geom.sdo_ordinates(end_i - m - 1);
+         g.sdo_ordinates(start_i + m + 1) := geom.sdo_ordinates(end_i - m);
+         m := m + 2;
+       end loop;
+       i := i + 3;
+     end loop;
+
+     g.sdo_elem_info(2 + i) := 2003;
+     start_i := geom.sdo_elem_info(1 + i);
+     end_i := geom.sdo_ordinates.count();
+     m_count := end_i - start_i + 1;
+     m := 0;
+     while m < m_count loop
+       g.sdo_ordinates(start_i + m) := geom.sdo_ordinates(end_i - m - 1);
+       g.sdo_ordinates(start_i + m + 1) := geom.sdo_ordinates(end_i - m);
+       m := m + 2;
+     end loop;
+  else
+     i := 0;
+     g.sdo_elem_info(2 + i) := 1003;
+     start_i := geom.sdo_elem_info(1 + i);
+     end_i := geom.sdo_ordinates.count();
+     m_count := end_i - start_i + 1;
+     m := 0;
+     while m < m_count loop
+       g.sdo_ordinates(start_i + m) := geom.sdo_ordinates(end_i - m - 1);
+       g.sdo_ordinates(start_i + m + 1) := geom.sdo_ordinates(end_i - m);
+       m := m + 2;
+     end loop;
+  end if;
+
+  --dbms_output.put_line('处理了，ID='||id);
+  return g;
+  
+  Exception
+  when others then
+    dbms_output.put_line('出错，ID='||id||'-----------------------'||id);
+    return geom;
+  end;

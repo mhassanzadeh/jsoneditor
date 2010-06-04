@@ -1,0 +1,2115 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:31:32.640000
+
+====== 市级网站DataStructSQL v1 ======
+Created Friday 04 June 2010
+
+CREATE DATABASE MyCity
+GO
+USE MyCity
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [N_News_Select_NoState]
+(
+        @ClassId int,
+        @Where varchar(50),
+        @PageSize int,
+        @CurrentPage int,
+        @RecordCount int = 0 output
+)
+AS
+BEGIN
+        DECLARE @RCount NVARCHAR(4000);
+        DECLARE @Result NVARCHAR(4000);
+
+        SET @RCount = ' SELECT @RecordCount = COUNT(b.Id) FROM N_News b, class_id(@ClassId1) a1 WHERE b.ClassId=a1.id ';
+        SET @Result = ' SELECT TOP ' + ltrim(@PageSize*@CurrentPage) + ' b.Id, b.ClassId, b.ParentId, b.Title, b.[Content], b.Author, b.Editor, b.Source, b.Auditing, b.Hits, b.CTime, b.STime, b.state, N_ClassMenu.ClassName FROM N_News b, class_id(@ClassId1) a1, N_ClassMenu WHERE b.ClassId=a1.id AND b.ClassId = N_ClassMenu.Id ';
+        
+        IF @Where <> ''
+        BEGIN -- IF @Where <> ''
+                SET @RCount = @RCount + ' AND Title like @Where1 '
+                SET @Result = @Result + ' AND Title like @Where1 '
+        END -- IF @Where <> ''
+
+
+        SET @RCount = @RCount +';';
+        
+        SET @Result = @Result + ' ORDER BY b.STime DESC ';
+        
+        SET @Result = 'SELECT * FROM ( ' + ' SELECT TOP ' + ltrim(@PageSize) + ' * FROM ( ' + @Result + ' ) as tmp1 ORDER BY STime ' + ' ) as tmp2 ORDER BY STime DESC ;';
+
+        EXECUTE sp_executesql @RCount,N'@RecordCount int=0 output,@ClassId1 int,@Where1 varchar(50)',@RecordCount output,@ClassId1=@ClassId,@Where1 =@Where
+        EXECUTE sp_executesql @Result,N'@ClassId1 int,@Where1 varchar(50)',@ClassId1=@ClassId,@Where1 =@Where
+END
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [N_News_Select]
+(
+        @ClassId int,
+        @Where varchar(50),
+        @state bit,
+        @PageSize int,
+        @CurrentPage int,
+        @RecordCount int = 0 output
+)
+AS
+BEGIN
+        DECLARE @RCount NVARCHAR(4000);
+        DECLARE @Result NVARCHAR(4000);
+
+        SET @RCount = ' SELECT @RecordCount = COUNT(b.Id) FROM N_News b, class_id(@ClassId1) a1 WHERE b.ClassId = a1.id and b.state = @state1';
+        SET @Result = ' SELECT TOP ' + ltrim(@PageSize*@CurrentPage) + ' b.Id, b.ClassId, b.ParentId, b.Title, b.[Content], b.Author, b.Editor, b.Source, b.Auditing, b.Hits, b.CTime, b.STime, b.state, N_ClassMenu.ClassName FROM N_News b, class_id(@ClassId1) a1, N_ClassMenu WHERE b.ClassId=a1.id AND b.ClassId = N_ClassMenu.Id and b.state = @state1';
+        
+        IF @Where <> ''
+        BEGIN -- IF @Where <> ''
+                SET @RCount = @RCount + ' AND Title like @Where1 '
+                SET @Result = @Result + ' AND Title like @Where1 '
+        END -- IF @Where <> ''
+
+
+        SET @RCount = @RCount +';';
+        
+        SET @Result = @Result + ' ORDER BY b.STime DESC ';
+        
+        SET @Result = 'SELECT * FROM ( ' + ' SELECT TOP ' + ltrim(@PageSize) + ' * FROM ( ' + @Result + ' ) as tmp1 ORDER BY STime ' + ' ) as tmp2 ORDER BY STime DESC ;';
+
+        EXECUTE sp_executesql @RCount,N'@RecordCount int=0 output,@ClassId1 int,@Where1 varchar(50),@state1 bit',@RecordCount output,@ClassId1=@ClassId,@Where1 =@Where,@state1 =@state
+        EXECUTE sp_executesql @Result,N'@ClassId1 int,@Where1 varchar(50),@state1 bit',@ClassId1=@ClassId,@Where1 =@Where,@state1 = @state
+END
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [F_Down_Select]
+(
+        @ClassId int,
+        @Where varchar(50),
+        @PageSize int,
+        @CurrentPage int,
+        @RecordCount int = 0 output
+)
+AS
+BEGIN
+        DECLARE @RCount NVARCHAR(4000);
+        DECLARE @Result NVARCHAR(4000);
+        DECLARE @exist INT;
+
+        SET @RCount = ' SELECT @RecordCount = COUNT(Id) FROM F_DownLoadFile ';
+        SET @Result = ' SELECT TOP ' + ltrim(@PageSize*@CurrentPage) + ' F_DownLoadFile.[Id], F_DownLoadFile.[ClassId], F_DownLoadFile.[FTitle], F_DownLoadFile.[FName], F_DownLoadFile.[Department], F_DownLoadFile.[intro], F_DownLoadFile.[ClassName], F_DownLoadFile.[STime], F_DownLoadFile.[CTime],F_ClassFile.CName FROM F_DownLoadFile left Join F_ClassFile ON F_DownLoadFile.ClassId = F_ClassFile.Id ';
+        
+                
+        IF @ClassId <> 0
+        BEGIN
+                SET @RCount = @RCount + ' WHERE F_DownLoadFile.[ClassId] = ' + STR(@ClassId);
+                SET @Result = @Result + ' WHERE F_DownLoadFile.[ClassId] = ' + STR(@ClassId);
+        END     
+
+        IF @Where <> ''
+        BEGIN
+                SELECT @exist = CHARINDEX('WHERE',@RCount)
+                IF @exist > 0
+                BEGIN -- IF @exist > 0
+                        SET @RCount = @RCount + ' AND FTitle like @Where1 '
+                        SET @Result = @Result + ' AND FTitle like @Where1 '
+                END -- IF @exist > 0
+                ELSE
+                BEGIN -- ELSE @exist > 0
+                        SET @RCount = @RCount + ' WHERE FTitle like @Where1 '
+                        SET @Result = @Result + ' WHERE FTitle like @Where1 '
+                END -- ELSE @exist > 0
+        END
+
+
+        SET @RCount = @RCount +';';
+        
+        SET @Result = @Result + ' ORDER BY F_DownLoadFile.STime DESC ';
+        
+        SET @Result = 'SELECT * FROM ( ' + ' SELECT TOP ' + ltrim(@PageSize) + ' * FROM ( ' + @Result + ' ) as tmp1 ORDER BY STime ' + ' ) as tmp2 ORDER BY STime DESC ;';
+
+        EXECUTE sp_executesql @RCount,N'@RecordCount int=0 output,@ClassId1 int,@Where1 varchar(50)',@RecordCount output,@ClassId1=@ClassId,@Where1 =@Where
+        EXECUTE sp_executesql @Result,N'@ClassId1 int,@Where1 varchar(50)',@ClassId1=@ClassId,@Where1 =@Where
+END
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [N_News](
+        [Id] [int] IDENTITY(1,1) NOT NULL,
+        [ClassId] [int] NOT NULL,
+        [ParentId] [int] NULL,
+        [Title] [nvarchar](50) NOT NULL,
+        [Content] [varchar](6500) NOT NULL,
+        [Author] [nvarchar](50) NULL,
+        [Editor] [nvarchar](50) NULL,
+        [Source] [nvarchar](50) NULL,
+        [Auditing] [nvarchar](50) NULL,
+        [Hits] [int] NULL CONSTRAINT [DF_N_News_Hits]  DEFAULT (0),
+        [CTime] [datetime] NULL CONSTRAINT [DF_N_News_CTime]  DEFAULT (getdate()),
+        [STime] [datetime] NULL CONSTRAINT [DF_N_News_STime]  DEFAULT (getdate()),
+        [state] [bit] NULL CONSTRAINT [DF_N_News_state_1]  DEFAULT (0),
+        [NType_Pic] [bit] NULL CONSTRAINT [DF_N_News_NType_Pic]  DEFAULT (0),
+        [NType_Top] [bit] NULL CONSTRAINT [DF_N_News_NTypr_Top]  DEFAULT (0),
+        [PicUrl] [nvarchar](100) NULL,
+ CONSTRAINT [PK_N_News] PRIMARY KEY CLUSTERED
+(
+        [Id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [R_ReplyReport](
+        [Id] [int] IDENTITY(1,1) NOT NULL,
+        [RContent] [varchar](7000) NULL,
+        [RMan] [varchar](50) NULL,
+        [RTime] [datetime] NULL,
+        [RSId] [varchar](50) NOT NULL,
+ CONSTRAINT [PK_R_ReplyReport] PRIMARY KEY CLUSTERED
+(
+        [Id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [A_Refer](
+        [id] [int] IDENTITY(1,1) NOT NULL,
+        [name] [nvarchar](50) NULL,
+        [phone] [nvarchar](50) NULL,
+        [Email] [nvarchar](50) NULL,
+        [Title] [nvarchar](200) NULL,
+        [Content] [varchar](5000) NULL,
+        [ip] [nvarchar](50) NULL,
+        [ctime] [datetime] NOT NULL CONSTRAINT [DF_A_Refer_ctime]  DEFAULT (getdate()),
+        [State] [bit] NOT NULL CONSTRAINT [DF_A_Refer_State]  DEFAULT (0),
+        [ReplyName] [nvarchar](50) NULL,
+        [ReplyContent] [nvarchar](1000) NULL,
+        [ReplyTime] [datetime] NULL,
+ CONSTRAINT [PK_A_Refer] PRIMARY KEY CLUSTERED
+(
+        [id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [XH_IP](
+        [ID] [int] IDENTITY(1,1) NOT NULL,
+        [sid] [int] NOT NULL,
+        [IP] [char](50) NOT NULL,
+        [vtime] [datetime] NOT NULL CONSTRAINT [DF_XH_IP_vtime]  DEFAULT (getdate())
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [XH_Question](
+        [id] [int] IDENTITY(1,1) NOT NULL,
+        [Question] [char](100) NOT NULL,
+        [ImgUrl] [char](255) NULL,
+        [sid] [int] NOT NULL,
+        [tid] [int] NOT NULL,
+        [ps] [int] NOT NULL
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [V_ventilate](
+        [Id] [int] IDENTITY(1,1) NOT NULL,
+        [Name] [varchar](50) NULL,
+        [Unit] [varchar](200) NULL,
+        [Credentials] [varchar](50) NULL,
+        [Number] [varchar](50) NULL,
+        [Phone] [varchar](50) NULL,
+        [Mobile] [varchar](50) NULL,
+        [Email] [varchar](80) NULL,
+        [Address] [varchar](300) NULL,
+        [Postalcode] [nchar](6) NULL,
+        [Fax] [varchar](50) NULL,
+        [Type] [bit] NOT NULL,
+        [Title] [varchar](50) NOT NULL,
+        [Describe] [varchar](500) NULL,
+        [UseTo] [varchar](300) NULL,
+        [State] [bit] NOT NULL CONSTRAINT [DF_V_ventilate_State]  DEFAULT (0),
+        [ReplyContent] [varchar](500) NULL,
+        [Url] [varchar](200) NULL,
+        [Ip] [varchar](50) NOT NULL,
+        [CreateTime] [datetime] NOT NULL CONSTRAINT [DF_V_ventilate_CreateTime]  DEFAULT (getdate()),
+        [ReplyTime] [datetime] NULL,
+ CONSTRAINT [PK_V_ventilate] PRIMARY KEY CLUSTERED
+(
+        [Id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [XH_Title](
+        [id] [int] IDENTITY(1,1) NOT NULL,
+        [title] [char](50) NOT NULL,
+        [sid] [int] NOT NULL,
+        [ms] [int] NOT NULL,
+        [vcount] [int] NOT NULL CONSTRAINT [DF_XH_Title_vcount]  DEFAULT (0),
+        [listType] [int] NOT NULL,
+        [listRows] [int] NOT NULL
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Xh_Subject](
+        [id] [int] IDENTITY(1,1) NOT NULL,
+        [subject] [nvarchar](200) NOT NULL,
+        [QX] [datetime] NOT NULL
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [XH_UserInfo](
+        [id] [int] IDENTITY(1,1) NOT NULL,
+        [Name] [nvarchar](50) NULL,
+        [Sex] [nvarchar](20) NULL,
+        [IDCard] [nvarchar](50) NULL,
+        [Tel] [nvarchar](50) NULL,
+        [Address] [nvarchar](255) NULL,
+        [Email] [nvarchar](255) NULL,
+        [Content] [varchar](6000) NULL,
+        [sid] [int] NULL,
+        [qids] [nvarchar](255) NULL,
+        [ip] [nvarchar](50) NULL
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [R_Report](
+        [Id] [int] IDENTITY(1,1) NOT NULL,
+        [SId] [varchar](50) NULL,
+        [RealAdd] [varchar](50) NULL,
+        [RealName] [varchar](50) NULL,
+        [Add] [varchar](50) NULL,
+        [Call] [varchar](50) NULL,
+        [Email] [varchar](50) NULL,
+        [Title] [varchar](50) NULL,
+        [Content] [varchar](7000) NULL,
+        [Class] [int] NULL,
+        [ClassName] [nvarchar](50) NULL,
+        [CTime] [datetime] NOT NULL,
+ CONSTRAINT [PK_R_Report] PRIMARY KEY CLUSTERED
+(
+        [Id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [G_action_group](
+        [id] [int] IDENTITY(1,1) NOT NULL,
+        [action] [char](16) NOT NULL,
+        [group_id] [int] NOT NULL,
+        [update_date] [datetime] NOT NULL,
+        [update_master_id] [int] NOT NULL,
+        [update_master_name] [char](20) NOT NULL,
+ CONSTRAINT [PK_G_action_group] PRIMARY KEY CLUSTERED
+(
+        [id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [A_Advice](
+        [id] [int] IDENTITY(1,1) NOT NULL,
+        [name] [nvarchar](50) NULL,
+        [phone] [nvarchar](50) NULL,
+        [Email] [nvarchar](50) NULL,
+        [Title] [nvarchar](200) NULL,
+        [Content] [varchar](6000) NULL,
+        [ip] [nvarchar](50) NULL,
+        [ctime] [datetime] NOT NULL CONSTRAINT [DF_A_Advice_ctime]  DEFAULT (getdate()),
+        [State] [bit] NOT NULL CONSTRAINT [DF_A_Advice_State]  DEFAULT (0),
+        [ReplyName] [nvarchar](50) NULL,
+        [ReplyContent] [varchar](1000) NULL,
+        [ReplyTime] [datetime] NULL,
+ CONSTRAINT [PK_A_Advice] PRIMARY KEY CLUSTERED
+(
+        [id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [F_DownLoadFile](
+        [Id] [int] IDENTITY(1,1) NOT NULL,
+        [ClassId] [int] NOT NULL,
+        [FTitle] [nvarchar](50) NULL,
+        [FName] [nvarchar](50) NULL,
+        [Department] [nvarchar](50) NULL,
+        [intro] [nvarchar](200) NULL,
+        [ClassName] [nvarchar](50) NULL,
+        [CTime] [datetime] NOT NULL,
+        [STime] [datetime] NOT NULL CONSTRAINT [DF_F_DownLoadFile_STime]  DEFAULT (getdate()),
+ CONSTRAINT [PK_F_DownLoadFile] PRIMARY KEY CLUSTERED
+(
+        [Id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [F_ClassFile](
+        [Id] [int] IDENTITY(1,1) NOT NULL,
+        [Did] [int] NULL,
+        [CName] [nvarchar](50) NULL,
+        [CTime] [datetime] NOT NULL CONSTRAINT [DF_F_ClassFile_CTime]  DEFAULT (getdate()),
+ CONSTRAINT [PK_F_ClassFile] PRIMARY KEY CLUSTERED
+(
+        [Id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [G_action](
+        [action_id] [int] IDENTITY(1,1) NOT NULL,
+        [action_name] [nvarchar](50) NOT NULL,
+        [action_info] [nvarchar](1000) NULL,
+        [action] [char](16) NOT NULL,
+        [create_time] [datetime] NOT NULL,
+        [create_master_id] [int] NOT NULL,
+        [create_master_name] [char](20) NOT NULL,
+ CONSTRAINT [PK_G_action] PRIMARY KEY CLUSTERED
+(
+        [action_id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [G_groupmanager](
+        [group_id] [int] IDENTITY(1,1) NOT NULL,
+        [group_name] [nvarchar](50) NOT NULL,
+        [group_info] [nvarchar](1000) NULL,
+        [create_date] [datetime] NOT NULL,
+        [create_master_id] [int] NOT NULL,
+        [create_master_name] [char](20) NOT NULL,
+        [last_date] [datetime] NULL,
+        [last_master_id] [int] NULL,
+        [last_master_name] [char](20) NULL,
+ CONSTRAINT [PK_G_groupmanager] PRIMARY KEY CLUSTERED
+(
+        [group_id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [G_master](
+        [master_id] [int] IDENTITY(1,1) NOT NULL,
+        [master_name] [char](20) NOT NULL,
+        [master_psw] [char](32) NOT NULL,
+        [real_name] [nchar](20) NOT NULL,
+        [sex] [nchar](2) NOT NULL,
+        [phone] [nvarchar](50) NULL,
+        [department] [nvarchar](50) NULL,
+        [ask] [nvarchar](50) NULL,
+        [answer] [char](32) NULL,
+        [update_time] [datetime] NULL,
+        [state] [bit] NOT NULL,
+        [last_time] [datetime] NULL,
+        [last_ip] [nvarchar](50) NULL,
+        [group_id] [int] NULL CONSTRAINT [DF_G_master_group_id]  DEFAULT (0),
+        [update_master_id] [int] NULL,
+        [update_master_name] [char](20) NULL,
+ CONSTRAINT [PK_G_master] PRIMARY KEY CLUSTERED
+(
+        [master_id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [history](
+        [id] [int] IDENTITY(1,1) NOT NULL,
+        [master_name] [nvarchar](50) NOT NULL,
+        [action_name] [nvarchar](300) NOT NULL,
+        [create_time] [datetime] NOT NULL CONSTRAINT [DF_history_create_time]  DEFAULT (getdate()),
+ CONSTRAINT [PK_history] PRIMARY KEY CLUSTERED
+(
+        [id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [N_ClassMenu](
+        [Id] [int] IDENTITY(1,1) NOT NULL,
+        [DId] [int] NULL,
+        [ParentName] [nvarchar](50) NULL,
+        [ClassName] [nvarchar](50) NULL,
+        [ParentId] [int] NULL,
+        [CTime] [datetime] NULL CONSTRAINT [DF_N_ClassMenu_CTime]  DEFAULT (getdate()),
+        [CustomUrl] [nvarchar](500) NULL,
+        [IsNav] [bit] NULL CONSTRAINT [DF_N_ClassMenu_IsNav]  DEFAULT (0),
+        [Lock] [bit] NULL CONSTRAINT [DF_N_ClassMenu_Lock]  DEFAULT (0),
+        [HasChild] [bit] NULL CONSTRAINT [DF_N_ClassMenu_HasChild]  DEFAULT (0),
+        [IsISO] [bit] NULL,
+ CONSTRAINT [PK_N_ClassMenu] PRIMARY KEY CLUSTERED
+(
+        [Id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [E_ErrList](
+        [id] [int] IDENTITY(1,1) NOT NULL,
+        [ip] [nvarchar](50) NULL,
+        [err_info] [text] NULL,
+        [err_msg] [text] NULL,
+        [parm_values] [text] NULL,
+        [url] [nvarchar](200) NULL,
+        [createtime] [datetime] NULL CONSTRAINT [DF_E_ErrList_createtime]  DEFAULT (getdate()),
+ CONSTRAINT [PK_E_ErrList] PRIMARY KEY CLUSTERED
+(
+        [id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [V_viscount](
+        [VisCountToday] [int] NULL,
+        [VisCountForAll] [int] NULL,
+        [VisCountGoBack] [datetime] NULL
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [XH_Config](
+        [username] [char](50) NOT NULL,
+        [password] [char](50) NOT NULL,
+        [WebName] [char](50) NOT NULL,
+        [WebUrl] [char](255) NOT NULL,
+        [SystemUrl] [char](255) NOT NULL,
+        [RestrictIP] [bit] NOT NULL,
+        [AllowView] [bit] NOT NULL,
+        [refuseTime] [int] NOT NULL,
+        [GetUserInfo] [bit] NOT NULL
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [L_Link](
+        [Id] [int] IDENTITY(1,1) NOT NULL,
+        [name] [varchar](50) NULL,
+        [url] [varchar](100) NULL,
+        [byname] [varchar](50) NULL,
+        [class] [int] NULL,
+        [range] [int] NULL,
+        [remark] [nvarchar](500) NULL,
+ CONSTRAINT [PK_L_Link] PRIMARY KEY CLUSTERED
+(
+        [Id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [N_ClassMenu_Select]
+(
+        @ParentId int,
+        @ClassName nvarchar(50),
+        @State bit,
+        @PageSize int,
+        @CurrentPage int,
+        @RecordCount int = 0 output
+)
+AS
+BEGIN
+        
+        DECLARE @RCount NVARCHAR(4000);
+        DECLARE @Result NVARCHAR(4000);
+        DECLARE @exist INT;
+        
+        SET @RCount = ' SELECT @RecordCount = COUNT(Id) FROM [N_ClassMenu] ';
+        SET @Result = ' SELECT TOP ' + ltrim(@PageSize*@CurrentPage) + ' [Id],[DId],[ParentName],[ClassName],[ParentId],[CTime],[CustomUrl],[IsNav],[Lock],[HasChild],[IsISO] FROM [N_ClassMenu] ';
+
+        -- 查询关键词是否为空
+        IF @ClassName <> ''
+        BEGIN
+                SET @RCount = @RCount + ' WHERE ClassName LIKE @ClassName1';
+                SET @Result = @Result + ' WHERE ClassName LIKE @ClassName1';
+        END
+        
+        -- 是否限定了查询范围
+        IF @State = 1
+        BEGIN
+                SELECT @exist = CHARINDEX('WHERE',@RCount)
+                IF @exist > 0
+                BEGIN -- IF @exist > 0
+                        SET @RCount = @RCount + ' AND ParentId = ' + STR(@ParentId);
+                        SET @Result = @Result + ' AND ParentId = ' + STR(@ParentId);
+                END -- IF @exist > 0
+                ELSE
+                BEGIN -- ELSE @exist > 0
+                        SET @RCount = @RCount + ' WHERE ParentId = ' + STR(@ParentId);
+                        SET @Result = @Result + ' WHERE ParentId = ' + STR(@ParentId);
+                END -- ELSE @exist > 0
+        END
+
+        SET @RCount = @RCount +';';
+        
+        SET @Result = @Result + ' ORDER BY [DId] ';
+
+        SET @Result = 'SELECT * FROM ( ' + ' SELECT TOP ' + ltrim(@PageSize) + ' * FROM ( ' + @Result + ' ) as tmp1 ORDER BY [DId] DESC' + ' ) as tmp2 ORDER BY [DId] ;';
+
+        EXECUTE sp_executesql @RCount,N'@RecordCount int=0 output,@ClassName1 nvarchar(50)',@RecordCount output,@ClassName1 =@ClassName;
+        EXECUTE sp_executesql @Result,N'@ClassName1 nvarchar(50)',@ClassName1 =@ClassName;
+END
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [G_action_Select]
+(
+        @Where varchar(50),
+        @PageSize int,
+        @CurrentPage int,
+        @RecordCount int = 0 output
+)
+AS
+BEGIN
+        DECLARE @RCount NVARCHAR(4000);
+        DECLARE @Result NVARCHAR(4000);
+
+
+        SET @RCount = ' SELECT @RecordCount = COUNT(action_id) FROM [G_action] ';
+        SET @Result = ' SELECT TOP ' + ltrim(@PageSize*@CurrentPage) + ' action_id,action_name,action_info,[action],create_time,create_master_id,create_master_name FROM [G_action] ';
+
+        -- 查询关键词是否为空
+        IF @Where <> ''
+        BEGIN
+                SET @RCount = @RCount + ' WHERE action_name LIKE @Where1';
+                SET @Result = @Result + ' WHERE action_name LIKE @Where1';
+        END
+
+        SET @RCount = @RCount +';';
+        
+        SET @Result = @Result + ' ORDER BY action_id ';
+        
+        SET @Result = 'SELECT * FROM ( ' + ' SELECT TOP ' + ltrim(@PageSize) + ' * FROM ( ' + @Result + ' ) as tmp1 ORDER BY action_id DESC' + ' ) as tmp2 ORDER BY action_id ;';
+
+
+        EXECUTE sp_executesql @RCount,N'@RecordCount int=0 output,@Where1 nvarchar(50)',@RecordCount output,@Where1 =@Where;
+        EXECUTE sp_executesql @Result,N'@Where1 nvarchar(50)',@Where1 =@Where;
+END
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [P_PicPack](
+        [picKey] [int] IDENTITY(0,1) NOT NULL,
+        [location] [varchar](50) NULL,
+        [picName] [nvarchar](200) NULL,
+        [picLink] [varchar](200) NULL,
+        [picSize] [varchar](50) NULL,
+        [picType] [int] NULL,
+ CONSTRAINT [PK_P_PicPack] PRIMARY KEY CLUSTERED
+(
+        [picKey] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE PROCEDURE [G_action_Group_Select]
+(
+        @action char(16),
+        @group_id int,
+        @PageSize int,
+        @CurrentPage int,
+        @RecordCount int = 0 output
+)
+AS
+BEGIN
+        DECLARE @RCount NVARCHAR(4000);
+        DECLARE @Result NVARCHAR(4000);
+        DECLARE @exist INT
+
+        SET @RCount = ' SELECT @RecordCount = COUNT(id) FROM G_action_group ';
+        SET @Result = ' SELECT TOP ' + ltrim(@PageSize*@CurrentPage) + ' G_action_group.id,G_action_group.[action],G_action_group.group_id,G_action_group.update_date,G_action_group.update_master_id,G_action_group.update_master_name,G_action.action_name,G_groupmanager.group_name FROM G_action_group LEFT JOIN [G_action] ON G_action_group.action = G_action.action LEFT JOIN G_groupmanager ON G_action_group.group_id = G_groupmanager.group_id ';
+        
+        IF @action <> ''
+        BEGIN -- IF @action <> ''
+                SET @RCount = @RCount + ' WHERE G_action_group.[action] like @action1 '
+                SET @Result = @Result + ' WHERE G_action_group.[action] like @action1 '
+        END -- IF @action <> ''
+
+        IF @group_id <> 0
+        BEGIN -- IF @group_id <> 0
+                SELECT @exist = CHARINDEX('WHERE',@RCount)
+                IF @exist > 0
+                BEGIN -- IF @exist > 0
+                        SET @RCount = @RCount + ' AND G_action_group.group_id = ' + STR(@group_id)
+                        SET @Result = @Result + ' AND G_action_group.group_id = ' + STR(@group_id)
+                END -- IF @exist > 0
+                ELSE
+                BEGIN -- ELSE @exist > 0
+                        SET @RCount = @RCount + ' WHERE G_action_group.group_id = ' + STR(@group_id)
+                        SET @Result = @Result + ' WHERE G_action_group.group_id = ' + STR(@group_id)
+                END -- ELSE @exist > 0
+        END -- IF @group_id <> 0
+
+        SET @RCount = @RCount +';';
+        
+        SET @Result = @Result + ' ORDER BY G_action_group.id ';
+        
+        SET @Result = 'SELECT * FROM ( ' + ' SELECT TOP ' + ltrim(@PageSize) + ' * FROM ( ' + @Result + ' ) as tmp1 ORDER BY id DESC' + ' ) as tmp2 ORDER BY id ;';
+
+        EXECUTE sp_executesql @RCount,N'@RecordCount int=0 output,@action1 char(16)',@RecordCount output,@action1 =@action
+        EXECUTE sp_executesql @Result,N'@action1 char(16)',@action1 =@action
+END
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [G_group_Select]
+(
+        @Where varchar(50),
+        @PageSize int,
+        @CurrentPage int,
+        @RecordCount int = 0 output
+)
+AS
+BEGIN
+        DECLARE @RCount NVARCHAR(4000);
+        DECLARE @Result NVARCHAR(4000);
+
+        SET @RCount = ' SELECT @RecordCount = COUNT(group_id) FROM G_groupmanager ';
+        SET @Result = ' SELECT TOP ' + ltrim(@PageSize*@CurrentPage) + ' group_id,group_name,group_info,create_date,create_master_id,create_master_name,last_date,last_master_id,last_master_name FROM G_groupmanager ';
+        
+        IF @Where <> ''
+        BEGIN -- IF @Where <> ''
+                SET @RCount = @RCount + ' WHERE group_name like @Where1 '
+                SET @Result = @Result + ' WHERE group_name like @Where1 '
+        END -- IF @Where <> ''
+
+
+        SET @RCount = @RCount +';';
+        
+        SET @Result = @Result + ' ORDER BY group_id ';
+        
+        SET @Result = 'SELECT * FROM ( ' + ' SELECT TOP ' + ltrim(@PageSize) + ' * FROM ( ' + @Result + ' ) as tmp1 ORDER BY group_id DESC' + ' ) as tmp2 ORDER BY group_id ;';
+
+        EXECUTE sp_executesql @RCount,N'@RecordCount int=0 output,@Where1 varchar(50)',@RecordCount output,@Where1 =@Where
+        EXECUTE sp_executesql @Result,N'@Where1 varchar(50)',@Where1 =@Where
+END
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [I_Index](
+        [id] [int] IDENTITY(1,1) NOT NULL,
+        [local_name] [nvarchar](200) NULL,
+        [parms] [int] NULL,
+        [used] [bit] NULL CONSTRAINT [DF_I_Index_used]  DEFAULT (0),
+        [create_time] [datetime] NULL CONSTRAINT [DF_I_Index_create_time]  DEFAULT (getdate()),
+ CONSTRAINT [PK_I_Index] PRIMARY KEY CLUSTERED
+(
+        [id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [G_Master_Select]
+(
+        @Where nchar(20),
+        @PageSize int,
+        @CurrentPage int,
+        @RecordCount int = 0 output
+)
+AS
+BEGIN
+        DECLARE @RCount NVARCHAR(4000);
+        DECLARE @Result NVARCHAR(4000);
+
+        SET @RCount = ' SELECT @RecordCount = COUNT(master_id) FROM G_master ';
+        SET @Result = ' SELECT TOP ' + ltrim(@PageSize*@CurrentPage) + ' G_master.master_id,G_master.master_name,G_master.master_psw,G_master.real_name,G_master.sex,G_master.phone,G_master.department,G_master.ask,G_master.answer,G_master.update_time,G_master.last_time,G_master.last_ip,state,G_master.update_master_id,G_master.update_master_name,G_master.group_id,G_groupmanager.group_name FROM G_master LEFT JOIN G_groupmanager ON G_master.group_id = G_groupmanager.group_id ';
+        
+        IF @Where <> ''
+        BEGIN -- IF @Where <> ''
+                SET @RCount = @RCount + ' WHERE real_name like @Where1 '
+                SET @Result = @Result + ' WHERE real_name like @Where1 '
+        END -- IF @Where <> ''
+
+
+        SET @RCount = @RCount +';';
+        
+        SET @Result = @Result + ' ORDER BY master_id ';
+        
+        SET @Result = 'SELECT * FROM ( ' + ' SELECT TOP ' + ltrim(@PageSize) + ' * FROM ( ' + @Result + ' ) as tmp1 ORDER BY master_id DESC' + ' ) as tmp2 ORDER BY master_id ;';
+
+        EXECUTE sp_executesql @RCount,N'@RecordCount int=0 output,@Where1 varchar(50)',@RecordCount output,@Where1 =@Where
+        EXECUTE sp_executesql @Result,N'@Where1 varchar(50)',@Where1 =@Where
+END
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [News_Select_Top8]
+(
+        @ClassId int
+)
+
+AS
+BEGIN
+        SELECT  TOP 8  b.Id, b.ClassId, b.ParentId, b.Title, b.[Content], b.Author, b.Editor, b.Source, b.Auditing, b.Hits, b.CTime, b.STime, b.state
+                FROM        N_News b, class_id(@ClassId) a1
+                        WHERE     b.ClassId=a1.id AND state = 1
+                                ORDER BY STime DESC
+END
+
+
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [News_Select_Top6]
+(
+        @ClassId int
+)
+
+AS
+BEGIN
+        SELECT  TOP 6  b.Id, b.ClassId, b.ParentId, b.Title, b.[Content], b.Author, b.Editor, b.Source, b.Auditing, b.Hits, b.CTime, b.STime, b.state
+                FROM        N_News b, class_id(@ClassId) a1
+                        WHERE     b.ClassId=a1.id AND state = 1
+                                ORDER BY STime DESC
+END
+
+
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [News_Select_Top10]
+(
+        @ClassId int
+)
+
+AS
+BEGIN
+        SELECT  TOP 10  b.Id, b.ClassId, b.ParentId, b.Title, b.[Content], b.Author, b.Editor, b.Source, b.Auditing, b.Hits, b.CTime, b.STime, b.state
+                FROM        N_News b, class_id(@ClassId) a1
+                        WHERE     b.ClassId=a1.id AND state = 1
+                                ORDER BY STime DESC
+END
+
+
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [News_Select_Top15]
+(
+        @ClassId int
+)
+
+AS
+BEGIN
+        SELECT  TOP 15  b.Id, b.ClassId, b.ParentId, b.Title, b.[Content], b.Author, b.Editor, b.Source, b.Auditing, b.Hits, b.CTime, b.STime, b.state
+                FROM        N_News b, class_id(@ClassId) a1
+                        WHERE     b.ClassId=a1.id AND state = 1
+                                ORDER BY STime DESC
+END
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [N_ClassMenu_Delete_SecondPart]
+(
+        @Id int,
+        @ParentId int
+)
+AS
+BEGIN
+        DECLARE @ParentIdCount int;
+
+        DELETE FROM [dbo].[N_ClassMenu] WHERE Id = @Id;
+        DELETE FROM N_News WHERE ClassId = @Id;
+        --如果该父系菜单没有子系菜单。将父系菜单中是否有子系菜单的标记做修改
+        SELECT @ParentIdCount = COUNT(*) FROM [N_ClassMenu] WHERE ParentId = @ParentId;
+        IF @ParentIdCount = 0
+        BEGIN
+                UPDATE [N_ClassMenu] SET HasChild = 0 WHERE Id = @ParentId;
+        END     
+END
+
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [N_News_Delete]
+(
+        @Id INT
+)
+AS
+BEGIN
+        DELETE FROM N_News WHERE Id = @Id
+END
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [R_Report_Insert]
+(
+        @RealAdd varchar(50) ='',
+        @RealName varchar(50) ='',
+        @Add varchar(50) ='',
+        @Call varchar(50) ='',
+        @Email varchar(50) ='',
+        @Title varchar(50) ='',
+        @Content varchar(7000) ='',
+        @Class int,
+        @ClassName nvarchar(50),
+        @CTime datetime ,
+        @rand varchar(40),
+        @SId varchar(50) output
+)
+AS
+BEGIN
+        
+BEGIN TRANSACTION
+        
+        INSERT INTO [R_Report](RealAdd,RealName,[Add],Call,Email,Title,[Content],Class,ClassName,CTime) VALUES(@RealAdd,@RealName,@Add,@Call,@Email,@Title,@Content,@Class,@ClassName,@CTime)
+        
+        SET @SId = @rand + ltrim(@@IDENTITY)+CONVERT(NVARCHAR,@CTime,112)
+        
+    UPDATE [R_Report] SET SId = @SId WHERE Id =@@IDENTITY
+
+COMMIT
+END
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_action_Group_Add]
+(
+        @action char(16),
+        @group_id int,
+        @update_master_id int,
+        @update_master_name char(20)
+)
+AS
+BEGIN
+        DECLARE @RCOUNT INT
+        SELECT @RCOUNT = COUNT(id) FROM G_action_group WHERE [action] = @action AND group_id = @group_id
+        IF @RCOUNT = 0
+        BEGIN -- IF @RCOUNT = 0
+                INSERT INTO G_action_group VALUES(@action,@group_id,getdate(),@update_master_id,@update_master_name)
+        END -- IF @RCOUNT = 0
+END
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_action_Group_Delete]
+(
+        @action char(16),
+        @group_id int
+)
+AS
+BEGIN
+        DELETE FROM G_action_group WHERE [action] = @action AND group_id = @group_id;
+END
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_action_Delete]
+(
+        @action_id INT
+)
+AS
+BEGIN
+        DECLARE @action CHAR(16);
+        SELECT @action = [action] FROM [G_action] WHERE action_id = @action_id;
+        BEGIN TRANSACTION
+                DELETE FROM [G_action_group] WHERE [action] = @action;
+                DELETE FROM [G_action] WHERE action_id = @action_id;
+        COMMIT
+END
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_Master_Action_CheckPower]
+(
+        @master_id int,
+        @action char(16)
+)
+AS
+BEGIN
+        DECLARE @master_group_id INT;
+        SELECT @master_group_id = group_id FROM G_master WHERE master_id = @master_id;
+
+        SELECT COUNT(id) FROM G_action_group WHERE group_id = @master_group_id AND [action] = @action;
+END
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [History_Insert]
+(
+        @master_id int,
+        @action char(16),
+        @do varchar(250)
+)
+AS
+BEGIN
+        DECLARE @name VARCHAR(50);
+        DECLARE @master_name CHAR(20);
+        DECLARE @real_name CHAR(20);
+        DECLARE @action_name VARCHAR(50);
+        DECLARE @action_full VARCHAR(300);
+
+        SELECT @master_name = master_name,@real_name = real_name FROM G_master WHERE master_id = @master_id;
+        SET @name = rtrim(@real_name) + '（ ' + rtrim(@master_name) + ' ）';
+        
+        SELECT @action_name = action_name FROM [G_action] WHERE [action] = @action;
+        SET @action_full = @action_name + @do;
+        INSERT INTO history VALUES(@name,@action_full,getdate())
+END
+
+
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_action_Insert]
+(
+        @action_name varchar(50),
+        @action_info varchar(1000),
+        @action char(16),
+        @create_master_id int,
+        @create_master_name char(20)
+)
+AS
+BEGIN
+        INSERT INTO [G_action]
+                VALUES(@action_name,@action_info,@action,getdate(),@create_master_id,@create_master_name)
+END
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_action_CheckNameIsExist]
+(
+        @Name varchar(50)
+)
+AS
+BEGIN
+        SELECT COUNT(action_id) FROM [G_action] WHERE action_name like @Name
+END
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_group_CheckNameIsExist]
+(
+        @Name varchar(50)
+)
+AS
+BEGIN
+        SELECT COUNT(group_id) FROM [G_groupmanager] WHERE group_name like @Name
+END
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_group_Delete]
+(
+        @group_id INT
+)
+AS
+BEGIN
+        DELETE FROM G_groupmanager WHERE group_id = @group_id
+END
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_group_Insert]
+(
+        @group_name varchar(50),
+        @group_info varchar(1000),
+        @create_master_id int,
+        @create_master_name char(20)
+)
+AS
+BEGIN
+        INSERT INTO [G_groupmanager](group_name,group_info,create_date,create_master_id,create_master_name)
+                VALUES(@group_name,@group_info,getdate(),@create_master_id,@create_master_name)
+END
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_group_OneInfo_ByMasterName]
+(
+        @master_name char(20)
+)
+AS
+BEGIN
+        SELECT group_id,group_name,group_info,create_date,create_master_id,create_master_name,last_date,last_master_id,last_master_name
+                FROM G_groupmanager
+                        WHERE group_id =
+                                ( SELECT group_id FROM G_master WHERE master_name like @master_name)
+END
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_group_OneInfo_ByGroupId]
+(
+        @group_id INT
+)
+AS
+BEGIN
+        SELECT group_id,group_name,group_info,create_date,create_master_id,create_master_name,last_date,last_master_id,last_master_name FROM G_groupmanager WHERE group_id = @group_id
+END
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_group_Update]
+(
+        @group_id INT,
+        @group_name varchar(50),
+        @group_info varchar(1000),
+        @last_master_id int,
+        @last_master_name char(20)
+)
+AS
+BEGIN
+        UPDATE G_groupmanager SET group_name = @group_name, group_info = @group_info, last_date = getdate(), last_master_id = @last_master_id, last_master_name = @last_master_name
+                 WHERE group_id = @group_id
+END
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_group_OneInfo_ByMasterId]
+(
+        @master_id int
+)
+AS
+BEGIN
+        SELECT group_id,group_name,group_info,create_date,create_master_id,create_master_name,last_date,last_master_id,last_master_name
+                FROM G_groupmanager
+                        WHERE group_id =
+                                ( SELECT group_id FROM G_master WHERE master_id = @master_id)
+END
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_Master_OneInfo_ByMasterId]
+(
+        @master_id int
+)
+AS
+BEGIN
+        SELECT G_master.master_id,G_master.master_name,G_master.master_psw,G_master.real_name,G_master.sex,G_master.phone,G_master.department,G_master.ask,G_master.answer,G_master.update_time,G_master.last_time,G_master.last_ip,state,G_master.update_master_id,G_master.update_master_name,G_master.group_id,G_groupmanager.group_name
+                FROM G_master LEFT JOIN G_groupmanager ON G_master.group_id = G_groupmanager.group_id
+                        WHERE G_master.master_id = @master_id;
+END
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_Master_OneInfo_ByMasterName]
+(
+        @master_name CHAR(20)
+)
+AS
+BEGIN
+        SELECT G_master.master_id,G_master.master_name,G_master.master_psw,G_master.real_name,G_master.sex,G_master.phone,G_master.department,G_master.ask,G_master.answer,G_master.update_time,G_master.last_time,G_master.last_ip,state,G_master.update_master_id,G_master.update_master_name,G_master.group_id,G_groupmanager.group_name
+                FROM G_master LEFT JOIN G_groupmanager ON G_master.group_id = G_groupmanager.group_id
+                        WHERE G_master.master_name like @master_name;
+END
+
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_Master_Change_Password_ByAAA]
+(
+        @master_name char(20),
+        @master_psw char(32),
+        @ask VARCHAR(50),
+        @answer CHAR(32)
+)
+AS
+BEGIN
+        UPDATE G_master SET master_psw = @master_psw WHERE master_name like @master_name AND ask like @ask AND answer like @answer
+END
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_Master_Insert]
+(
+        @master_name char(20),
+        @master_psw char(32),
+        @real_name nchar(20),
+        @sex nchar(2),
+        @phone varchar(50),
+        @department varchar(50),
+        @ask varchar(50),
+        @answer char(32),
+        @group_id int
+)
+AS
+BEGIN
+        INSERT INTO G_master(master_name,master_psw,real_name,sex,phone,department,ask,answer,group_id,state)
+                VALUES(@master_name,@master_psw,@real_name,@sex,@phone,@department,@ask,@answer,@group_id,0)
+END
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_Master_CheckNameIsExist]
+(
+        @master_name char(20)
+)
+AS
+BEGIN
+        SELECT COUNT(master_id) FROM G_master WHERE master_name like @master_name
+END
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_Master_StateChange]
+(
+        @master_id int,
+        @update_master_id int,
+        @update_master_name char(20),
+        @state bit
+)
+AS
+BEGIN
+        UPDATE G_master SET update_master_id = @update_master_id,update_master_name = @update_master_name, state = @state,update_time =getdate() WHERE master_id = @master_id
+END
+
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [History_Insert_Login]
+(
+        @master_id int,
+        @ip varchar(50)
+)
+AS
+BEGIN
+        DECLARE @name VARCHAR(50);
+        DECLARE @master_name CHAR(20);
+        DECLARE @real_name CHAR(20);
+        DECLARE @act varchar(50);
+
+        SELECT @master_name = master_name,@real_name = real_name FROM G_master WHERE master_id = @master_id;
+        SET @name = rtrim(@real_name) + '（ ' + rtrim(@master_name) + ' ）';
+        SET @act = '登陆系统（ '+@ip+' ）';
+        INSERT INTO history VALUES(@name,@act,getdate())
+END
+
+
+
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_Master_Change_OneInfo]
+(
+        @master_name char(20),
+        @master_psw char(32),
+        @sex nchar(2),
+        @phone varchar(50),
+        @department varchar(50)
+)
+AS
+BEGIN
+        UPDATE G_master
+            SET sex = @sex,
+                phone = @phone,
+                department = @department
+                    WHERE master_name like @master_name AND master_psw like @master_psw
+END
+
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [History_Insert_LoginOut]
+(
+        @master_id int
+)
+AS
+BEGIN
+        DECLARE @name VARCHAR(50);
+        DECLARE @master_name CHAR(20);
+        DECLARE @real_name CHAR(20);
+        DECLARE @act varchar(50);
+
+        SELECT @master_name = master_name,@real_name = real_name FROM G_master WHERE master_id = @master_id;
+        SET @name = rtrim(@real_name) + '（ ' + rtrim(@master_name) + ' ）';
+        SET @act = '退出系统';
+        INSERT INTO history VALUES(@name,@act,getdate())
+END
+
+
+
+
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_Master_Group_Update]
+(
+        @master_id int,
+        @group_id int,
+        @update_master_id int,
+        @update_master_name char(20)
+)
+AS
+BEGIN
+        UPDATE G_master
+                SET group_id = @group_id, @update_master_id = @update_master_id, @update_master_name = @update_master_name, update_time = getdate()
+                        WHERE master_id = @master_id
+END
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_Master_Change_AAA]
+(
+        @master_name char(20),
+        @master_psw char(32),
+        @ask_old VARCHAR(50),
+        @answer_old CHAR(32),
+        @ask VARCHAR(50),
+        @answer CHAR(32)
+)
+AS
+BEGIN
+        UPDATE G_master
+            SET ask = @ask,
+                answer = @answer
+                    WHERE master_name like @master_name AND master_psw like @master_psw
+                        AND ask like @ask_old AND answer like @answer_old
+END
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_Master_Change_Password]
+(
+        @master_name char(20),
+        @master_psw char(32),
+        @master_psw_new char(32)
+)
+AS
+BEGIN
+        UPDATE G_master
+            SET master_psw = @master_psw_new
+                        WHERE master_name like @master_name AND master_psw like @master_psw
+END
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_Master_Delete]
+(
+        @master_id int
+)
+AS
+BEGIN
+        DELETE FROM G_master WHERE master_id = @master_id
+END
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_Master_Logined]
+(
+        @master_id INT,
+        @last_ip varchar(50)
+)
+AS
+BEGIN
+        UPDATE G_master SET last_time = getdate(),last_ip = @last_ip WHERE master_id = @master_id
+END
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_Master_IDExist]
+(
+        @master_name char(20),
+        @master_psw char(32)
+)
+AS
+BEGIN
+        SELECT COUNT(master_id) FROM G_master WHERE master_name = @master_name AND master_psw =@master_psw AND state = 1;
+END
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [G_Master_CheckLogin]
+(
+        @master_name char(20),
+        @master_psw char(32)
+)
+AS
+BEGIN
+        DECLARE @RCOUNT INT
+        SELECT @RCOUNT = COUNT(master_id) FROM G_master WHERE master_name = @master_name AND master_psw =@master_psw AND state = 1
+        IF @RCOUNT = 1
+        BEGIN
+                SELECT master_id,master_name,real_name,sex,last_time,last_ip,group_id FROM G_master WHERE master_name = @master_name AND master_psw =@master_psw
+        END
+END
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [History_Select]
+(
+        @PageSize int,
+        @CurrentPage int,
+        @RecordCount int = 0 output  
+)
+AS
+BEGIN   
+        DECLARE @s nvarchar(4000);
+        SET @s = 'SELECT * FROM (';
+        SET @s = @s + ' SELECT TOP ' + ltrim(@PageSize) + ' * FROM ( ';
+        SET @s = @s + ' SELECT TOP ' +ltrim(@PageSize*@CurrentPage) +' * FROM history ORDER BY create_time DESC';
+        SET @s = @s + ' ) as tmp1 ORDER BY create_time ';
+        SET @s = @s + ') as tmp2 ORDER BY create_time DESC';
+                        
+        SELECT @RecordCount = count(id) FROM history;
+        EXECUTE sp_executesql @s;
+end
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [N_ClassMenu_Insert]
+(
+        @DId int,
+        @ParentName nvarchar(50),
+        @ClassName nvarchar(50),
+        @ParentId int,
+        @CTime DATETIME,
+        @CustomUrl nvarchar(500),
+        @IsNav bit,
+        @IsISO bit
+)
+AS
+BEGIN
+        BEGIN TRANSACTION
+        
+        INSERT INTO [dbo].[N_ClassMenu]
+           ([DId],[ParentName],[ClassName],[ParentId],[CTime],[CustomUrl],[IsNav],[IsISO])
+     VALUES
+           (@DId,@ParentName,@ClassName,@ParentId,@CTime,@CustomUrl,@IsNav,@IsISO);
+        
+        UPDATE [N_ClassMenu] SET HasChild = 1 WHERE Id = @ParentId;
+
+        COMMIT
+END
+
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [N_ClassMenu_Update]
+(
+        @Id int,
+        @DId int,
+        @ParentName nvarchar(50),
+        @ClassName nvarchar(50),
+        @ParentId int,
+        @CTime DATETIME,
+        @CustomUrl nvarchar(500),
+        @IsNav bit
+)
+AS
+BEGIN
+        BEGIN TRANSACTION
+                UPDATE [N_ClassMenu]
+                        SET [DId] = @DId,
+                        [ParentName] = @ParentName,
+                        [ClassName] = @ClassName,
+                        [ParentId] = @ParentId,
+                        [CTime] = @CTime,
+                        [CustomUrl] = @CustomUrl,
+                        [IsNav] = @IsNav
+                        WHERE Id =@Id;
+                UPDATE [N_ClassMenu] SET [ParentName] = @ClassName
+                        WHERE [ParentId] = @Id;
+        COMMIT
+END
+
+
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [L_Link_Select_ByClass]
+(
+        @class int
+)
+AS
+BEGIN
+        -- SET NOCOUNT ON added to prevent extra result sets from
+        -- interfering with SELECT statements.
+        SET NOCOUNT ON;
+
+    SELECT [Id], [name], [url], [class], [range] FROM [L_Link] WHERE ([class] = @class) ORDER BY [class], [range]
+END
+
+
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+-- =============================================
+-- Author:              <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [N_ClassMenu_Delete]
+(
+        @Id int
+)
+AS
+BEGIN
+        --DECLARE @ChildId int;
+        DECLARE @ParentId int;
+        DECLARE @ParentIdCount int;
+        DECLARE @Lock bit;
+        DECLARE @HasChild bit;
+        SELECT @ParentId = ParentId,@Lock = Lock,@HasChild = HasChild FROM [N_ClassMenu] WHERE Id = @Id;
+
+        IF @Lock = 0 --没有锁定
+        BEGIN
+                IF @HasChild = 0 --没有子系菜单
+                BEGIN
+                         EXEC [dbo].[N_ClassMenu_Delete_SecondPart] @Id,@ParentId;
+                        
+                END
+                ELSE --有子系菜单，先删除子菜单，再删除该记录
+                BEGIN
+                        DECLARE @ChildId int; --记录子系菜单的id
+                        DECLARE mycursor CURSOR LOCAL FOR SELECT id FROM [N_ClassMenu] WHERE ParentId = @Id; --创建游标
+                        OPEN mycursor; --打开游标
+                        FETCH next FROM mycursor INTO @ChildId;
+                        --递归
+                        WHILE(@@fetch_status=0)
+                        BEGIN
+                                exec [dbo].[N_ClassMenu_Delete] @ChildId;
+                                FETCH next FROM mycursor INTO @ChildId;
+                        END
+                        CLOSE mycursor;--关闭游标
+                        DEALLOCATE mycursor;--销毁游标
+                        EXEC [dbo].[N_ClassMenu_Delete_SecondPart] @Id,@ParentId;
+                END
+        END
+        
+END
+
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+--创建一个查询函数,得到指定类别下的所有子类别   
+CREATE FUNCTION [class_id](
+    @id INT
+)RETURNS @re TABLE(id INT, level INT)
+AS
+BEGIN
+    DECLARE @l INT
+    SET @l=0
+    INSERT @re SELECT id, @l FROM N_ClassMenu WHERE id=@id
+    WHILE @@rowcount>0
+    BEGIN
+        SET @l=@l+1
+        INSERT @re SELECT a.id, @l FROM N_ClassMenu a, @re b WHERE a.ParentId=b.id AND b.level=@l-1
+    END
+    RETURN
+END
+
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+--创建一个查询函数,得到指定类别的所有父类别   
+CREATE FUNCTION [parent_id](
+    @id INT
+)RETURNS @re TABLE(id INT, ParentId INT, level INT)
+AS
+BEGIN
+    DECLARE @l INT
+    SET @l=0
+    INSERT @re SELECT id, ParentId, @l FROM N_ClassMenu WHERE id=@id
+    WHILE @@rowcount>0
+    BEGIN
+        SET @l=@l+1
+        INSERT @re SELECT a.id, a.ParentId, @l FROM N_ClassMenu a, @re b
+        WHERE a.id=b.ParentId AND b.level=@l-1
+    END
+    RETURN
+END
+
+
+GO

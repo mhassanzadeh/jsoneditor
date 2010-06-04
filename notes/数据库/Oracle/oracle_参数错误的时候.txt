@@ -1,0 +1,22 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:52:58.375000
+
+====== oracle 参数错误的时候 ======
+Created Friday 04 June 2010
+
+
+SQL> create pfile='/home/oracle/initora11g.ora' from spfile;
+File created.
+SQL> host echo "memory_target=367001600" >> [[/home/oracle/initora11g.ora]]
+SQL> startup pfile=/home/oracle/initora11g.ora
+ORACLE instance started.
+Total System Global Area 267825152 bytes
+Fixed Size 1299316 bytes
+Variable Size 176163980 bytes
+Database Buffers 88080384 bytes
+Redo Buffers 2281472 bytes
+Database mounted.
+Database opened.
+SQL> create spfile from pfile='/home/oracle/initora11g.ora';
+File created.

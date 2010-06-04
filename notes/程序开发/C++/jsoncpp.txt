@@ -1,0 +1,154 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:37:52.671000
+
+====== jsoncpp ======
+Created Friday 04 June 2010
+
+#include <iostream>
+#include "reader.h"
+#include "writer.h"
+#include "value.h"
+
+using namespace std;
+/********************
+  json data:
+
+{
+  "uin" : 78188542,
+  "ver" : 2.3,
+  "nick": "taromeng",
+  "stat": 1,
+  "item": [ 101,102,103 ],
+  "data": [
+        {"uin":111111,"nk":"test1"},
+        {"uin":222222,"nk":"test2"}
+        ],
+  "li"  : {"ui":33333}
+}
+
+*********************/
+int readTest()
+{
+        std::string sData = "{\
+                \"uin\" : 78188542,\
+                \"ver\" : 2.3,\
+                \"nick\": \"taromeng\",\
+                \"stat\": 1,\
+                \"item\": [ 101,102,103 ],\
+                \"data\": [\
+                {\"uin\":111111,\"nk\":\"test1\"},\
+                {\"uin\":222222,\"nk\":\"test2\"}\
+                ],\
+                        \"li\"  : {\"ui\":33333}\
+        }";
+
+        Json::Reader reader;
+        Json::Value  root;
+
+        //解析json数据
+        if ( !reader.parse( sData.c_str(), root ) )
+        {
+                fprintf(stderr,"parse json data err.\n");
+                return -1;
+        }
+
+        cout<<"------------------------------------"<<endl;
+        cout<< "json value:" << endl;
+        
+        
+
+        //判断root里是否有uin字段
+        if( root.isMember("uin") )
+        {
+                cout<< " uin is a member of root. "<<endl;
+                cout<< "uin:    " << root["uin"].asInt() <<endl;
+        }
+        //判断类型
+        if( !root["uin"].isString() )
+        {
+                cout<<" uin is not a string. "<<endl;
+        }
+
+        //类型不要用错,比如对int的值,用asString()会abort 呵呵,
+        //如果没有把握,可以先用isMember和isString等方法验证一把
+        cout<< "ver:    " << root["ver"].asDouble() <<endl;
+        cout<< "nick:   " << root["nick"].asString() <<endl;
+        cout<< "stat:   " << root["stat"].asBool() <<endl;
+                
+        //遍历array
+        const Json::Value item = root["item"];  
+        for ( unsigned int index = 0; index < item.size(); index++ )
+        {
+                cout<< "item["<< index <<"]:    "<< item[index];
+        }
+
+        //数组里面又有json的情况
+        const Json::Value data = root["data"];
+        for ( unsigned int index = 0; index < data.size(); index++ )
+        {
+                cout<< "data["<< index <<"].uin:        "<< data[index]["uin"].asInt()<<endl;
+                cout<< "data["<< index <<"].nk: "<< data[index].get("nk",10000).asString()<<endl;
+        }
+
+        //跟js里面差不多
+        cout<< "li.ui:  "<<root["li"]["ui"]<<endl;
+
+        cout<<"------------------------------------"<<endl;
+        return 0;
+}
+
+int writeTest()
+{
+        Json::FastWriter writer;
+        Json::Value root;
+        
+        //写入数据
+        root["fr"] = 123456;
+        root["ty"] = 0;
+        root["ver"]= 1.5;
+        root["key"]= "4545\"45_1201000";
+        
+        //json中的数组,构建一个数组对象
+        Json::Value items(Json::arrayValue);
+        Json::Value node;
+        
+//      int i = 0;
+        node["msg"] = "hello world";
+        node["uin"] = "78188542";
+/*      items[i] = node;
+        
+        i = 1;
+        node["msg"] = "hi jack``` '' \"...<script></script>";
+        node["uin"] = 775893982;
+        items[i] = node;
+*/
+        int i =0;
+        items[i] = "11";
+        items[i+1] = "22";
+        items.append( node );
+        items.append( node );
+        items.append( node );
+        items.append( node );
+                
+        root["data"] = items;
+        
+        //Json::FastWriter 输出单行的json数据,不好阅读,但是便于传输
+        cout<<"fastwriter output: \n"<<writer.write(root)<<endl;
+
+        //Json::StyledWriter 输出带格式(换行,缩进)的json数据
+        Json::StyledWriter style_writer;
+        cout<<"style_writer output: \n"<<style_writer.write(root)<<endl;
+
+        root["data"].clear();
+        cout<<"\n after clear:\n"<< writer.write(root) <<endl;
+
+        return 0;
+}
+int main()
+{
+        readTest();
+        writeTest();
+
+        return 0;
+}

@@ -1,0 +1,12 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:52:38.375000
+
+====== oracle 统计表大小 ======
+Created Friday 04 June 2010
+
+select table_name,num_rows,
+blocks * (select value from v$parameter where name = 'db_block_size') / 1024 / 1024 "size mb",
+last_analyzed
+from dba_tables
+where table_name like '%D45%'

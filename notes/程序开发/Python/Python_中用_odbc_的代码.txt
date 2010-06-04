@@ -1,0 +1,16 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:10:12.218000
+
+====== Python 中用 odbc 的代码 ======
+Created Friday 04 June 2010
+
+import pyodbc
+conn = pyodbc.connect('''
+DRIVER={PostgreSQL Unicode};
+SERVER=localhost;
+DATABASE=tt;UID=aosp''')
+cur = conn.execute('select * from aaa')
+b = cur.fetchall()
+for a in b:
+    print b

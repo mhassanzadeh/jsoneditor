@@ -1,0 +1,28 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:45:48.265000
+
+====== 关于ArcGIS Engine应用程序打包 ======
+Created Friday 04 June 2010
+
+近来有朋友问，ArcGIS Engine程序打包时如何能保证RUNTIME License的安全，也就是说Runtime 许可文件不会被任意传播。
+偶把以前的InstallShield安装脚本修改了下，觉得下面的方法还是比较适合的。
+
+第一步：打包应用程序文件
+       把Runtime许可文件改个名字（包括后缀，如tmp11.old),然后和应用程序打包在一起，安装时释放到系统目录中；
+
+第二步：先安装应用程序SETUP文件（这样可以先把Runtime文件释放出来）；
+
+第三步：安装Runtime Setup,安装SP补丁 Setup;
+
+第四步：注册Runtime 许可文件（注：这是关键的一步）
+       strLicenseFile=WINDIR+"\system32\tmp11.old";     //定义Runtime许可文件位置
+       spDir="c:\\EngineRuntime\Runtime\\SoftwareAuthorization.exe -s -lif";   //定义注册应用程序位置 ，-S表示不显示注册界面，-lif表示选择注册文件     
+       szCmdLine = spDir + " " + strLicenseFile;      
+       if (LaunchAppAndWait ("",szCmdLine,WAIT) <0 ) then
+           MessageBox ("运行文件注册失败",INFORMATION);
+       else
+           DeleteFile (strLicenseFile);             //删除注册许可文件               
+       endif;    
+
+通过这样的方法，可以使安装用户不知觉的情况下完成许可文件的注册，在一定程度上保障了许可文件不会被轻松地获取到。

@@ -1,0 +1,10 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:15:15
+
+====== 常用焦距 ======
+Created Friday 04 June 2010
+
+打鸟，野生摄影一般是300mm+
+舞台，动物园，荷花一般200mm差不离
+棚拍人像一般85-135mm,55mm只能算中焦了，折算成35mm全副大概80mm左右，大概能在5m左右照个全身照

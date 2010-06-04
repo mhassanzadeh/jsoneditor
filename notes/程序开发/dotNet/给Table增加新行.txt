@@ -1,0 +1,23 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:24:57.328000
+
+====== 给Table增加新行 ======
+Created Friday 04 June 2010
+
+function addRowToTable(strTableId, arrTdText) {
+   var objTable = $(strTableId);
+   if (objTable == null) {
+       return;
+   }
+
+   var objTableBody = objTable.getElementsByTagName("TBODY")[0];
+   var row = document.createElement("TR")
+   for(var i = 0; i < arrTdText.length; i++) {
+       var col = document.createElement("TD")
+       col.appendChild(document.createTextNode(arrTdText[i]))
+       row.appendChild(col);
+   }
+
+   objTableBody.appendChild(row);
+}

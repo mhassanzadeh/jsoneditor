@@ -1,0 +1,79 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:12:42.234000
+
+====== 用python进行科学计算 ======
+Created Friday 04 June 2010
+
+==== 一.线性代数部分 ====
+首先,你需要下载,安装python和它的Numeric和Scipy模块.(当前推荐的python版本是2.3.3)
+下载地址为:http://www.scipy.org/download/
+首先导入文件头:
+from scipy import *
+然后可以指定自己的矩阵A  矩阵可以以字符串初始化
+例如:s = '-1 2 4;2 2 -2;4 -2 -1'
+    A = mat(s)
+矩阵的基本操作可直接用+,-,*,/进行
+下面是Scipy的常用函数:
+一.linalg模块中的函数:
+from scipy.linalg  import *
+
+1.inv(A)
+  求矩阵的逆
+
+2.det(A)
+  求方阵的行列式
+
+3.solve(A,b)
+求解线形方程.A为N*N方阵,b为N*1矩阵
+
+4.norm(A)
+ 求向量A的模
+ norm(A,order)  A为矩阵,order可取如下值(1,-1,2,-2,inf,-inf,'fro').
+ 求得的函数值随order而变,具体如下:
+ order=1     求每一列各元素的绝对值之和的最大值
+ order=-1    求每一列各元素的绝对值之和的最小值
+ order=2     求最大的奇异值
+ order=-2    求最小的奇异值
+ order=inf   求每一行各元素的绝对值之和的最大值
+ order=-info 求每一行各元素的绝对值之和的最小值
+ order=fro   求所有元素的模(平方和再开方)
+
+5.lstsq(A,b)
+  求解最小二乘法Ax=b   A为M*N矩阵,b为M*1矩阵
+
+6.eig(A)
+     求解Ax=λx型特征值和特征向量
+
+ eig(A,B)   
+ 求解βAx = αBx型 特征值和特征向量
+
+ eigvals(A)
+ eigvals(A, B)只求解特征值
+
+7.矩阵版函数
+
+ expm(A) logm(A) cosm(A) sinm(A) tanm(A) coshm(A) sinhm(A) tanhm(A) sqrtm(A)
+ 注意:这些矩阵版函数不是对矩阵中的每个元素操作;sin(A)和sinm(A)是不同的,sin(A)计算矩阵中每个元素的sin值,而sinm(A)是计算矩阵A的sin值.
+
+8.orth(A)
+求标准正交基
+
+9.lu(A)  
+  三角分解法
+三角分解法是将原正方 (square) 矩阵分解成一个上三角形矩阵　或是排列(permuted) 的上三角形矩阵　和一个下三角形矩阵，这样的分解法又称为LU分解法。它的用途主要在简化一个大矩阵的行列式值的计算过程，求 反矩阵，和求解联立方程组。不过要注意这种分解法所得到的上下三角形矩阵并非唯一，还可找到数个不同 的一对上下三角形矩阵，此两三角形矩阵相乘也会得到原矩阵。
+
+10.qr(A)
+
+QR分解法是将矩阵分解成一个正规正交矩阵与上三角形矩阵。
+
+11.svd(A)
+
+svdvals(A) 奇异值分解法 原矩阵A不必为正方矩阵。
+奇异值分解 (sigular value decomposition,SVD) 是另一种正交矩阵分解法；SVD是最可靠的分解法，但是它比QR分解法要花上近十倍的计算时间。
+
+12.cholesky(A)
+   Cholesky分解
+
+13.schur(A)  
+     schur分解

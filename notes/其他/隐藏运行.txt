@@ -1,0 +1,9 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:49:23.343000
+
+====== 隐藏运行 ======
+Created Friday 04 June 2010
+
+var ws = WScript.CreateObject("WScript.Shell")
+ws.Run("usbhostfs.exe /cygdrive", 0)

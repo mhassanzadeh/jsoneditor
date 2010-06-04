@@ -1,0 +1,42 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:38:47.671000
+
+====== 汉字转拼音 ======
+Created Friday 04 June 2010
+
+create or replace procedure p_pinyin_from_hanzi(
+        v_hanzi in varchar2,
+        v_return_code out varchar2,
+        v_pinyin out varchar2) is
+  m_length integer;
+  m_single_hanzi varchar2(2);
+  m_pinyin varchar2(12);
+begin
+  m_length:=length(v_hanzi);
+  v_pinyin:='';
+
+  if v_hanzi is null then
+    return;
+  end if;
+
+  for i in 1..m_length loop
+    m_single_hanzi:=substr(v_hanzi,i,1);
+
+    if ascii(m_single_hanzi) between 33 and 128 then
+      m_pinyin:=m_single_hanzi;
+    else
+      begin
+        select s.pinyin
+            into m_pinyin
+          from t_spell s
+          where s.hanzi like '%'||m_single_hanzi||'%';
+      exception
+        when no_data_found then
+          m_pinyin:='*';
+      end;
+    end if;
+    v_pinyin:=v_pinyin||m_pinyin;
+  end loop;
+  v_return_code:='0';
+end ;

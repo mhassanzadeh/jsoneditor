@@ -1,0 +1,195 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:44:33.203000
+
+====== 编译flexlm 9.2源代码 ======
+Created Friday 04 June 2010
+
+
+编译flexlm 9.2源代码，od载入FLEXlm\v9.2\utils\lmsimple.exe，F9运行，dos窗口中输入f1后回车，出现“Flexlm license finder”窗口，在od中按F12，再按ALT＋F9，在“Flexlm license finder”窗口中点击“cancel”,程序中断在
+0045D47E  |> \8B4D 18      MOV ECX,DWORD PTR SS:[EBP+18]
+0045D481  |.  51            PUSH ECX                                ; /lParam
+0045D482  |.  8B55 14      MOV EDX,DWORD PTR SS:[EBP+14]            ; |
+0045D485  |.  52            PUSH EDX                                ; |DlgProc
+0045D486  |.  8B45 10      MOV EAX,DWORD PTR SS:[EBP+10]            ; |
+0045D489  |.  50            PUSH EAX                                ; |hOwner
+0045D48A  |.  8B4D FC      MOV ECX,DWORD PTR SS:[EBP-4]            ; |
+0045D48D  |.  51            PUSH ECX                                ; |pTemplate
+0045D48E  |.  8B55 08      MOV EDX,DWORD PTR SS:[EBP+8]            ; |
+0045D491  |.  52            PUSH EDX                                ; |hInst
+0045D492  |.  FF15 9CB24700 CALL DWORD PTR DS:[<&USER32.DialogBoxInd>; \DialogBoxIndirectParamA
+0045D498  |.  8945 F8      MOV DWORD PTR SS:[EBP-8],EAX            ;  中断在这里，跳出错误窗口
+0045D49B  |.  8B45 F8      MOV EAX,DWORD PTR SS:[EBP-8]
+0045D49E  |>  8BE5          MOV ESP,EBP
+0045D4A0  |.  5D            POP EBP
+0045D4A1  \.  C3            RETN
+
+在od中4次运行CTRL+F9,程序到了
+0041C00D  |> \8B45 FC      MOV EAX,DWORD PTR SS:[EBP-4] ;堆栈 SS:[0012FE00]=FFFFFFFE，如果没有找到正确的license，则返回FFFFFFFE
+0041C010  |>  5F            POP EDI  ;没正确license，那我手动修改这个返回值为0，骗一下程序
+0041C011  |.  8BE5          MOV ESP,EBP
+0041C013  |.  5D            POP EBP        ;  可以在这里打补丁，修改eax为0即可。再nop掉前面CALL DWORD PTR DS:[<&USER32.DialogBoxInd>
+0041C014  \.  C3            RETN
+
+对数据0012FE00下硬件写入断点，可跟踪到程序是再调用0041BA88  |.  FF15 7CD94800 CALL DWORD PTR DS:[48D97C]后将FFFFFFFE写入0012FE00的。看来关键东东就在CALL DWORD PTR DS:[48D97C]中了。
+0041BA6C  |.  8B55 20      MOV EDX,DWORD PTR SS:[EBP+20]
+0041BA6F  |.  52            PUSH EDX
+0041BA70  |.  8B45 1C      MOV EAX,DWORD PTR SS:[EBP+1C]
+0041BA73  |.  50            PUSH EAX
+0041BA74  |.  8B4D 18      MOV ECX,DWORD PTR SS:[EBP+18]
+0041BA77  |.  51            PUSH ECX
+0041BA78  |.  8B55 14      MOV EDX,DWORD PTR SS:[EBP+14]
+0041BA7B  |.  52            PUSH EDX
+0041BA7C  |.  8B45 10      MOV EAX,DWORD PTR SS:[EBP+10]
+0041BA7F  |.  50            PUSH EAX
+0041BA80  |.  8B4D 0C      MOV ECX,DWORD PTR SS:[EBP+C]
+0041BA83  |.  51            PUSH ECX
+0041BA84  |.  8B55 08      MOV EDX,DWORD PTR SS:[EBP+8]
+0041BA87  |.  52            PUSH EDX                                ;  这里计算出值放入内存中
+0041BA88  |.  FF15 7CD94800 CALL DWORD PTR DS:[48D97C]              ;  lmsimple.0041C015
+0041BA8E  |.  83C4 1C      ADD ESP,1C
+
+既然是爆破，那就直接修改CALL DWORD PTR DS:[48D97C] 为mov eax,0，：）
+发现程序多个地方调用，最好的方式是跟入CALL DWORD PTR DS:[48D97C] ，修改其返回值，让其始终返回0.
+
+手上有flexlm 11.3保护的程序，分析一下，发现多个被保护的程序都有类似上面的代码，如下：
+1、程序1
+006D2598  |.  8990 38010000 MOV DWORD PTR DS:[EAX+138],EDX
+006D259E  |.  68 9E000000  PUSH 9E                                  ; /Arg3 = 0000009E
+006D25A3  |.  68 44127C00  PUSH Tm.007C1244                      ; |Arg2 = 007C1244 ASCII "lm_ckout.c"
+006D25A8  |.  8B4D 08      MOV ECX,DWORD PTR SS:[EBP+8]            ; |
+006D25AB  |.  51            PUSH ECX                                ; |Arg1
+006D25AC  |.  E8 6407FFFF  CALL Tm.006C2D15                      ; \Tm.006C2D15
+006D25B1  |.  83C4 0C      ADD ESP,0C
+006D25B4  |.  8B55 08      MOV EDX,DWORD PTR SS:[EBP+8]
+006D25B7  |.  8B82 9C010000 MOV EAX,DWORD PTR DS:[EDX+19C]
+006D25BD  |.  05 F40C0000  ADD EAX,0CF4
+006D25C2  |.  6A 00        PUSH 0
+006D25C4  |.  50            PUSH EAX
+006D25C5  |.  E8 44FFF8FF  CALL <JMP.&MSVCR80._setjmp3>
+006D25CA  |.  83C4 08      ADD ESP,8
+006D25CD  |.  85C0          TEST EAX,EAX
+006D25CF  |.  74 0E        JE SHORT Tm.006D25DF
+006D25D1  |.  8B4D 08      MOV ECX,DWORD PTR SS:[EBP+8]
+006D25D4  |.  8B81 80000000 MOV EAX,DWORD PTR DS:[ECX+80]
+006D25DA  |.  E9 D1000000  JMP Tm.006D26B0
+006D25DF  |>  8B55 20      MOV EDX,DWORD PTR SS:[EBP+20]
+006D25E2  |.  52            PUSH EDX                                ; /Arg7
+006D25E3  |.  8B45 1C      MOV EAX,DWORD PTR SS:[EBP+1C]            ; |
+006D25E6  |.  50            PUSH EAX                                ; |Arg6
+006D25E7  |.  8B4D 18      MOV ECX,DWORD PTR SS:[EBP+18]            ; |
+006D25EA  |.  51            PUSH ECX                                ; |Arg5
+006D25EB  |.  8B55 14      MOV EDX,DWORD PTR SS:[EBP+14]            ; |
+006D25EE  |.  52            PUSH EDX                                ; |Arg4
+006D25EF  |.  8B45 10      MOV EAX,DWORD PTR SS:[EBP+10]            ; |
+006D25F2  |.  50            PUSH EAX                                ; |Arg3
+006D25F3  |.  8B4D 0C      MOV ECX,DWORD PTR SS:[EBP+C]            ; |
+006D25F6  |.  51            PUSH ECX                                ; |Arg2
+006D25F7  |.  8B55 08      MOV EDX,DWORD PTR SS:[EBP+8]            ; |
+006D25FA  |.  52            PUSH EDX                                ; |Arg1 = 0215EAB8
+006D25FB      E8 B4000000  CALL Tm.006D26B4                      <-----修改这里为mov eax,0即可爆破
+006D2600  |.  83C4 1C      ADD ESP,1C
+006D2603  |.  8945 FC      MOV DWORD PTR SS:[EBP-4],EAX
+006D2606  |.  837D FC 00    CMP DWORD PTR SS:[EBP-4],0
+006D260A  |.  75 70        JNZ SHORT Tm.006D267C
+006D260C  |.  8B45 08      MOV EAX,DWORD PTR SS:[EBP+8]
+006D260F  |.  50            PUSH EAX                                ; /Arg1
+006D2610  |.  E8 8409FFFF  CALL Tm.006C2F99                      ; \Tm.006C2F99
+
+2、程序2
+004C9E78  |.  8990 38010000 MOV DWORD PTR DS:[EAX+138],EDX
+004C9E7E  |.  68 9E000000  PUSH 9E                                          ; /Arg3 = 0000009E
+004C9E83  |.  68 A0A95800  PUSH OPC1.0058A9A0                            ; |Arg2 = 0058A9A0 ASCII "lm_ckout.c"
+004C9E88  |.  8B4D 08      MOV ECX,DWORD PTR SS:[EBP+8]                      ; |
+004C9E8B  |.  51            PUSH ECX                                          ; |Arg1
+004C9E8C  |.  E8 04190100  CALL OPC1.004DB795                            ; \OPC1.004DB795
+004C9E91  |.  83C4 0C      ADD ESP,0C
+004C9E94  |.  8B55 08      MOV EDX,DWORD PTR SS:[EBP+8]
+004C9E97  |.  8B82 9C010000 MOV EAX,DWORD PTR DS:[EDX+19C]
+004C9E9D  |.  05 F40C0000  ADD EAX,0CF4
+004C9EA2  |.  6A 00        PUSH 0
+004C9EA4  |.  50            PUSH EAX
+004C9EA5  |.  E8 E0D3FDFF  CALL <JMP.&MSVCR80._setjmp3>
+004C9EAA  |.  83C4 08      ADD ESP,8
+004C9EAD  |.  85C0          TEST EAX,EAX
+004C9EAF  |.  74 0E        JE SHORT OPC1.004C9EBF
+004C9EB1  |.  8B4D 08      MOV ECX,DWORD PTR SS:[EBP+8]
+004C9EB4  |.  8B81 80000000 MOV EAX,DWORD PTR DS:[ECX+80]
+004C9EBA  |.  E9 D1000000  JMP OPC1.004C9F90
+004C9EBF  |>  8B55 20      MOV EDX,DWORD PTR SS:[EBP+20]
+004C9EC2  |.  52            PUSH EDX                                          ; /Arg7
+004C9EC3  |.  8B45 1C      MOV EAX,DWORD PTR SS:[EBP+1C]                    ; |
+004C9EC6  |.  50            PUSH EAX                                          ; |Arg6
+004C9EC7  |.  8B4D 18      MOV ECX,DWORD PTR SS:[EBP+18]                    ; |
+004C9ECA  |.  51            PUSH ECX                                          ; |Arg5
+004C9ECB  |.  8B55 14      MOV EDX,DWORD PTR SS:[EBP+14]                    ; |
+004C9ECE  |.  52            PUSH EDX                                          ; |Arg4
+004C9ECF  |.  8B45 10      MOV EAX,DWORD PTR SS:[EBP+10]                    ; |
+004C9ED2  |.  50            PUSH EAX                                          ; |Arg3
+004C9ED3  |.  8B4D 0C      MOV ECX,DWORD PTR SS:[EBP+C]                      ; |
+004C9ED6  |.  51            PUSH ECX                                          ; |Arg2
+004C9ED7  |.  8B55 08      MOV EDX,DWORD PTR SS:[EBP+8]                      ; |
+004C9EDA  |.  52            PUSH EDX                                          ; |Arg1
+004C9EDB  |.  E8 B4000000  CALL OPC1.004C9F94        <------- 修改这里                  ; \OPC1.004C9F94
+004C9EE0  |.  83C4 1C      ADD ESP,1C
+004C9EE3  |.  8945 FC      MOV DWORD PTR SS:[EBP-4],EAX
+004C9EE6  |.  837D FC 00    CMP DWORD PTR SS:[EBP-4],0
+004C9EEA  |.  75 70        JNZ SHORT OPC1.004C9F5C
+004C9EEC  |.  8B45 08      MOV EAX,DWORD PTR SS:[EBP+8]
+004C9EEF  |.  50            PUSH EAX                                          ; /Arg1
+004C9EF0  |.  E8 241B0100  CALL OPC1.004DBA19                            ; \OPC1.004DBA19
+
+3、程序3
+0076C75E    68 9E000000    PUSH 9E
+0076C763    68 A43C8300    PUSH License.00833CA4                  ; ASCII "lm_ckout.c"
+0076C768    8B4D 08        MOV ECX,DWORD PTR SS:[EBP+8]
+0076C76B    51              PUSH ECX
+0076C76C    E8 54950000    CALL License.00775CC5
+0076C771    83C4 0C        ADD ESP,0C
+0076C774    8B55 08        MOV EDX,DWORD PTR SS:[EBP+8]
+0076C777    8B82 9C010000  MOV EAX,DWORD PTR DS:[EDX+19C]
+0076C77D    05 F40C0000    ADD EAX,0CF4
+0076C782    6A 00          PUSH 0
+0076C784    50              PUSH EAX
+0076C785    E8 0A3EFFFF    CALL <JMP.&MSVCR80._setjmp3>
+0076C78A    83C4 08        ADD ESP,8
+0076C78D    85C0            TEST EAX,EAX
+0076C78F    74 0E          JE SHORT License.0076C79F
+0076C791    8B4D 08        MOV ECX,DWORD PTR SS:[EBP+8]
+0076C794    8B81 80000000  MOV EAX,DWORD PTR DS:[ECX+80]
+0076C79A    E9 D1000000    JMP License.0076C870
+0076C79F    8B55 20        MOV EDX,DWORD PTR SS:[EBP+20]
+0076C7A2    52              PUSH EDX
+0076C7A3    8B45 1C        MOV EAX,DWORD PTR SS:[EBP+1C]
+0076C7A6    50              PUSH EAX
+0076C7A7    8B4D 18        MOV ECX,DWORD PTR SS:[EBP+18]
+0076C7AA    51              PUSH ECX
+0076C7AB    8B55 14        MOV EDX,DWORD PTR SS:[EBP+14]
+0076C7AE    52              PUSH EDX
+0076C7AF    8B45 10        MOV EAX,DWORD PTR SS:[EBP+10]
+0076C7B2    50              PUSH EAX
+0076C7B3    8B4D 0C        MOV ECX,DWORD PTR SS:[EBP+C]
+0076C7B6    51              PUSH ECX
+0076C7B7    8B55 08        MOV EDX,DWORD PTR SS:[EBP+8]
+0076C7BA    52              PUSH EDX
+0076C7BB    E8 B4000000    CALL License.0076C874    <-------修改这里为MOV EAX,0
+0076C7C0    83C4 1C        ADD ESP,1C
+0076C7C3    8945 FC        MOV DWORD PTR SS:[EBP-4],EAX
+0076C7C6    837D FC 00      CMP DWORD PTR SS:[EBP-4],0
+0076C7CA    75 70          JNZ SHORT License.0076C83C
+0076C7CC    8B45 08        MOV EAX,DWORD PTR SS:[EBP+8]
+0076C7CF    50              PUSH EAX
+0076C7D0    E8 74970000    CALL License.00775F49
+
+
+哈哈，就到这里，继续研究....
+不同版本的flexlm有相通之处哈
+
+最新爆破法：
+1、程序1
+006D25CF  |.  74 0E        JE SHORT Tm.006D25DF
+改成
+006D25CF  |.  75 0E        JNE SHORT Tm.006D25DF
+2、程序2
+同程序1
+3、程序3

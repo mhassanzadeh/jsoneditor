@@ -1,0 +1,35 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:52:18.359000
+
+====== arcsde 锁 ======
+Created Friday 04 June 2010
+
+SQL> select * from sde.state_locks;
+
+SQL> select * from sde.object_locks;
+
+SQL> select * from sde.layer_locks;
+
+SQL> select * from sde.table_locks;
+
+如果有记录返回，那么手工删除这些表中的记录
+
+通过以上操作，可以搞定sde被锁的情况
+
+在空间数据库中，作为管理员的SDE完成一般用户不能完成的操作，以下举例说明：
+1、 启动/停止ArcSDE服务
+只有SDE能够与Oracle完成交互，启动或停止ArcSDE的服务。操作为：
+sdemon –o start / shutdown （启动/停止）
+这时候需要提交SDE用户密码。
+2、 终止某个空间用户连接
+在空间数据库连接中，有时候出连接进程挂起或者非法连接的时候，可以使用SDE终止其连接。操作为：
+首先，从连接列表中获取该连接的信息
+sdemon –o info –I users
+在获取到需要终止的连接ID后，使用kill命令
+sdemon –o kill –t < 连接 ID>
+<连接ID> 完成此项操作需要提交SDE用户密码。
+3、 压缩多版本数据库（Multi-versioned Geodatabase）
+在ArcSDE Geodatabase中，随着数据编辑工作的进行，SDE空间资料档案库中相应元数据表、以及用户模式中的A表和D表的记录逐渐增加，会影响空间数据的访问效率，因此经常需要进行数据库版本的压缩工作。在确定数据库不存在任何锁定后，便可以进行压缩工作，操作为：
+sdeversion –o compress –u sde
+完成此项操作需要提交SDE用户密码。

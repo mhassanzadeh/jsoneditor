@@ -1,0 +1,119 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:41:57.687000
+
+====== ASP.net 验证码(Csharp) ======
+Created Friday 04 June 2010
+
+/* Copyright all(c) 2005 ZhongFeng, http://blog.csdn.net/SW515 */
+ public class ValidateCode : System.Web.UI.Page
+ {
+  private void Page_Load(object sender, System.EventArgs e)
+  {
+   this.CreateCheckCodeImage(GenerateCheckCode());
+  }
+  #region Web 窗体设计器生成的代码
+  override protected void OnInit(EventArgs e)
+  {
+   //
+   // CODEGEN: 该调用是 ASP.NET Web 窗体设计器所必需的。
+   //
+   InitializeComponent();
+   base.OnInit(e);
+  }
+  
+  /// <summary>
+  /// 设计器支持所需的方法 - 不要使用代码编辑器修改
+  /// 此方法的内容。
+  /// </summary>
+  private void InitializeComponent()
+  {    
+   this.Load += new System.EventHandler(this.Page_Load);
+  }
+  #endregion
+  private string GenerateCheckCode()
+  {
+   int number;
+   char code;
+   string checkCode = String.Empty;
+   System.Random random = new Random();
+   for(int i=0; i<5; i++)
+   {
+    number = random.Next();
+    if(number % 2 == 0)
+     code = (char)('0' + (char)(number % 10));
+    else
+     code = (char)('A' + (char)(number % 26));
+    checkCode += code.ToString();
+   }
+   Response.Cookies.Add(new HttpCookie("CheckCode", checkCode));
+   return checkCode;
+  }
+  private void CreateCheckCodeImage(string checkCode)
+  {
+   if(checkCode == null || checkCode.Trim() == String.Empty)
+    return;
+   System.Drawing.Bitmap image = new System.Drawing.Bitmap((int)Math.Ceiling((checkCode.Length * 12.5)), 22);
+   Graphics g = Graphics.FromImage(image);
+   try
+   {
+    //生成随机生成器
+    Random random = new Random();
+    //清空图片背景色
+    g.Clear(Color.White);
+    //画图片的背景噪音线
+    for(int i=0; i<25; i++)
+    {
+     int x1 = random.Next(image.Width);
+     int x2 = random.Next(image.Width);
+     int y1 = random.Next(image.Height);
+     int y2 = random.Next(image.Height);
+     g.DrawLine(new Pen(Color.Silver), x1, y1, x2, y2);
+    }
+    Font font = new System.Drawing.Font("Arial", 12, (System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic));
+    System.Drawing.Drawing2D.LinearGradientBrush brush = new System.Drawing.Drawing2D.LinearGradientBrush(new Rectangle(0, 0, image.Width, image.Height), Color.Blue, Color.DarkRed, 1.2f, true);
+    g.DrawString(checkCode, font, brush, 2, 2);
+    //画图片的前景噪音点
+    for(int i=0; i<100; i++)
+    {
+     int x = random.Next(image.Width);
+     int y = random.Next(image.Height);
+     image.SetPixel(x, y, Color.FromArgb(random.Next()));
+    }
+    //画图片的边框线
+    g.DrawRectangle(new Pen(Color.Silver), 0, 0, image.Width - 1, image.Height - 1);
+    System.IO.MemoryStream ms = new System.IO.MemoryStream();
+    image.Save(ms, System.Drawing.Imaging.ImageFormat.Gif);
+    Response.ClearContent();
+    Response.ContentType = "image/Gif";
+    Response.BinaryWrite(ms.ToArray());
+   }
+   finally
+   {
+    g.Dispose();
+    image.Dispose();
+   }
+  }
+ }
+
+ 
+　　假如以上验证码生成器页面名为：CheckCode.aspx，那么在登录页面中使用“<IMG>” 这个 HTML 元素来显示生成的验证码图片：<IMG src="CheckCode.aspx">
+　　在登录页面的登录按钮的处理事件中使用以下代码判断验证码：
+  private void btnLogin_Click(object sender, System.Web.UI.ImageClickEventArgs e)
+  {
+   if(Request.Cookies["CheckCode"] == null)
+   {
+    lblMessage.Text = "您的浏览器设置已被禁用 Cookies，您必须设置浏览器允许使用 Cookies 选项后才能使用本系统。";
+    lblMessage.Visible = true;
+    return;
+   }
+   if(String.Compare(Request.Cookies["CheckCode"].Value, txtCheckCode.Text, true) != 0)
+   {
+    lblMessage.Text = "验证码错误，请输入正确的验证码。";
+    lblMessage.Visible = true;
+    return;
+   }
+
+        /*****  其他代码  *****/
+
+  }

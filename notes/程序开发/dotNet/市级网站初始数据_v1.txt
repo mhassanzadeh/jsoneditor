@@ -1,0 +1,424 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:31:47.640000
+
+====== 市级网站初始数据 v1 ======
+Created Friday 04 June 2010
+
+use MyCity
+go
+
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('动作管理——添加','动作管理——添加','af1f746533646e08','2009-10-10 16:16:37',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('动作管理——修改','动作管理——修改','d3b430b933915797','2009-10-10 16:16:49',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('动作管理——删除','动作管理——删除','f9e3bf829813d260','2009-10-10 16:16:59',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('动作管理——查看','动作管理——查看','dd41491a191509a6','2009-10-10 16:17:09',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('角色动作——查看','角色动作——查看','0050b9e53e802e72','2009-10-10 16:17:27',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('角色动作——添加','角色动作——添加','02b763f860e1eb32','2009-10-10 16:17:36',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('角色信息管理——添加','角色信息管理——添加','f0ed4b854efc4bb7','2009-10-10 16:17:58',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('角色信息管理——查看','角色信息管理——查看','b47f523be12172c4','2009-10-10 16:18:16',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('角色信息管理——修改','角色信息管理——修改','f4ef8577ed607e7a','2009-10-10 16:18:28',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('角色信息管理——删除','角色信息管理——删除','bcc660a2a5c3e008','2009-10-10 16:18:37',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('用户信息管理——用户信息查看','用户信息管理——用户信息查看','de6016d401486adf','2009-10-10 16:19:51',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('用户信息管理——用户角色修改','用户信息管理——用户角色修改','747b6f3f604eaabe','2009-10-10 16:20:07',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('用户信息管理——用户状态修改','用户信息管理——用户状态修改','4f7e31f7494c5f4d','2009-10-10 16:20:21',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('用户信息管理——用户帐号删除','用户信息管理——用户帐号删除','cebe5c2dd46c8922','2009-10-10 16:20:37',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('角色动作——删除','角色动作——删除','8cf0e3ef52bc79e0','2009-10-10 16:34:05',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('历史动作——查看','历史动作——查看','06b2ef2462a49063','2009-10-10 16:40:03',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('独立页面管理——维护权限','独立页面管理——维护权限','216a0a39fe6aaf02','2009-10-12 8:59:13',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('回复——建议意见——维护权限','回复——建议意见——维护权限','c138f7ce22ed7d74','2009-10-12 9:00:00',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('回复——信访举报——维护权限','回复——信访举报——维护权限','d6358229b7f41d7d','2009-10-12 9:00:45',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('回复——电子信访——维护权限','回复——电子信访——维护权限','b8d3f3209bb163c4','2009-10-12 9:00:55',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('回复——在线咨询——维护权限','回复——在线咨询——维护权限','31edb798f7b34fa5','2009-10-12 9:01:11',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('回复——依申请公开——维护权限','回复——依申请公开——维护权限','545e99582f0f0603','2009-10-12 9:01:26',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('新闻——新闻编辑——维护权限','新闻——新闻编辑——维护权限','a3ebe2364262f6c2','2009-10-12 9:30:08',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('新闻——新闻审核——维护权限','新闻——新闻审核——维护权限','840b2ed97c0ea96e','2009-10-12 9:30:46',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('栏目管理——查看','栏目管理——查看','8ee051d65e6c4011','2009-10-14 15:11:57',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('栏目管理——添加','栏目管理——添加','287d65a35e7e79a4','2009-10-14 15:12:09',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('栏目管理——修改','栏目管理——修改','936307512739e5f0','2009-10-14 15:12:18',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('栏目管理——删除','栏目管理——删除','1c55b025e45b86d9','2009-10-14 15:12:27',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('新闻管理——添加','新闻管理——添加','f1ca478852736741','2009-10-26 9:31:11',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('新闻管理——修改','新闻管理——修改','2fc428263285eda9','2009-10-26 9:31:20',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('新闻管理——查看','新闻管理——查看','403c56945e3fe600','2009-10-26 9:31:33',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('新闻管理——删除','新闻管理——删除','0d996278afc9870a','2009-10-26 9:31:41',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('新闻管理——审核','新闻管理——审核','bc539e479b276bff','2009-10-26 9:31:51',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('独立页面——维护','独立页面——维护','835f4a0bd4bb47ae','2009-10-26 9:37:00',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('下载菜单管理——维护','下载菜单管理——维护','bc1cc74ea26b178c','2009-10-27 11:02:18',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('下载管理——维护','下载管理——维护','064476530d2e076b','2009-10-27 11:02:24',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('导航条管理——维护','导航条管理——维护','2d0a1f23ee675cbb','2009-10-27 11:59:41',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('友情链接列表——维护','友情链接列表——维护','8ecdfbac9590c2ff','2009-10-27 15:54:14',1,'国土资源局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('友情图片链接列表——维护','友情图片链接列表——维护','2bae8f64418e02ac','2009-10-27 15:54:29',1,'国土资源局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('首页图片列表——维护','首页图片列表——维护','aeebad0666cc2dae','2009-10-27 15:54:45',1,'国土资源局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('首页互动栏目——维护','首页互动栏目——维护','843bd9361c2b428b','2009-10-27 15:56:36',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('首页模块管理——维护','首页模块管理——维护','d6ed4902678ecf34','2009-10-27 17:46:56',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action]([action_name],[action_info],[action],[create_time],[create_master_id],[create_master_name]) VALUES('网上调查——维护','网上调查——维护','e79587ccd01c8c99','2009-10-29 9:14:08',1,'国土资源局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('0050b9e53e802e72',1,'2009-10-10 0:00',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('02b763f860e1eb32',1,'2009-10-10 0:00',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('8cf0e3ef52bc79e0',1,'2009-10-10 0:00',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('af1f746533646e08',1,'2009-10-10 0:00',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('d3b430b933915797',1,'2009-10-10 0:00',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('f9e3bf829813d260',1,'2009-10-10 0:00',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('dd41491a191509a6',1,'2009-10-10 0:00',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('06b2ef2462a49063',1,'2009-10-12 8:43',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('f0ed4b854efc4bb7',1,'2009-10-12 8:48',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('b47f523be12172c4',1,'2009-10-12 8:48',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('f4ef8577ed607e7a',1,'2009-10-12 8:48',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('bcc660a2a5c3e008',1,'2009-10-12 8:48',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('de6016d401486adf',1,'2009-10-12 8:48',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('747b6f3f604eaabe',1,'2009-10-12 8:48',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('4f7e31f7494c5f4d',1,'2009-10-12 8:48',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('cebe5c2dd46c8922',1,'2009-10-12 8:48',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('a3ebe2364262f6c2',1,'2009-10-12 9:30',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('8ee051d65e6c4011',1,'2009-10-14 15:13',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('287d65a35e7e79a4',1,'2009-10-14 15:13',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('936307512739e5f0',1,'2009-10-14 15:13',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('1c55b025e45b86d9',1,'2009-10-14 15:13',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('840b2ed97c0ea96e',1,'2009-10-14 15:13',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('216a0a39fe6aaf02',1,'2009-10-26 9:34',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('c138f7ce22ed7d74',1,'2009-10-26 9:34',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('d6358229b7f41d7d',1,'2009-10-26 9:34',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('b8d3f3209bb163c4',1,'2009-10-26 9:34',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('31edb798f7b34fa5',1,'2009-10-26 9:34',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('545e99582f0f0603',1,'2009-10-26 9:34',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('f1ca478852736741',1,'2009-10-26 9:34',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('2fc428263285eda9',1,'2009-10-26 9:34',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('403c56945e3fe600',1,'2009-10-26 9:34',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('0d996278afc9870a',1,'2009-10-26 9:34',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('bc539e479b276bff',1,'2009-10-26 9:34',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('835f4a0bd4bb47ae',1,'2009-10-26 9:37',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('bc1cc74ea26b178c',1,'2009-10-27 11:03',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('064476530d2e076b',1,'2009-10-27 11:03',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('2d0a1f23ee675cbb',1,'2009-10-27 11:59',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('8ecdfbac9590c2ff',1,'2009-10-27 15:54',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('2bae8f64418e02ac',1,'2009-10-27 15:54',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('aeebad0666cc2dae',1,'2009-10-27 15:54',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('843bd9361c2b428b',1,'2009-10-27 15:56',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('e79587ccd01c8c99',1,'2009-10-29 9:14',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_action_group]([action],[group_id],[update_date],[update_master_id],[update_master_name]) VALUES('d6ed4902678ecf34',1,'2009-10-30 8:58:25',1,'国土局')
+go
+INSERT INTO[MyCity].[dbo].[G_groupmanager]([group_name],[group_info],[create_date],[create_master_id],[create_master_name],[last_date],[last_master_id],[last_master_name]) VALUES('超级管理员角色','拥有全部权限的角色','2009-4-20 9:59',1,'Admin','2009-4-28 10:47',1,'Admin')
+go
+INSERT INTO[MyCity].[dbo].[G_groupmanager]([group_name],[group_info],[create_date],[create_master_id],[create_master_name],[last_date],[last_master_id],[last_master_name]) VALUES('无权限管理员角色','刚刚注册没有任何权限的管理员','2009-4-28 10:48',1,'Admin','2009-6-12 15:43',1,'Admin')
+go
+INSERT INTO[MyCity].[dbo].[G_groupmanager]([group_name],[group_info],[create_date],[create_master_id],[create_master_name],[last_date],[last_master_id],[last_master_name]) VALUES('日常维护管理员','日常维护管理员，主要负责新闻管理的工作','2009-10-26 9:35',1,'国土局',NULL,NULL,NULL)
+go
+INSERT INTO[MyCity].[dbo].[G_master]([master_name],[master_psw],[real_name],[sex],[phone],[department],[ask],[answer],[update_time],[state],[last_time],[last_ip],[group_id],[update_master_id],[update_master_name]) VALUES('guotu','202cb962ac59075b964b07152d234b70','国土资源局','男','0771-1234567','国土资源局','国土资源局','FC18024D51AC93E9BA2F8DC7D5DDFF89','2009-4-18 17:13',1,'2009-10-29 15:19','192.168.1.47',1,1,'Admin')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('图片新闻下方左标签豆腐块标签一',1,1,'2009-10-19 11:37')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('图片新闻下方左标签豆腐块标签二',1,1,'2009-10-10 10:52')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('图片新闻下方左标签豆腐块标签三',1,1,'2009-10-10 10:52')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 10:52')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 10:52')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 10:53')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('滚动图片新闻下方右标签豆腐块标签一',1,1,'2009-10-10 10:54')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('滚动图片新闻下方右标签豆腐块标签二',1,1,'2009-10-10 10:54')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('滚动图片新闻下方右标签豆腐块标签三',1,1,'2009-10-10 10:54')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 10:54')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 10:55')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 10:55')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('首页图片一下方左标签豆腐块标签一',1,1,'2009-10-10 10:57')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('首页图片一下方左标签豆腐块标签二',1,1,'2009-10-10 10:57')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('首页图片一下方左标签豆腐块标签三',1,1,'2009-10-10 10:57')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 10:57')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 10:57')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 10:57')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('首页图片一下方右标签豆腐块标签一',1,1,'2009-10-10 11:00')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('首页图片一下方右标签豆腐块标签二',1,1,'2009-10-10 11:00')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('首页图片一下方右标签豆腐块标签三',1,1,'2009-10-10 11:00')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 11:00')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 11:00')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 11:00')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('首页图片二下方大豆腐块一左上',1,1,'2009-10-10 11:27')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('首页图片二下方大豆腐块一右上',1,1,'2009-10-10 11:27')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('首页图片二下方大豆腐块一左下',1,1,'2009-10-10 11:27')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('首页图片二下方大豆腐块一右下',1,1,'2009-10-10 11:27')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 11:27')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 11:28')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 11:28')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('首页图片二下方大豆腐块二左上',1,1,'2009-10-10 11:28')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('首页图片二下方大豆腐块二右上',1,1,'2009-10-10 11:28')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('首页图片二下方大豆腐块二左下',1,1,'2009-10-10 11:29')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('首页图片二下方大豆腐块二右下',1,1,'2009-10-10 11:29')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 11:32')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 11:32')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 11:32')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('左侧网上互动下方、管理员登陆上方豆腐块上',1,1,'2009-10-10 11:33')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('左侧网上互动下方、管理员登陆上方豆腐块中上',1,1,'2009-10-10 11:33')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('左侧网上互动下方、管理员登陆上方豆腐块中下',1,1,'2009-10-10 11:33')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('左侧网上互动下方、管理员登陆上方豆腐块下',1,1,'2009-10-10 11:33')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 12:03')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 12:03')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('未使用',1,0,'2009-10-10 12:03')
+go
+INSERT INTO[MyCity].[dbo].[I_Index]([local_name],[parms],[used],[create_time]) VALUES('图片新闻右侧新闻列表',1,1,'2009-10-10 12:04')
+go
+INSERT INTO[MyCity].[dbo].[L_Link]([name],[url],[byname],[class],[range],[remark]) VALUES('我局简介','/',NULL,4,1,'请填写此栏目的内容描述')
+go
+INSERT INTO[MyCity].[dbo].[L_Link]([name],[url],[byname],[class],[range],[remark]) VALUES('意见建议','Advice/Advice.aspx',NULL,4,2,'请填写此栏目的内容描述')
+go
+INSERT INTO[MyCity].[dbo].[L_Link]([name],[url],[byname],[class],[range],[remark]) VALUES('依申请公开','Ventilate/Ventilate.aspx',NULL,4,3,'请填写此栏目的内容描述')
+go
+INSERT INTO[MyCity].[dbo].[L_Link]([name],[url],[byname],[class],[range],[remark]) VALUES('信访举报','Report/Report.aspx',NULL,4,4,'请填写此栏目的内容描述')
+go
+INSERT INTO[MyCity].[dbo].[L_Link]([name],[url],[byname],[class],[range],[remark]) VALUES('在线咨询','Refer/Refer.aspx',NULL,4,5,'请填写此栏目的内容描述')
+go
+INSERT INTO[MyCity].[dbo].[L_Link]([name],[url],[byname],[class],[range],[remark]) VALUES('网上调查','Vote/VoteList.aspx',NULL,4,6,'请填写此栏目的内容描述')
+go
+INSERT INTO[MyCity].[dbo].[L_Link]([name],[url],[byname],[class],[range],[remark]) VALUES('其它栏目','/',NULL,4,7,'请填写此栏目的内容描述')
+go
+INSERT INTO[MyCity].[dbo].[L_Link]([name],[url],[byname],[class],[range],[remark]) VALUES('其它栏目','/',NULL,4,8,'请填写此栏目的内容描述')
+go
+INSERT INTO[MyCity].[dbo].[L_Link]([name],[url],[byname],[class],[range],[remark]) VALUES('其它栏目','/',NULL,4,9,'请填写此栏目的内容描述')
+go
+INSERT INTO[MyCity].[dbo].[L_Link]([name],[url],[byname],[class],[range],[remark]) VALUES('其它栏目','/',NULL,4,10,'请填写此栏目的内容描述')
+go
+INSERT INTO[MyCity].[dbo].[N_ClassMenu]([DId],[ParentName],[ClassName],[ParentId],[CTime],[CustomUrl],[IsNav],[Lock],[HasChild],[IsISO]) VALUES(0,'首页','首页',0,'2009-10-10 0:00','/',0,1,1,0)
+go
+INSERT INTO[MyCity].[dbo].[XH_Config]([username],[password],[WebName],[WebUrl],[SystemUrl],[RestrictIP],[AllowView],[refuseTime],[GetUserInfo]) VALUES('admin123','202CB962AC59075B964B07152D234B70','','','',0,1,6,0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('专题专栏1','20091027172838515.jpg','/','218x60',1)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('专题专栏2','20090903180900004.gif','http://bwg.gxdzzl.cn/','218x60',1)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('信息公开','20090903180737192.gif','http://www.gxdlr.gov.cn/Directory/Directory.aspx','218x160',1)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('活动图片1','20090916115824593.jpg','http://www.gxdlr.gov.cn/News/NewsClassList.aspx?ParentId=10&ClassId=101','750x100',1)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('活动图片2','20090826083912484.jpg','http://www.gxdlr.gov.cn/News/NewsClassList.aspx?ParentId=6&ClassId=27','750x100',1)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','20090903180920317.gif','http://www.gxdzzl.cn/','271*62',1)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('友情图片链接01','20091027160918890.gif','/index.aspx','190x45',2)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('友情图片链接02','20090810190040995.jpg','http://www.mlr.gov.cn/','190x45',2)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('友情图片链接03','20090829092917781.gif','http://www.clr.cn/','190x45',2)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('友情图片链接04','20090829093006921.gif','http://www.chinamr.net/','190x45',2)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('友情图片链接05','20090829095818953.gif','http://www.gjtddc.gov.cn/','190x45',2)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('友情图片链接06','20090829095307671.gif','http://www.chinalands.com/','190x45',2)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('友情图片链接07','20090829094142359.gif','http://www.landchina.com/','190x45',2)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('友情图片链接08','20090829095658781.gif','http://www.lrn.cn/','190x45',2)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('友情图片链接09','20090829094923359.gif','http://www.gxzf.gov.cn/','190x45',2)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('友情图片链接10','20090829095010156.gif','http://www.gx.chinanews.com.cn/','190x45',2)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','~/Building.htm','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','20090730151013484.jpg','#','728*80',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','20090729092521875.gif','~/Building.htm','218*143',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','','',0)
+go
+INSERT INTO [MyCity].[dbo].[P_PicPack]([location],[picName],[picLink],[picSize],[picType]) VALUES('暂时作废','','','',0)
+go

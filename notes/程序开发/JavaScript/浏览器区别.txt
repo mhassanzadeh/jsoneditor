@@ -1,0 +1,12 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:28:27.375000
+
+====== 浏览器区别 ======
+Created Friday 04 June 2010
+
+FF中当clear和margin-top同时出现时，margin-top会被重置为0，IE不会。
+
+IE中<div class="clear"></div>的高度为1px。
+
+IE6中如果同时使用float和margin，某条边与浮动方向同向，边距会增加一倍。

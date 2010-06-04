@@ -1,0 +1,9 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:26:52.343000
+
+====== MapInfo ======
+Created Friday 04 June 2010
+
+选择装饰图层中的对象
+Select * from cosmetic1

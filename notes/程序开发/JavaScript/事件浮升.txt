@@ -1,0 +1,15 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:24:02.250000
+
+====== 事件浮升 ======
+Created Friday 04 June 2010
+
+这是事件的浮升（冒泡），点了最里面的那个div，外面两个div也会作onclick的反应。
+禁止事件浮升用event.cancelBubble=true
+
+<div id="d0" class="div0" onclick="a(this)">
+  <div id="d1" class="div1" onclick="a(this)">
+     <div id="d2" class="div2" onclick="a(this);event.cancelBubble=true;">测试</div>
+  </div>
+</div>

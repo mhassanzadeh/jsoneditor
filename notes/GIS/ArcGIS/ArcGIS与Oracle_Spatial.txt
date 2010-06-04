@@ -1,0 +1,174 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:34:12.640000
+
+====== ArcGIS与Oracle Spatial ======
+Created Friday 04 June 2010
+
+ArcGIS与Oracle Spatial
+Oracle Spatial是Oracle数据库强大的核心特性，包含了用于存储矢量数据类型、栅格数据类型和持续拓扑数据的原生数据类型。Oracle Spatial使得我们能够在一个多用户环境中部署地理信息系统（GIS），并且与其它企业数据有机结合起来，统一部署电子商务、政务。有了Oracle Spatial之后，即可用标准的SQL查询管理我们的空间数据。
+Oracle Spatial将基础地理空间数据类型（点、线、面）统一在单一、开放的、基于标准的数据管理环境中， 这就减少了管理单独、分离的专用系统的成本、复杂性和开销。
+Oracle Spatial支持三种基本的几何形状，这些几何形状可分别用于表示那些通常构成空间数据库的特征，如道路、管理边界、公共设施等。这些空间基础元素包括：
+1.         点和点簇：点可以表示建筑、消防栓、电线杆、钻井、货车车厢或移动的交通工具等位置。
+2.         线和线串：线可以表示道路、铁路线、公用设施管线或故障线等。
+3.         多边形和带孔的复杂多边形：多边形可以表示城市、街区、河漫滩或油田和天然气田的轮廓。带孔的多边形可以表示由一片沼泽环绕的一小块土地。
+ArcGIS支持将空间数据存放在Oracle Spatial中，其主要是通过ArcSDE空间数据引擎来实现。ArcSDE除了支持Oracle Spatial中原生支持的“点、线、面”空间要素之外，还能管理ArcGIS特有的注记、拓扑关系、栅格数据、CAD数据等，并具有版本控制和长事务处理机制。并且ArcSDE是ArcGIS连接空间数据库（无论是Oracle还是其它）的唯一途径。
+ArcSDE可以在数据库中建立所有ArcGIS支持的文件类型，但是只有点、线、面的数据表中是以SDO_GEOMETRY来存储。SDO_GEOMETRY存储的字段才能被其它GIS平台读取。
+手工注册带有 SDO_GEOMETRY 字段的表到 ArcSDE
+由超图生成的带有空间数据的表可以通过以下方法使得ArcGIS可以识别。
+1.首先保证带有空间字段 SDO_GEOMETRY 的表已经在 MDSYS.SDO_GEOM_METADATA_TABLE 里面注册。
+2.在以下表中注册 ArcGIS 关系表内容。（下面以多边形为例）
+       SDE.GEOMETRY_COLUMNS (
+        F_TABLE_SCHEMA = SDE
+        F_TABLE_NAME = 表名
+        F_GEOMETRY_COLUMN = 空间字段，
+必须与 MDSYS.SDO_GEOM_METADATA_TABLE
+中注册的一致
+        G_TABLE_SCHEMA = SDE
+        G_TABLE_NAME = 表名
+        STORAGE_TYPE = 2，存储类型
+        GEOMETRY_TYPE = 11，空间属性类型
+        COORD_DIMENSION = 2，空间维度
+       )
+   
+    SDE.GDB_FEATURECLASSES (
+        OBJECTCLASSID = 3，整数，对应 SDE.GDB_OBJECTCLASSES 表中的 ID
+        FEATURETYPE = 1，要素类型
+        GEOMETRYTYPE = 4，空间对象类型
+    )
+   
+    SDE.GDB_OBJECTCLASSES (
+        ID = 3，编号
+        OWNER = SDE
+        NAME = 表名
+        CLSID = {52353152-891A-11D0-BEC6-00805F7C4268}
+    )
+   
+    # 此表要更新两行
+    SDE.COLUMN_REGISTRY (
+        TABLE_NAME = 表名
+        OWNER = SDE
+        COLUMN_NAME = SMID，表中对应的主键
+        SDE_TYPE = 2，字段类型
+        COLUMN_SIZE = 10
+        OBJECT_FLAGS = 3，与 SDE_TYPE 类似
+    )
+    SDE.COLUMN_REGISTRY (
+        TABLE_NAME = 表名
+        OWNER = SDE
+        COLUMN_NAME = SMGEOMETRY，表中对应的空间字段
+        SDE_TYPE = 8
+        OBJECT_FLAGS = 131076
+        OBJECT_ID = 3，与 SDE.GDB_OBJECTCLASSES 中的 ID 对应
+    )
+    SDE.COLUMN_REGISTRY (
+        TABLE_NAME = 表名
+        OWNER = SDE
+        COLUMN_NAME = SE_ANNO_CAD_DATA，
+表中对应的空间字段，这个是必要字段，
+没有这个字段的话 ARCGIS 中就不会显示图形，
+字段为 BLOB 类型
+        SDE_TYPE = 6
+        OBJECT_FLAGS = 20
+        OBJECT_ID = 3，与 SDE.GDB_OBJECTCLASSES 中的 ID 对应
+    )
+   
+    # 此表要更新两行
+    SDE.GDB_FIELDINFO (
+        CLASSID = GDB_OBJECTCLASSES 中的 ID
+        FIELDNAME = SMID，表中对应的主键
+        ALIASNAME = SMID
+        MODELNAME = SMID
+        ISREQUIRED = 1
+        ISSUBTYPEFIXED = 0
+        ISEDITABLE = 0
+    )
+    SDE.GDB_FIELDINFO (
+        CLASSID = GDB_OBJECTCLASSES 中的 ID
+        FIELDNAME = SMGEOMETRY，表中对应的空间字段
+        ALIASNAME = SMGEOMETRY
+        MODELNAME = SMGEOMETRY
+        ISREQUIRED = 1
+        ISSUBTYPEFIXED = 0
+        ISEDITABLE = 1
+    )
+   
+    SDE.LAYERS (
+        OWNER = SDE
+        TABLE_NAME = 表名
+        SPATIAL_COLUMN = SMGEOMETRY，表中对应的空间字段
+        EFLAGS = 138674321，空间对象类型
+        LAYER_MASK = 128
+        GSIZE1 = -2
+        GSIZE2 = 0
+        GSIZE3 = 0
+        MINX = 最小 X 坐标
+        MINY = 最小 Y 坐标
+        MAXX = 最大 X 坐标
+        MAXY = 最大 Y 坐标
+        CDATE = 1255318433
+        LAYER_CONFIG = DEFAULTS
+        MINIMUM_ID = 1
+        SRID = 1，OGC 标准的空间参考坐标系代码
+        BASE_LAYER_ID = 0
+    )
+   
+    SDE.TABLE_REGISTRY (
+        TABLE_NAME = 表名
+        OWNER = SDE
+        ROWID_COLUMN = SMID
+        OBJECT_FLAGS = 147463
+        REGISTRATION_DATE = UTC 秒
+        CONFIG_KEYWORD = DEFAULTS
+        MINIMUM_ID = 1
+    )
+
+
+SuperMap与Oracle Spatial
+超图的SDX+空间数据库引擎支持将空间数据存储到Oralce Spatial中。超图对Oralce Spatial的支持有如下局限：
+n         仅支持的数据集类型为：点、线、面、文本、属性表 5种。其中点、线、面数据集的空间数据采用MDSYS.SDO_GEOMETRY字段存储，文本数据集与SDX+ for Oracle 引擎中的文本采用同样的存储格式。
+n         有限支持Mdsys.Sdo_Geometry的Sdo_Gtype。包括：
+1.         2001、3001、2005、5
+2.         2002、3002、2006、6
+3.         2003、3003、2007、7
+n         不支持投影转换和数据集编码
+n         非超图建立的数据集，数据集名为：表名_空间数据列名。如表Street中有空间数据列Shape，则在超图中的数据集名为：Street_Shape。为区别单个表中有多个SDO_GEOMETRY列的情况，一个SDO_GEOMETRY列将对应一个数据集。超图建立的数据集，数据集名与表名一致。
+手工注册带有 SDO_GEOMETRY 字段的表到 SuperMap
+如果某个表带有空间字段，在没有注册之前，SuperMap 会把它识别为 CAD 复合数据集。CAD 复合数据集只能浏览不能编辑。将此表注册为 SuperMap 空间数据表之后，它将会成为 SuperMap 的点、线、面基本类型表，支持所有操作方法。
+    SMOSPREGISTER (
+        SMDATASETID = 编号
+        SMDATASETNAME = 表在超图中显示的名字
+        SMTABLENAME = 表名
+        SMIDCOLNAME = 主键字段名
+        SMLEFT = SMRIGHT = SMTOP = SMBOTTOM = 空间范围，
+可以用超图中的“重新计算范围”重新生成
+        SMVERSION = 0
+        SMOPTION = 34304
+        SMTOLERANCEFUZZY = SMTOLERANCEDANGLE = /
+SMTOLERANCENODESNAP = SMTOLERANCESMALLPOLYGON = /
+             SMTOLERANCEGRAIN = 容限相关值
+        SMCREATETIME = 创建时间
+        SMLASTUPDATETIME = 最后更新时间
+        SMCREATOR = 创建者
+        SMISSMCREATED = 1，表示是否由超图建立的表，
+如果此字段不是 1，则会影响数据表在超图中的显示名字，
+上一小节有提到
+    )
+
+MapGIS 6.7与Oracle Spatial
+MapGIS 6.7支持将空间数据存放在Oracle中，但是不支持Oracle Spatial字段。
+以用MapGIS向Oracle存入一个名字LL的线文件为例。数据上载到数据库中之后，将会生成下列表：LLLCO、LLLEX、LLLLA、LLLLN、LLLSX。MapGIS在数据库中生成的线状数据表有着固定的命名格式。LCO、LEX、LLA、LLN、LSX是线状表的固定后缀，除去后缀的前面部分将会作为“表名”显示在MapGIS桌面软件中。
+LLLSX表记录着非空间属性信息的属性表结构。LLLLN记录空间数据信息。LLLLA记录与空间对象对应的属性信息。
+各表之间及其与实际软件中的对应关系如下图：
+
+{{./clip_image003.jpg?type=None}}MapGIS中
+
+
+ {{./clip_image006.jpg?type=None}}LLLSX表
+
+{{./clip_image009.jpg?type=None}}LLLLA表
+
+{{./clip_image011.jpg?type=None}}LLLLN表
+
+由此可见，LLLLN表的空间数据是以BLOB的形式存储面非Oracle Spatial（SDO_GEOMETRY）字段形式。并且空间数据与非空间属性数据是分别存在于LLLLN和LLLLA两个不同的表中，通过ID0（0是“零”不是“欧”）字段关联起来。
+经以上分析表明，MapGIS存储在数据库中的数据是以BLOB形式存放的，空间数据无法与ArcGIS、超图等共享。

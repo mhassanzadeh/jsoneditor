@@ -1,0 +1,32 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:42:42.687000
+
+====== Cs的注释文档 ======
+Created Friday 04 June 2010
+
+C# 编译器将代码中的文档注释处理到 XML 文件中。需要在您的站点实现的具体内容是处理 XML 文件以创建文档。
+在代码构造（如类型和类型成员）上处理标记。
+注意
+文档注释不能应用于命名空间。
+编译器将处理任何为有效 XML 的标记。下列标记提供了用户文档中常用的功能：
+ <c>
+ <para>
+ <see>*
+ <code>
+ <param>*
+ <seealso>*
+ <example>
+ <paramref>
+ <summary>
+ <exception>*
+ <permission>*
+ <typeparam>*
+ <include>*
+ <remarks>
+ <typeparamref>
+ <list>
+ <returns>
+ <value>
+（* 表示编译器验证语法。）
+如果希望尖括号显示在文档注释的文本中，请使用 &lt; 和 &gt;。例如，&lt;尖括号中的文本&gt;。

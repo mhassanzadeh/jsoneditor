@@ -1,0 +1,65 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:43:32.718000
+
+====== javascript 判断中文字符长度 ======
+Created Friday 04 June 2010
+
+ <script language="javascript">  
+String.prototype.gblen = function() {  
+    var len = 0;  
+    for (var i=0; i<this.length; i++) {  
+        if (this.charCodeAt(i)>127 || this.charCodeAt(i)==94) {  
+            len += 2;  
+        } else {  
+            len ++;  
+        }  
+    }  
+    return len;  
+}  
+String.prototype.gbtrim = function(len, s) {  
+    var str = '';  
+    var sp  = s || '';  
+    var len2 = 0;  
+    for (var i=0; i<this.length; i++) {  
+        if (this.charCodeAt(i)>127 || this.charCodeAt(i)==94) {  
+            len2 += 2;  
+        } else {  
+            len2 ++;  
+        }  
+    }  
+    if (len2 <= len) {  
+        return this;  
+    }  
+    len2 = 0;  
+    len  = (len > sp.length) ? len-sp.length: len;  
+    for (var i=0; i<this.length; i++) {  
+        if (this.charCodeAt(i)>127 || this.charCodeAt(i)==94) {  
+            len2 += 2;  
+        } else {  
+            len2 ++;  
+        }  
+        if (len2 > len) {  
+            str += sp;  
+            break;  
+        }  
+        str += this.charAt(i);  
+    }  
+    return str;  
+}  
+var str1 = '世上最牛的@#%&们 世上最牛的@#%&们';  
+document.write('str1 = '+ str1 +'
+');  
+document.write('length = '+ str1.gblen() +'
+');  
+document.write('gbtrim(10) = '+ str1.gbtrim(10) +'
+');  
+document.write('gbtrim(10, \'…\') = '+ str1.gbtrim(10, '…') +'
+');  
+document.write('gbtrim(12, \'-\' ) = '+ str1.gbtrim(12, '-') +'
+');  
+  
+// gbtrim(len 截取长度，按英文字节长度计算， s截取后的省略字符，如"…" )  
+// 备注： 这里中文字符都是当作两个长度来计算的，所以gbtrim中的len为10时，是显示最多5个汉字的。  
+// 当汉字数大于5时，由于截取后加上“…”，所以只显示4个汉字。  
+</script>

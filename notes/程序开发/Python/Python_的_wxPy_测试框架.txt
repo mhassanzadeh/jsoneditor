@@ -1,0 +1,68 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:11:12.234000
+
+====== Python 的 wxPy 测试框架 ======
+Created Friday 04 June 2010
+
+import wx
+import time
+
+def create(parent):
+   return Frame1(parent)
+
+[wxID_FRAME1, wxID_FRAME1BUTTON1, wxID_FRAME1TEXTCTRL1, ] = [wx.NewId() for _init_ctrls in range(3)]
+
+class Frame1(wx.Frame):
+   def _init_ctrls(self, prnt):
+       # generated method, don't edit
+       wx.Frame.__init__(self, id=wxID_FRAME1, name='', parent=prnt,
+             pos=wx.Point(485, 296), size=wx.Size(400, 250),
+             style=wx.DEFAULT_FRAME_STYLE, title='Frame1')
+
+       self.SetClientSize(wx.Size(392, 217))
+
+       self.textCtrl1 = wx.TextCtrl(id=wxID_FRAME1TEXTCTRL1, name='textCtrl1',
+             parent=self, pos=wx.Point(48, 72), size=wx.Size(100, 22), style=0,
+             value='textCtrl1')
+
+       self.button1 = wx.Button(id=wxID_FRAME1BUTTON1, label='button1',
+             name='button1', parent=self, pos=wx.Point(216, 80), size=wx.Size(75, 24), style=0)
+
+       self.button1.Bind(wx.EVT_BUTTON, self.OnDo, id=wxID_FRAME1BUTTON1)
+
+       self.Bind(wx.EVT_MOTION, self.OnMotion)
+
+       self.CreateStatusBar()
+
+   def __init__(self, parent):
+       self._init_ctrls(parent)
+
+   def OnDo(self, event):
+       #self.textCtrl1.Value = 'start'
+       #self.textCtrl1.Clear()
+       #self.textCtrl1.SetInsertionPointEnd()
+       self.textCtrl1.WriteText("start")
+       time.sleep(5)
+       self.textCtrl1.Value = 'end'
+   
+   def OnMotion(self, event):
+       dc = wx.ClientDC(self)
+       self.PrepareDC(dc)
+       pt = event.GetLogicalPosition(dc)
+       wx.LogStatus(("the point is %s, %s") % (pt.x, pt.y))
+
+
+class BoaApp(wx.App):
+   def OnInit(self):
+       self.main = Frame1(None)
+       self.main.Show()
+       self.SetTopWindow(self.main)
+       return True
+
+def main():
+   application = BoaApp(0)
+   application.MainLoop()
+
+if __name__ == '__main__':
+   main()

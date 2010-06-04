@@ -1,0 +1,35 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:41:37.687000
+
+====== top、clientTop、scrollTop、offsetTop的差别 ======
+Created Friday 04 June 2010
+
+<html>
+<head>
+<title>51windows.Net </title>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+<style type="text/css">
+</style>
+</head>
+<body>
+<SCRIPT LANGUAGE="JavaScript">
+var  s = "";
+s += "\r\n网页可见区域宽："+ document.body.clientWidth;
+s += "\r\n网页可见区域高："+ document.body.clientHeight;
+s += "\r\n网页可见区域宽："+ document.body.offsetWidth  +" (包括边线的宽)";
+s += "\r\n网页可见区域高："+ document.body.offsetHeight +" (包括边线的宽)";
+s += "\r\n网页正文全文宽："+ document.body.scrollWidth;
+s += "\r\n网页正文全文高："+ document.body.scrollHeight;
+s += "\r\n网页被卷去的高："+ document.body.scrollTop;
+s += "\r\n网页被卷去的左："+ document.body.scrollLeft;
+s += "\r\n网页正文部分上："+ window.screenTop;
+s += "\r\n网页正文部分左："+ window.screenLeft;
+s += "\r\n屏幕分辨率的高："+ window.screen.height;
+s += "\r\n屏幕分辨率的宽："+ window.screen.width;
+s += "\r\n屏幕可用工作区高度："+ window.screen.availHeight;
+s += "\r\n屏幕可用工作区宽度："+ window.screen.availWidth;
+alert(s);
+</SCRIPT>
+</body>
+</html>

@@ -1,0 +1,12 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:41:17.687000
+
+====== virtualbox 在xp下可以使用物理硬盘做虚拟硬盘吗 ======
+Created Friday 04 June 2010
+
+可以的，参考9.9. Using a raw host hard disk from a guest
+代码:
+VBoxManage internalcommands createrawvmdk -filename /path/to/file.vmdk-rawdisk /dev/sda
+
+On a Windows host, instead of the above device specification, use e.g. \\.\PhysicalDrive0.

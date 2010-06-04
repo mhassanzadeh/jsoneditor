@@ -1,0 +1,27 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:40:42.671000
+
+====== 开机音量控制图标无法显示的解决办法 ======
+Created Friday 04 June 2010
+
+其实应该是开机任务栏通知区图标无法显示的问题，但我知道更多人会搜索“开机音量图标无法显示”，所以……
+
+问题症状：
+开机任务栏通知区图标都不能显示，但注销后都能显示，（最明显的，也是被问得最多的）音量控制图标无法在任务栏显示，而在声音和音频设备属性中“将音量图标显示在任务栏”的复选框是被选择状态，还伴随的症状有刚开机好长时间任务栏处于不能使用状态。
+
+解决方法：
+开始-运行services.msc
+找到服务SSDP Discovery Service，双击，在属性中停止服务，并在启动类型中选择"禁用"
+重新启动操作系统，看看问题是否解决了，请让我知道。
+
+至于为什么是SSDP Discovery Service的缘故，我也搞不清楚，这要问微软了。
+
+描述环境：Windows XP（SP2）
+
+2006.6.24补充
+今天在别人的机子上又碰到类似的问题，而他的SSDP Discovery Service服务是禁用的，我尝试了评论中徐曜灵网友的解决方案，能够解决问题，这里向他表示感谢。
+运行regedit，找到项：[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\ShellServiceObjectDelayLoad]
+右侧键值栏中新建字符串值SysTray，键值数据为 {35CEC8A3-2BE6-11D2-8773-92E220524153}
+
+看来“开机任务栏通知区图标无法显示”其中一个原因已经明了了，但我上次碰到的应该不是雅虎助手引起的（从来都不用这种东西），尚存疑惑。

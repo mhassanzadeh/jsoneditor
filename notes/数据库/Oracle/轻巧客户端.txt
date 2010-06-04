@@ -1,0 +1,26 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:27:27.375000
+
+====== 轻巧客户端 ======
+Created Friday 04 June 2010
+
+假定instant client 解压到E:\OracleInstantClient
+1.SET PATH=E:\OracleInstantClient;
+2.SET TNS_ADMIN=E:\OracleInstantClient
+SQLPATH,LOCAL,TNS_ADMIN
+3.新建一个tnsnames.ora，然后填入
+for example:
+202.193.82.234 =
+ (DESCRIPTION =
+   (ADDRESS_LIST =
+     (ADDRESS = (PROTOCOL = TCP)(HOST = 202.193.82.234)(PORT = 1521))
+   )
+   (CONNECT_DATA =
+     (SERVICE_NAME = orcl)
+   )
+)
+4.SET LD_LIBRARY_PATH=E:\OracleInstantClient
+
+5.如果要安装SQL plus那么需要设置SET SQLPATH=E:\OracleInstantClient
+6.如果查询结果为乱码，设置set NLS_LANG=XXXX（我自己是SIMPLIFIED CHINESE_CHINA.ZHS16CGB231280）

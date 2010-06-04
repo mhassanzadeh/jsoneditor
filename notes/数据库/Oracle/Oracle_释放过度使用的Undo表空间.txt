@@ -1,0 +1,192 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:47:08.296000
+
+====== Oracle 释放过度使用的Undo表空间 ======
+Created Friday 04 June 2010
+
+Oracle 释放过度使用的Undo表空间
+故障现象：UNDO表空间越来越大,长此下去最终数据因为磁盘空间不足而崩溃；
+问题分析：产生问题的原因主要以下两点：
+1. 有较大的事务量让Oracle Undo自动扩展，产生过度占用磁盘空间的情况；
+2. 有较大事务没有收缩或者没有提交所导制；
+说    明：本问题在ORACLE系统管理中属于比较正常的一现象，日常维护多注意对磁盘空间的监控。
+备    份： (如果没有在线事务，可以不做，关闭监听)
+
+$>exp vas/vas file=/opt/oracle/data_1.dmp,/opt/oracle/data_2.dmp log=/opt/oracle/date.log wner=vas rows=y indexes=y compress=n buffer=65536 feedback=100000 volsize=0 filesize=1000M
+解决步骤：
+1. 启动SQLPLUS，并用sys登陆到数据库。
+#su - oracle
+$>sqlplus /nolog
+SQL*Plus: Release 9.2.0.4.0 - Production on Wed Nov 8 13:45:10 2006
+Copyright (c) 1982, 2002, Oracle Corporation. All rights reserved.
+SQL> conn sys/qq994238@ddptest as sysdba;
+Connected.
+2. 查找数据库的UNDO表空间名
+#cat $ORACLE_HOME/dbs/initddptest.ora
+……
+*.undo_management=’AUTO’
+*.undo_retention=10800
+*.undo_tablespace=’UNDOTBS2’
+……
+3. 确认UNDO表空间；
+SQL> select name from v$tablespace;
+NAME
+------------------------------
+CWMLITE
+DRSYS
+EXAMPLE
+INDX
+ODM
+SYSTEM
+TOOLS
+USERS
+XDB
+TEMP
+TESTLIB
+UNDOTBS2
+4. 检查数据库UNDO表空间占用空间情况以及数据文件存放位置；
+SQL>select file_name,bytes/1024/1024 from dba_data_files
+2 where tablespace_name like 'UNDOTBS2';
+   
+5. 查看回滚段的使用情况，哪个用户正在使用回滚段的资源，如果有用户最好更换时间（特别是生产环境）。
+SQL> select s.username, u.name from v$transaction t,v$rollstat r,
+2 v$rollname u,v$session s where s.taddr=t.addr and
+3 t.xidusn=r.usn and r.usn=u.usn order by s.username;
+6. 检查UNDO Segment状态；
+SQL> select usn,xacts,rssize/1024/1024/1024,hwmsize/1024/1024/1024,shrinks
+2 from v$rollstat order by rssize;
+
+7. 创建新的UNDO表空间，并设置自动扩展参数；
+SQL> create undo tablespace undotbs1 datafile '/oradata/oradata/ddptest/UNDOTBS1.dbf' size 1000m reuse autoextend on next 800m maxsize unlimited;
+Tablespace created.
+8. 动态更改spfile配置文件；
+SQL> alter system set undo_tablespace=undotbs1 scope=both;
+System altered.
+9. 等待原UNDO表空间所有UNDO SEGMENT OFFLINE；
+SQL> select usn,xacts,status,rssize/1024/1024/1024,hwmsize/1024/1024/1024,shrinks
+2 from v$rollstat order by rssize;
+10. 再执行看UNDO表空间所有UNDO SEGMENT ONLINE；
+SQL> select usn,xacts,status,rssize/1024/1024/1024,hwmsize/1024/1024/1024,shrinks
+2 from v$rollstat order by rssize;
+11. 删除原有的UNDO表空间；
+SQL> drop tablespace undotbs2 including contents;
+Tablespace dropped.
+12. 确认删除是否成功；
+SQL> select name from v$tablespace;
+NAME
+------------------------------
+CWMLITE
+DRSYS
+EXAMPLE
+INDX
+ODM
+SYSTEM
+TOOLS
+USERS
+XDB
+TEMP
+TESTLIB
+UNDOTBS1
+12 rows selected.
+13. 在做此步骤前，请到$ORACLE_HOME/dbs/init$ORACLE_SID.ora如下内容是否发生变更：
+#cat $ORACLE_HOME/dbs/initddptest.ora
+……
+*.undo_management=’AUTO’
+*.undo_retention=10800
+*.undo_tablespace=’UNDOTBS2’
+……
+如果没有发生变更请执行如下语句：
+SQL> create pfile from spfile;
+File created.
+14. 册除原UNDO表空间的数据文件，其文件名为步骤中执行的结果。
+#rm $ORACLE_BASE/oradata/$ORACLE_SID/undotbs02.dbf
+附：UNDO表空间介绍
+UNDO 表空间用于存放UNDO数据,当执行DML操作(INSERT,UPDATE和DELETE)时,oracle会将这些操作的旧数据写入到 UNDO段,在oracle9i之前,管理UNDO数据时使用(Rollback Segment)完成的.从oracle9i开始,管理UNDO数据不仅可以使用回滚段,还可以使用UNDO表空间.因为规划和管理回滚段比较复杂,所有 oracle database 10g已经完全丢弃用回滚段.并且使用UNDO表空间来管理UNDO数据.
+
+UNDO数据也称为回滚(ROLLBACK)数据,它用于确保数据的一致性.当执行DML操作时,事务操作前的数据被称为UNDO记录.UNDO段用于保存事务所修改数据的旧值,其中存储着被修改数据块的位置以及修改前数据,
+UNDO数据的作用.
+1,回退事务
+当 执行DML操作修改数据时,UNDO数据被存放到UNDO段,而新数据则被存放到数据段中,如果事务操作存在问题,旧需要回退事务,以取消事务变 化.假定用户A执行了语句UPDATE emp SET sal=1000 WHERE empno=7788后发现,应该修改雇员7963的工资,而不是雇员7788的工资,那么通过执行ROLLBACK语句可以取消事务变化.当执行 ROLLBACK命令时,oracle会将UNDO段的UNDO数据800写回的数据段中.
+2,读一致性
+用户检索数据库数据 时,oracle总是使用用户只能看到被提交过的数据(读取提交)或特定时间点的数据(SELECT语句时间点).这样可以确保 数据的一致性.例如,当用户A执行语句UPDATE emp SET sal=1000 WHERE empno=7788时,UNDO记录会被存放到回滚段中,而新数据则会存放到EMP段中;假定此时该数据尚未提交,并且用户B执行SELECT sal FROM emp WHERE empno=7788,此时用户B将取得UNDO数据800,而该数据正是在UNDO记录中取得的.
+3,事务恢复
+事 务恢复是例程恢复的一部分,它是由oracle server自动完成的.如果在数据库运行过程中出现例程失败(如断电,内存故障,后台进程故障等),那么当重启oracle server时,后台进程SMON会自动执行例程恢复,执行例程恢复时,oracl会重新做所有未应用的记录.回退未提交事务.
+4,倒叙查询(FlashBack Query)
+倒 叙查询用于取得特定时间点的数据库数据,它是9i新增加的特性,假定当前时间为上午11:00,某用户在上午10:00执行UPDATE emp SET sal=3500 WHERE empno=7788语句,修改并提交了事务(雇员原工资为3000),为了取得10:00之前的雇员工资,用户可以使用倒叙查询特征.
+
+使用UNDO参数
+1,UNDO_MANAGEMENT
+该 初始化参数用于指定UNDO数据的管理方式.如果要使用自动管理模式,必须设置该参数为AUTO,如果使用手工管理模式,必须设置该参数为 MANUAL,使用自动管理模式时,oracle会使用undo表空间管理undo管理,使用手工管理模式时,oracle会使用回滚段管理undo数 据,
+需要注意,使用自动管理模式时,如果没有配置初始化参数UNDO_TABLESPACE,oracle会自动选择第一个可用的UNDO 表空间存放 UNDO数据,如果没有可用的UNDO表空间,oracle会使用SYSTEM回滚段存放UNDO记录,并在ALTER文件中记载警告.
+2,UNDO_TABLESPACE
+该初始化参数用于指定例程所要使用的UNDO表空间,使用自动UNDO管理模式时,通过配置该参数可以指定例程所要使用的UNDO表空间.
+在RAC(Real Application Cluster)结构中,因为一个UNDO表空间不能由多个例程同时使用,所有必须为每个例程配置一个独立的UNDO表空间.
+3,UNDO_RETENTION
+该初始化参数用于控制UNDO数据的最大保留时间,其默认值为900秒,从9i开始,通过配置该初始化参数,可以指定undo数据的保留时间,从而确定倒叙查询特征(Flashback Query)可以查看到的最早时间点.
+
+建立UNDO表空间,
+UNDO表空间专门用于存放UNDO数据,并且在UNDO表空间尚不能建立任何数据对象(表,索引,簇)
+1,使用CREATE DATABASE命令建立UNDO表空间.
+当使用CREATE DATABASE命令建立数据库时,通过指定UNDO TABLESPACE选项,可以建立UNDO表空间.示例如下:
+CREATE DATABASE db01
+…
+UNDO TABLESPACE undotbs_01
+DATAFILE ‘/u01/oracle/rbdb1/undo0101.dbf’ SIZE 30M;
+注意:UNDO TABLESPACE 子句不是必须的,如果使用自动UNDO管理模式,并且没有指定该子句,那么建立数据库时会自动生成名为SYS_UNDOTBS的UNDO表空间.
+
+2,使用CREATE UNDO TABLESPACE命令建立UNDO表空间.
+CREATE UNDO TABLESPACE undotbs3
+DATAFILE ‘D:demoundotbs3.dbf’ SIZE 10M;
+
+修改UNDO表空间,
+使用ALTER TABLESPACE命令修改UNDO表空间.
+当事务用尽了UNDO表空间后,使用ALTER TABLESPACE … ADD DATAFILE增加数据文件
+当UNDO表空间所在的磁盘填满是,使用ALTER TABLESPACE … RENAME DATAFIEL 命令移动数据文件到其他磁盘上.
+使用ALTER DATABASE … OFFLINE/ONLINE使表空间脱机/联机.
+当数据库处于ARCHIVELOG模式时,使用ALTER TABLESPACE …BEGIN BACKUP/END BACKUP命令备份UNDO表空间.
+
+切换UNDO表空间.
+启动例程并打开数据库后,同一时刻特定例程只能使用一个UNDO表空间,切换UNDO表空间是指停止例程当前使用的UNDO表空间,并启动其他UNDO表空间,下面以启用undotbs2表空间为例,说明切换UNDO表空间的方法.
+ALTER SYSTEM SET undo_tablespace=undotbs02;
+在RAC(Real Application Cluster)机构中,不同例程必须使用独立的UNDO表空间,而不能共用同一个UNDO表空间.
+删除UNDO表空间.
+当前例程正在使用的UNDO表空间是不能被删除的,如果确定要删除当前例程正在使用的UNDO表空间,应首先切换UNDO表空间.然后删除相应的UNDO表空间.
+DROP TABLESPACE undotbs3;
+
+1,确定当前例程正在使用的UNDO表空间.
+Show parameter undo_tablespace
+
+2,显示数据库的所有UNDO表空间.
+SELECT tablespace_name FROMdba_tablespaces WHERE contents=’UNDO’;
+
+3,显示UNDO表空间统计信息.
+使 用自动UNDO管理模式时,需要合理地设置UNDO表空间的尺寸,为例合理规划UNDO表空间尺寸,应在数据库运行的高峰阶段搜集UNDO表空间 的统计信息.最终根据该统计信息确定UNDO表空间的尺寸.通过查询动态性能视图V%UNDOSTAT,可以搜集UNDO统计信息.
+SELECT TO_CHAR(BEGIN_TIME,’HH24:MI:SS’) BEGIN_TIME,
+TO_CHAR(END_TIME,’HH24:MI:SS’) END_TIME,
+UNDOBLKS
+FROM V$UNDOSTAT;
+BEGIN_TIME用于标识起始统计时间,END_TIME用于标识结束统计时间,UNDOBLKS用于标识UNDO数据所占用的数据块个数.oracle每隔10分钟生成一行统计信息.
+
+4,显示UNDO段统计信息.
+使 用自动UNDO管理模式时,oracle会在UNDO表空间上自动建立10个UNDO段,通过查询动态信息视图V$ROLLNAME,可以显示所 有联机UNDO段的名称,通过查询动态性能视图V$ROLLLISTAT,可以显示UNDO段的统计信息.通过在V$ROLLNAME和V$ ROLLLISTAT之间执行连接查询,可以监视特定UNDO段的特定信息.
+SELECT a.name, b.xacts, b.writes, b.extents
+FROM v$rollname a, v$rollstat b
+WHERE a.usn=b.usn;
+Name用于标识UNDO段的名称,xacts用于标识UNDO段所包含的活动事务个数,
+Writes用于标识在undo段上所写入的字节数,extents用于标识UNDO段的区个数.
+
+5,显示活动事务信息.
+当 执行DML操作时,oracle会将这些操作的旧数据放到UNDO段中,动态性能视图v$session用于显示会话的详细信息,动态性能视图v $transaction用于显示事务的详细信息,动态性能视图v$rollname用于显示联机UNDO段的名称.通过在这3个动态性能视图之间执行连 接查询,可以确定正在执行事务操作的会话,事务所使用的UNDO段,以及事务所占用的UNDO块个数.
+Col username format a10
+Col name format a10
+SELECT a.username, b.name, c.used_ublk
+FROM v$session a, v$rollname b, v$transaction c
+WHERE a.saddr=c.ses_addr AND b.usn=c.xidusn
+AND a.username=’SCOTT’;
+
+6,显示UNDO区信息
+数据字典视图dba_undo_extents用于显示UNDO表空间所有区的详细信息.包括UNDO区尺寸和状态等信息.
+SELECT extend_id, bytes, status FROM dba_undo_extents
+WHERE segment_name’_SYSSMU5$’;
+其中,extent_id用于标识区编号,bytes用于标识区尺寸,status用于标识区状态(ACTIVE:表示该区处于活动状态,EXPIRED:标识该区未用).

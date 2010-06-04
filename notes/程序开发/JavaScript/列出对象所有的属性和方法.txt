@@ -1,0 +1,11 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:25:12.281000
+
+====== 列出对象所有的属性和方法 ======
+Created Friday 04 June 2010
+
+for (x in obj)
+{
+   alert(x);
+}

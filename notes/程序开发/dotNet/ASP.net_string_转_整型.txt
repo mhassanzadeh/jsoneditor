@@ -1,0 +1,24 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:20:57.250000
+
+====== ASP.net string 转 整型 ======
+Created Friday 04 June 2010
+
+ int.Parse(str);   
+ Int32.Parse(str);   
+ Convert.ToInt32(str);   
+ 如果为字符串为空或不能转换的话会出现错误,可写一个函数进行判断,如下,   
+ 如果能转换则返回的是转换后的值,否则返回0表示错误(0可自定一个数字);   
+ private   static   intIsNumeric(string   Value)   
+ {   
+     try   
+   {   
+       int   i   =   int.Parse(Value);   
+       return   i;   
+   }   
+   catch   
+   {   
+       return   0;   
+   }   
+ }

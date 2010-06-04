@@ -1,0 +1,9 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:49:03.343000
+
+====== 重新注册ASPNET ======
+Created Friday 04 June 2010
+
+cd C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727
+aspnet_regiis -i -enable

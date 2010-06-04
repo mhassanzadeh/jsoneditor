@@ -1,0 +1,61 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:51:53.359000
+
+====== SqlCommand.ExecuteReader 无法获取 sqlserver 存储过程 OUTPUT 返回的参数值问题 ======
+Created Friday 04 June 2010
+
+SqlCommand.ExecuteReader 无法获取 sqlserver 存储过程 OUTPUT 返回的参数值问题
+ public List<Product> GetProducts(long companyId, int pageSize, int pageIndex, out int rowCount)
+        {
+            List<Product> list = new List<Product>();
+            using (SqlConnection conn = new SqlConnection(SQLHelp.DBConnectionString))
+            {
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText = "proc_Care365_ProductPage";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@CompanyId", companyId));
+                cmd.Parameters.Add(new SqlParameter("@PageSize", pageSize));
+                cmd.Parameters.Add(new SqlParameter("@PageIndex", pageIndex));
+                SqlParameter param = new SqlParameter("@RowCount", SqlDbType.Int);
+                param.Direction = ParameterDirection.Output;
+                cmd.Parameters.Add(param);
+                try
+                {
+                    conn.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader != null && !reader.IsClosed && reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            Product p = FabricateProduct(reader);
+                            p.Tags = new ProductTageDAL().GetProductTags(p.Id);
+                            p.Images = new ProductImageDAL().GetImagesByProductId(p.Id);
+                            list.Add(p);
+                        }
+                        reader.Close();
+                        reader.Dispose();
+                        rowCount = Convert.ToInt32(cmd.Parameters["@RowCount"].Value.ToString());
+                        cmd.Dispose();
+                        conn.Close();
+                        conn.Dispose();
+                        return list;
+                    }
+                    else
+                    {
+                        rowCount = 0;
+                        return null;
+                    }
+                }
+                catch
+                {
+                    rowCount = 0;
+                    return null;
+                }
+            }
+        }
+__这里要注意的是,在获取output类型参数的值的时候,必须要把reader关掉,否则无法获取值.__
+
+
+

@@ -1,0 +1,161 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:44:43.625000
+
+====== JS实现网页元素阴影效果的研究总结 ======
+Created Friday 04 June 2010
+
+前两天由于一个小项目想为一元素添加一个阴影效果,但是记得看过某高人写的"用Div/CSS模拟阴影效果"文章，现在还有一点印象，其思路很简单，主要是利用几个层的定位偏移来实现的阴影特效，于是偶就想能不能封装成一个js函数，方便在每个html对象上调用．
+　　开始偶以为很简单，但实现过程中确遇到了很多问题，其中最严重的就是浏览器的兼容问题，整整耗了偶整个晚上加半个通宵的时间才搞定，汗呢！不过从这个小东西让我对js及一些浏览器之间的差异及解决办法有了更多更深刻的认识．
+总结于此，以备以后查看方便！
+代码如下：
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title></title>
+<style type="text/css">
+*{
+margin:0px;
+}
+#msgdiv{
+border:1px solid #d3d3d3;
+text-align:center;font-size:12px;
+width:150px;line-height:50px;
+background:#f7f7f7;color:#f00;
+}
+.content{
+border:1px solid #999;
+background:#f0f0f0;
+width:150px;height:50px;
+}
+</style>
+<script type="text/javascript">
+function addShadow(){
+var obj;
+if(arguments.length==1){
+obj=document.getElementById?document.getElementById(arguments[0]):document.all[arguments[0]];
+}
+else if(arguments.length>1){
+for(var i=0;i<arguments.length;i++){
+addShadow(arguments[i]);
+}
+}else{
+return false;
+}
+if(!obj) return false;
+//浏览器检测
+var userAgent=navigator.userAgent.toLowerCase();
+var isOpera=userAgent.indexOf('opera')>-1;
+var isIE=userAgent.indexOf('msie')>-1&&!isOpera;
+//var isKHTML=userAgent.indexOf('khtml')>-1||userAgent.indexOf('konqueror')>-1||userAgent.indexOf('AppleWebKit')>-1;
+//var isMoz=userAgent.indexOf('gecko')>-1&&!isKHTML; // FF||Netscape
+var isNS=userAgent.indexOf("netscape")>-1;
+//获取对象的所占的总宽和高（包括边框）
+var objWidth=obj.offsetWidth;
+var objHeight=obj.offsetHeight;
+//对象的绝对位置（元素相对浏览器的像素值）
+var objL=0;
+var objT=0;
+//获取元素的Left和Top值的函数
+var getLT=function(tempObj){
+if(!tempObj) return false;
+var LL=0,TT=0;
+if(isIE||isOpera){ // IE||Opera
+while(tempObj!=null&&tempObj.nodeName!="#document"){
+LL+=tempObj.offsetLeft;
+TT+=tempObj.offsetTop;
+tempObj=tempObj.parentNode;
+}
+}else{ // FF||Netscape
+TT=tempObj.offsetTop;
+LL=tempObj.offsetLeft;
+}
+return {T:TT,L:LL};
+}
+//读取元素的Top和Left值
+var temp=getLT(obj);
+objL=temp.L;
+objT=temp.T;
+//创建三个阴影层及内部一个与元素大小相同的白色背景层 （从外层到内层）
+var div1=document.createElement("div");
+var div2=document.createElement("div");
+var div3=document.createElement("div");
+var div4=document.createElement("div");
+var addCssText=function(obj,cssText,append){ //append:0覆盖原来的style值(默认)，1追加到原style值后
+if(!obj) return false;
+if(!isOpera){ //Opear不支持cssText属性设置
+if(!append){
+obj.style.cssText=cssText;
+}else{
+obj.style.cssText+=cssText
+}
+}else{
+if(!append){
+obj.setAttribute("style",cssText);
+}else{
+obj.setAttribute("style",obj.getAttribute("style")+";"+cssText);
+}
+}
+}
+//定义阴影部分通用样式
+var sCssText="width:100%;height:100%;position:absolute;margin:0px;padding:0px;top:-1px;left:-1px";
+//定义三个阴影层的颜色及最外层位置（因为阴影向坐上偏移3个像素，所以要加上3）和高宽
+addCssText(div1,"position:absolute;left:"+(objL+3)+"px;top:"+(objT+3)+"px;width:"+objWidth+"px;height:"+objHeight+"px;background:#eee");
+addCssText(div2,sCssText+";background:#ddd");
+addCssText(div3,sCssText+";background:#ccc");
+addCssText(div4,sCssText+";background:#fff"); //白色背景层
+if(isIE||isNS){ //IE||NS
+addCssText(div1,";z-index:-1",1);
+}else{  //FF||Netscape
+//创建一个与原对象内容完全相同的对象并写入原位置
+var newNode=obj.cloneNode(true);
+newNode.removeAttribute("id"); //删除id属性，防止id冲突
+addCssText(newNode,"visibility:hidden",1);
+obj.parentNode.insertBefore(newNode,obj);
+//在非IE/NS中的Bug的解决办法（P标记默认在body范围内偏移，而body有时有margin）
+if(newNode.tagName=="P"){
+var BodyMargin=(document.documentElement.offsetHeight-document.body.offsetHeight)/2;
+objT=objT-BodyMargin;
+}
+//设定层的索引大于层默认值0
+addCssText(obj,"position:absolute;z-index:2;left:+"+objL+"px;top:"+objT+"px",1);
+}
+//创建阴影及内容
+div1.appendChild(div2);
+div2.appendChild(div3);
+div3.appendChild(div4);
+document.body.appendChild(div1);
+}
+window.onload=window.onresize=function(){
+addShadow("test","add","go","ddd","img","newp")
+};
+</script>
+</head>
+<body>
+<p id="ddd" onclick="alert(document.body.innerHTML);">kkkkk</p>
+<br />
+<div style="position:absolute;left:200px;top:250px;width:150px;height:150px;border:1px solid #f00" id="go">safasdf</div>
+<br />
+<div class="content" id="test">dsfgsdfg</div>
+<br />
+<div id="add" style="border:1px solid #000;background:#fff">aaaaaaaaaaaaaaaaaaa</div>
+<br>
+      <img src="pic001.jpg" id="img" alt="" /></img>
+<p id="newp" style="width:300px;height:50px;border:1px solid #00f">aaaaaaaaaaa</p>
+</body>
+</html>
+
+(打开请如没有效果请先刷新一下)
+
+设计的主题思路是：
+对于需要添加阴影的元素:
+IE/NS:创建一个与元素大小相同位置相同的层，并利用偏移的方法使该层实现阴影，然后根据对元素的绝对位置判断将层定位到相同的位置并设置z-index=-1；从而实现阴影效果．
+FF/Opear：思 路同上，但因为FF/Opear不支持z-index:-1，所以必须通过将原来元素的z-index设为大于０的值（需要将元素设为绝对定位）从而达到 覆盖阴影层的效果，因为要设置z-index，必须将元素设为绝对定位，因此这里就比较麻烦了，偶的解决办法是先克隆一个元素完全相同的内容，并将其设为 隐藏（使用visibility:hidden）但仍然占位，然后放到原元素的位置，而把原元素设为绝对定位并设定z-index的值大于０．
+
+在制作过程中遇到很多问题，其中主要问题有：
+１，style.cssText属性只有除opera外的浏览器才支持，
+２，offsetleft和offsetTop在IE/Opear和FF及NS中解释不同．
+（还包括一些不同浏览器出现的小bug，解决办法见上篇日志）
+
+不过好在都一一解决了！现在能兼容大多数浏览器的新版本．偶在IE6.0,FF2.0,NS8.1,Opear9.0下测试通过．

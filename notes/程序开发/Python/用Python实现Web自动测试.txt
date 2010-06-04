@@ -1,0 +1,46 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:16:22.250000
+
+====== 用Python实现Web自动测试 ======
+Created Friday 04 June 2010
+
+今天上网找见了一个能够用Python控制IE的好模块：PAMIE。它可以用程序打开一个IE窗口，用程序填写里面要提交的内容，可以自动提交，然后从提交后返回的结果中查找程序执行的结果。这样我们就可以用Python很容易的写出Web自动测试的工具了^_^！
+官方主页：http://pamie.sourceforge.net/
+安装
+PAMIE需要两个模块：win32all，Ctypes，分别下载下来安装即可。如果用的ActivePython可以不安装win32all，ActivePython已经缺省安装了；如果用的是Python2.5以上版本也不用安装Ctypes了，也缺省安装了。
+下面提供两个国内的下载连接：
+http://down.turbozv.com/develop/python/webtest/ctypes-0.9.9.3.win32-py2.4.exe
+http://down.turbozv.com/develop/python/webtest/pamie20.zip
+
+PAMIE不提供安装程序，把必要的模块安装成功后，把pamie20.zip解压，把解压后的文件cPAMIE.py直接拷贝到PythonPath/lib下就可以调用了。
+测试
+编写如下测试代码：
+
+# -*- Coding:GB2312
+import cPAMIE
+
+ie = cPAMIE.PAMIE()
+ie.navigate("http://www.dormforce.net/Blog/parvel/login.aspx")
+ie.textBoxSet("tbUserName", "bt")
+ie.textBoxSet("tbPassword", "he")
+ie.buttonClick("btnLogin")
+
+if (True == ie.findText(unicode("非法登录", "cp936"))):
+   print "login failed!"
+else:
+   print "login ok!"
+
+ie.quit()
+
+运行程序可以看到PAMIE打开一个新的IE窗口，填入帐号、密码，然后提交，最后得到了结果。
+很简单的代码，稍作解释：
+ie = cPAMIE.PAMIE() 生成一个IE
+ie.navigate("http://www.dormforce.net/Blog/parvel/login.aspx")打开登录界面
+ie.textBoxSet("tbUserName", "bt")
+ie.textBoxSet("tbPassword", "he")设置帐号、密码
+ie.buttonClick("btnLogin")提交
+if (True == ie.findText(unicode("非法登录", "cp936"))):从返回结果中查找是否有“非法登录”，由于要查找汉字一定用unicode，不然会出错的。
+
+另外，PAMIE还有很多有用的函数，比如打开连接，从表中提取数据等，详细请参考其文档。
+更多教程请参考：http://showmedo.com/videos/series?name=pythonMarchettiPamieSeries

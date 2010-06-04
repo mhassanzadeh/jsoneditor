@@ -1,0 +1,175 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:22:47.250000
+
+====== 常用 ======
+Created Friday 04 June 2010
+
+一、何为AutoHotkey
+AutoHotkey 是一款免费的、Windows平台下开放源代码的热键脚本语言工具。有了它，您就可以：通过发送键盘或鼠标的键击动作命令来实现几乎所有操作的自动化。您可以自己编写 宏 或者使用宏录制器来生成；为键盘，游戏操纵杆和鼠标创建 热键。
+
+　　比如要登录某论坛，你只要按一个键，AutoHotkey就会替你打开IE（推荐使用FireFox、Opera或Maxthon），输入网址，输入用户名和密码，回车。
+ 二、实现原理
+　　第一，用win+r启动程序。从软件如何快速启动来看，有两大流派：一是hoekey、slickrun、type and run等专用工具派。二是强化的win run派：快捷方式专用目录+自定义名称。
+　　第二，使用脚本工具实现自动化。好用的脚本工具有AutoIt3 和 Auto Hotkey。
+三、应用举例：快速登录163信箱
+　　1. 下载 AutoHotkey，并解压或安装。
+　　2. 建立脚本文件。把下述内容复制到文本编辑器，保存为 m163.ahk。
+run, http://mail.163.com
+WinActivate, Maxthon ;;防止窗口不激活
+winwait, 网易 ;;等待网页加载成功（至少title显示出来）
+sleep, 500 ;;保险起见，再等0.5秒（视网速）
+send, xbeta{tab}password{enter};;模拟键入用户名、密码、回车
+return
+
+　　3. 为m163.ahk 建立快捷方式 m163.lnk，复制到已加入path的目录，就可以了
+　　4. 现在键入：win+r m163 enter，就是不是进入163信箱了。
+ 四、AutoHotkey命令解释
+（1）运行文件或程序
+ Run 命令用在运行加载程序、文件、链接、快捷方式等，格式例如：
+
+Run Notepad
+Run C:\My Documents\Address List.doc
+Run C:\My Documents\My Shortcut.lnk
+Run www.yahoo.com
+Run mailto:someone@somedomain.com
+hotkey label 定义热键。第一句定义热键为：Win+N, 第二句定义为：Control+Alt+C
+#n::Run Notepad
+^!c::Run calc.exe
+上面的例子只能定义只有一个命令的单行热键。用一个键包含更多命令的例子如下： 第一行定义热键，最后一行用return返回，中间为命令集。
+
+#n::
+Run http://www.google.com
+Run Notepad.exe
+return
+
+run 包含绝对路径的命令的写法：Run %A_ProgramFiles%\Winamp\Winamp.exe
+
+RunWait命令产生程序运行的延时。
+MsgBox 命令则弹出提示框。例如：
+
+RunWait Notepad
+MsgBox The user has finished (Notepad has been closed).
+
+（2）传递键盘输入和鼠标点击
+Send将击键送入当前窗口
+Click Click 112, 223点击鼠标左键。
+MouseMove无点击移动鼠标 
+MouseClickDrag按下后移动鼠标
+
+（3）激活和操作窗体
+
+WinActivate激活一个窗体。
+IfWinActive: 检测一个指定窗体是否是当前窗口。
+WinWaitActive: 等待输入后将指定窗体变成当前窗口。
+WinClose: 关闭指定窗口。
+ WinMove: 移动 或者重定义窗口的大小。
+WinMinimize, WinMaximize,  WinRestore: 最小化、最大化或者恢复各自指定的窗口。
+
+
+（4）接收用户输入：MsgBox, InputBox等
+下面例子显示一个有两个按钮的对话框：
+
+MsgBox, 4, , Would you like to continue?
+IfMsgBox, No
+return
+; Otherwise, the user picked yes.
+MsgBox You pressed YES. 
+
+InputBox命令提示用户输入一个字符串。
+FileSelectFile 或  FileSelectFolder提示用户选择一个文件。
+Gui 命令建立更复杂的客户端数据输入表和用户界面。
+
+（5）使用变量和剪切板
+
+定义变量variables格式：
+MyVar1 = 123
+MyVar2 = my string
+
+数学表达式expression：
+NetPrice := Price * (1 - Discount/100)
+
+clipboard 粘贴板：
+MsgBox %clipboard% 
+
+
+（6）系列动作的循环重复
+loop 循环命令。例如下面例子循环msgbox3次：
+
+Loop 3
+{
+MsgBox This window will be displayed three times.
+}
+
+循环次数可以是变量：
+Loop %RunCount%
+{
+Run C:\Check Server Status.exe
+Sleep 60000   ; Wait 60 seconds.
+}
+
+还可以和键操作关联起来，下面例子是按下F1时，自动点击鼠标左键：
+
+$F1::  ; Make the F1 key into a hotkey (the $ symbol facilitates the "P" mode of GetKeyState below).
+Loop  ; Since no number is specified with it, this is an infinite loop unless "break" or "return" is encountered inside.
+{
+if not GetKeyState("F1", "P")   ; If this statement is true, the user has physically released the F1 key.
+break  ; Break out of the loop.
+; Otherwise (since the above didn't "break"), keep clicking the mouse. 
+Click  ; Click the left mouse button at the cursor's current position.
+}
+return
+
+更多用法见：
+ File-reading/writing loop: 逐行检索一个文本文件。
+Files and folders loop: 逐个检索一个特殊的文件和文件夹。
+Parsing loop: 逐个检索字符串中的子串。
+Registry loop: 逐条检索registry子键。
+
+
+（7）操作文件和文件夹
+
+FileAppend命令，在文件末尾追加内容。用 `n 来分行。例如：
+FileAppend, A line of text to append.`n, C:\My Documents\My Text File.txt
+
+FileDelete用新文件覆盖一个存在的文件。例如：
+FileDelete, C:\My Documents\My Text File.txt
+
+其它文件操作命令：
+FileRead:读取文件全部内容到变量中。
+ File-reading Loop: 一行行检索一个文本文件。
+IfExist: 确定文件或者文件夹是否存在。
+FileSelectFile  and FileSelectFolder: 为用户显示一个选择文件和文件夹的对话框。
+FileDelete/ FileRecycle: 删除/回收 一个多个文件。 FileRemoveDir 删除整个目录。
+FileCopy/ FileMove: 拷贝/移动 一个多个文件。 FileCopyDir/FileMoveDir 拷贝/移动整个文件夹。
+ Files-and-folders Loop: 检索一个文件夹里包含的文件和文件夹，一次一个。
+FileSetAttrib and FileSetTime :  改变一个或多个文件的属性和时间戳。
+IniRead, IniWrite, and  IniDelete:  创建, 访问, 和维护标准格式INI 文件。
+RegRead, RegWrite,  RegDelete, and Registry Loop: 操作Windows registry.
+
+（8）命令清单： command list
+
+
+五、脚本应用举例
+
+获取鼠标所在点的颜色值（RGB），然后发送到剪贴板
+
+#c::
+MouseGetPos, mouseX, mouseY
+; 获得鼠标所在坐标，把鼠标的 X 坐标赋值给变量 mouseX ，同理 mouseY
+PixelGetColor, color, %mouseX%, %mouseY%, RGB
+; 调用 PixelGetColor 函数，获得鼠标所在坐标的 RGB 值，并赋值给 color
+StringRight color,color,6
+; 截取 color（第二个 color） 右边的 6 个字符，因为获得的值是这样的：#RRGGBB，一般我们只需要 RRGGBB 部分。把截取到的值再赋给 color（第一个 color）。
+clipboard = %color%
+; 把 color 的值发送到剪贴板
+tooltip, 鼠标所在颜色值已发送到剪贴板。`n小众软件 - appinn.com`n 本系列教程作者：sfufoet
+; tooltip 弹出鼠标提示的命令，后面加上要显示的语句。中间的 `n 表示回车
+sleep 2000
+; 时间暂停 两秒
+tooltip,
+; 关闭鼠标提示
+return
+
+使用方法，需要取屏幕上颜色值时，按下 Win + C。
+Go to source web page>>

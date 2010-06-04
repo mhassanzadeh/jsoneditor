@@ -1,0 +1,335 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:36:32.656000
+
+====== 无限级联 ======
+Created Friday 04 June 2010
+
+表结构：
+表名：Tb_Column
+表结构（所有字段非空）：
+Column_ID     int 主键（注：非标识）
+Column_Name   nvarchar(50)分类名称
+Parent_ID     int 父分类ID（默认值0）
+Column_Path   nvarchar(1000) 分类路径
+Column_Depth  int分类深度(默认值0）
+Column_Order  int排序(默认值0)
+Column_Intro  nvarchar(1000)分类说明
+
+=============================================================
+存储过程一：新建分类
+
+CREATE PROCEDURE sp_Column_Insert
+(
+@Parent_ID int,
+@Column_Name nvarchar(50),
+@Column_Intro nvarchar(1000)
+)
+AS
+Declare @Err As int
+Set @Err=0
+
+Begin Tran
+--通过现有记录获取栏目ID
+Declare @Column_ID As int
+Declare @Column_Depth As int
+Select @Column_ID = Max(Column_ID) From Tb_Column
+IF @Column_ID Is Not Null
+Set @Column_ID = @Column_ID+1
+Else
+Set @Column_ID = 1
+
+--判断是否是顶级栏目，设置其Column_Path和Column_Order
+Declare @Column_Path As nvarchar(1000)
+Declare @Column_Order As int
+IF @Parent_ID = 0
+Begin
+Set @Column_Path =Ltrim(Str(@Column_ID))
+Select @Column_Order = Max(Column_Order) From Tb_Column
+IF @Column_Order Is Not Null
+Set @Column_Order = @Column_Order + 1
+Else --如果没有查询到记录，说明这是第一条记录
+Set @Column_Order = 1
+
+--深度
+Set @Column_Depth = 1
+End
+Else
+Begin
+--获取父节点的路径和深度
+Select @Column_Path = Column_Path ,@Column_Depth = Column_Depth From Tb_Column Where
+
+Column_ID=@Parent_ID
+IF @Column_Path Is Null
+Begin
+Set @Err = 1
+Goto theEnd
+End
+
+--获取同父节点下的最大序号
+Select @Column_Order = Max(Column_Order) From Tb_PicColumn Where Column_Path like
+
+''+@Column_Path+'|%'  Or Column_ID = @Parent_ID
+IF @Column_Order Is Not Null --如果序号存在，那么将该序号后的所有序号都加1
+Begin
+--更新当前要插入节点后所有节点的序号
+Update Tb_Column Set Column_Order = Column_Order +1 Where Column_Order
+
+>@Column_Order
+--同父节点下的最大序号加上1，构成自己的序号
+Set @Column_Order = @Column_Order + 1
+End
+Else
+Begin
+Set @Err=1
+Goto theEnd
+End
+
+--父节点的路径加上自己的ID号，构成自己的路径
+Set @Column_Path = @Column_Path + '|' + Ltrim(Str(@Column_ID))
+
+--深度
+Set @Column_Depth = @Column_Depth+1
+
+End
+
+Insert Into Tb_Column(Column_ID,Column_Name,Parent_ID,Column_Path,Column_Depth,Column_Order,Column_Intro)
+
+Values(@Column_ID,@Column_Name,@Parent_ID,@Column_Path,@Column_Depth,@Column_Order,@Column_Intro)
+
+IF @@Error<>0
+Begin
+Set @Err=1
+Goto theEnd
+End
+
+--更新当前记录之后的记录的ORDER
+--Update Tb_Column Set Column_Order = Column_Order+1 Where Column_Order  > @Column_Order
+
+theEnd:
+IF @Err=0
+Begin
+Commit Tran
+Return @Column_ID
+End
+Else
+Begin
+    Rollback Tran
+Return 0
+End
+GO
+
+=============================================================================
+存储过程二：删除分类
+CREATE PROCEDURE sp_Column_Delete
+(
+@Column_ID int
+)
+AS
+Declare @Err As int
+Set @Err = 0
+Begin Tran
+--首先查询该节点下是否有子节点
+Select Column_ID From Tb_Column Where Parent_ID = @Column_ID
+IF @@RowCount<>0
+    Begin
+    Set @Err = 1
+    Goto theEnd
+    End
+
+--获取该节点的Column_Order,为了删除后整理其他记录的顺序
+Declare @Column_Order As int
+Select @Column_Order = Column_Order From Tb_Column Where Column_ID = @Column_ID
+IF @Column_Order Is NUll
+    Begin
+      Set @Err =2
+      Goto theEnd
+    End
+
+--更新其他记录的Column_Order
+Update Tb_Column Set Column_Order = Column_Order -1 Where Column_Order >@Column_Order
+IF @@Error<>0
+    Begin
+      Set @Err =3
+      Goto theEnd
+    End
+
+--删除操作
+Delete From Tb_Column Where Column_ID=@Column_ID
+IF @@Error<>0
+    Begin
+      Set @Err =4
+      Goto theEnd
+  End
+
+--更新其他记录的Column_ID
+--Update Tb_Column Set Column_ID= Column_ID - 1 Where Column_ID >@Column_ID
+--IF @@Error<>0
+--    Begin
+--      Set @Err =5
+--      Goto theEnd
+--    End
+
+theEnd:
+IF @Err = 0
+    Begin
+      Commit Tran
+      Return 0 --删除成功
+    End
+Else
+    Begin
+      IF @Err=1
+  Begin
+      Rollback Tran
+      Return 1 --有子节点
+End
+      Else
+Begin
+      Rollback Tran
+      Return 2--未知错误
+End
+    End
+GO
+==================================================================
+存储过程三：编辑分类
+CREATE PROCEDURE sp_Column_Update
+(
+@Column_ID int,
+@Parent_ID int,
+@Column_Name nvarchar(50),
+@Column_Intro nvarchar(1000)
+)
+AS
+Declare @Err As int
+Set @Err=0
+
+Begin Tran
+
+--获取修改前的：Parent_ID,Column_Depth,Column_Order
+Declare @oParent_ID As int
+Declare @oColumn_Depth As int
+Declare @oColumn_Order As int
+Declare @oColumn_Path As nvarchar(1000)
+
+Select @oParent_ID = Parent_ID, @oColumn_Depth = Column_Depth,@oColumn_Order = Column_Order, @oColumn_Path = Column_Path  From Tb_Column Where Column_ID = @Column_ID
+IF @oParent_ID Is Null
+    Begin
+    Set @Err = 1
+    Goto theEnd
+    End
+
+--如果父ID没有改变，则直接修改栏目名和栏目简介
+IF @oParent_ID = @Parent_ID
+    Begin
+    Update Tb_Column Set Column_Name = @Column_Name,Column_Intro = @Column_Intro Where Column_ID = @Column_ID
+    IF @@Error <> 0
+    Set @Err = 2
+    Goto theEnd
+    End
+
+
+Declare @nColumn_Path As nvarchar(1000)
+Declare @nColumn_Depth As int
+Declare @nColumn_Order As int
+
+--获取当前节点作为父节点所包含的节点数[包括自身] 注：如果返回 “1” 说明是单节点
+Declare @theCount As int
+Select @theCount = Count(Column_ID) From Tb_Column Where Column_ID=@Column_ID Or Column_Path like ''+@oColumn_Path+'|%'
+IF @theCount Is Null
+Begin
+    Set @Err = 3
+    Goto theEnd
+End
+
+IF @Parent_ID=0 --如果是设置为顶级节点，将节点设置为最后一个顶级节点
+Begin
+--Print '设置为顶级栏目'
+Set @nColumn_Path = Ltrim(Str(@Column_ID))
+Set @nColumn_Depth =1
+
+Select @nColumn_Order = Max(Column_Order) From Tb_Column
+IF @nColumn_Order Is NULL
+                  Begin
+     Set @Err = 4
+     Goto theEnd
+     End
+
+Set @nColumn_Order = @nColumn_Order - @theCount + 1
+
+--更新三部分 1 节点本身 2 所有子节点 2 本树更改之前的后
+
+
+
+
+
+
+===== 测试数据 =====
+   
+  create   table   nCls(clsid   int,clspid   int,clsTitle   varchar(10))   
+  insert   nCls   select   1,0,'国际新闻'   
+  union     all     select   2,0,'国内新最'   
+  union     all     select   3,1,'体育新闻'   
+  union     all     select   4,3,'足球新闻'   
+  union     all     select   5,3,'蓝球新闻'   
+    
+  create   table   news(newsid   int,clsid   int,newsTitle   varchar(10),newsContent   varchar(10))   
+  insert   news   select   1,4,'标题1','内容'   
+  union     all     select   2,5,'标题2','内容'   
+  union     all     select   3,5,'标题3','内容'   
+  union     all     select   4,4,'标题4','内容'   
+  go   
+    
+  --创建一个查询函数,得到指定类别下的所有子类别   
+  create   function   f_id(   
+  @clsid   int   
+  )returns   @re   table(clsid   int,level   int)   
+  as   
+  begin   
+  declare   @l   int   
+  set   @l=0   
+  insert   @re   select   clsid,@l   
+  from   nCls   where   clsid=@clsid   
+  while   @@rowcount>0   
+  begin   
+  set   @l=@l+1   
+  insert   @re   select   a.clsid,@l   
+  from   nCls   a,@re   b   
+  where   a.clspid=b.clsid   and   b.level=@l-1   
+  end   
+  return   
+  end   
+  go   
+    
+    
+  --调用函数实现楼主要求的查询   
+  select   a.*,b.newsid,b.newsTitle,b.newsContent   
+  from   nCls   a,news   b,f_id(1)   a1     --查询clsid=1及其下的所有子类新闻   
+  where   a.clsid=a1.clsid   and   b.clsid=a1.clsid   
+  go   
+    
+  --删除测试   
+  drop   table   nCls,news   
+  drop   function   f_id
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+select   a.*,b.id,b.Title
+from   class   a,content   b,f_id(11)   a1     --查询clsid=1及其下的所有子类新闻   
+where   a.id=a1.id   and   b.[mainCategoryId]=a1.id   
+go

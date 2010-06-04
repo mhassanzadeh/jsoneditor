@@ -1,0 +1,27 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-04T14:29:52.453000
+
+====== SQL随机插入测试数据 ======
+Created Friday 04 June 2010
+
+USE [MyCity]
+GO
+DECLARE @counter smallint, @r smallint;
+DECLARE @return_value int,
+                @a nvarchar(50)
+
+SET @counter = 20015;
+
+WHILE @counter < 28774
+BEGIN
+        set @r = cast(12+(50-12)*rand() as int);
+        EXEC    @return_value = [dbo].[GText]
+                        @Length = @r,
+                        @a = @a OUTPUT
+
+        UPDATE [MyCity].[dbo].[N_News] SET [Title] =  @a where id = @counter
+
+        SET @counter = @counter + 1;
+end
+go

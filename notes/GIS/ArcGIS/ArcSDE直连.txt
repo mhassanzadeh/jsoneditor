@@ -1,0 +1,100 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-09T14:08:43.729000
+
+====== ArcSDE直连 ======
+Created Wednesday 09 June 2010
+
+在实际操作过程中,我们可能有的时候设及到没有把直连的连接删除在表sde.process_information中的连接记录,这时建议不能直接删除,正常可以建议使用设置tcpkeepalive的值的进行操作,也可使用过程来进行删除.
+ 
+第一种:删除全部直连
+进入sqlplus中以sys用户连接,创建过程如下:
+     create or replace procedure "sys"."kill_all_dc"
+/************************************************* 
+*john karagiannis (esri charlotte) - 2007
+*procedure kills all sessions listed in the sde.process_information table
+*************************************************/
+as 
+sql_stmt varchar2(200); 
+cursor sde_users is 
+select server_id,owner from sde.process_information where direct_connect = 'y'; 
+newc integer; 
+begin 
+ for sderec in sde_users loop 
+  declare cursor kill_dc is 
+  select sid,serial# from sys.v$session 
+  where process like sderec.server_id || ':%'
+  and username = sderec.owner;
+  begin 
+   for killrec in kill_dc loop 
+    sql_stmt := 'alter system kill session ' || '''' || killrec.sid || ',' || killrec.serial# || ''''; 
+    execute immediate sql_stmt; 
+   end loop; 
+  end; 
+ end loop; 
+    sde.pinfo_util.purge_unused(newc);
+end;
+/
+执行exec kill_all_dc;
+ 
+ 
+第二种,删除指定的条件的直连
+ 
+create or replace procedure "sys"."kill_dc"
+/************************************************* 
+* john karagiannis (esri charlotte) - 2007
+* procedure kills oracle session based on specific
+* sde_id obtained from the sde.process_information table
+*************************************************/
+(
+sdeid in number
+)
+as 
+sql_stmt varchar2(200); 
+cursor sde_users is 
+select server_id,owner from sde.process_information where direct_connect = 'y'and sde_id = sdeid; 
+newc integer; 
+begin 
+ for sderec in sde_users loop 
+  declare cursor kill_dc is 
+  select sid,serial# from sys.v$session 
+  where process like sderec.server_id || ':%'
+  and username = sderec.owner;
+  begin 
+   for killrec in kill_dc loop 
+    sql_stmt := 'alter system kill session ' || '''' || killrec.sid || ',' || killrec.serial# || ''''; 
+    execute immediate sql_stmt; 
+   end loop; 
+  end; 
+ end loop; 
+    sde.pinfo_util.purge_unused(newc);
+end;
+/
+ 
+执行exec kill_dc(30);
+第三种情况:删除断网或意外中断的连接,创建储存过程并设置定时器的方式解决这个问题
+1、进入sqlplus中，以sys用户连接，copy下面内容并执行（就是按enter），就ok了。
+ 
+create or replace procedure "sys"."kill_all_dc2"
+/************************************************* 
+*john karagiannis (esri charlotte) - 2007
+*procedure kills all sessions listed in the sde.process_information table
+*************************************************/
+as 
+sql_stmt varchar2(200); 
+cursor sde_users is 
+select server_id,owner from sde.process_information where direct_connect = 'y'; 
+newc integer; 
+begin
+    sde.pinfo_util.purge_unused(newc);
+end;
+/
+variable jobsde number;
+begin
+dbms_job.submit(:jobsde,'kill_all_dc2;',sysdate,'sysdate+1/1440');
+end; 
+/
+begin
+dbms_job.run(:jobsde);
+end; 
+/

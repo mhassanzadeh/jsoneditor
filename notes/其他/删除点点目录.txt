@@ -1,0 +1,13 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2010-06-07T14:44:24.219000
+
+====== 删除点点目录 ======
+Created Monday 07 June 2010
+
+打开记事本，把下面的代码粘贴进去
+DEL /F /A /Q \?\%1
+RD /S /Q \\?\%1
+另存为SUPER-DEL.BAT文件。
+把需要删除的文件夹托到这个BAT文件上，松手，就可以删除了
+顺便说一下建立这种文件夹的方法：“md E..\”（E后面是三个点也是可以的）。
